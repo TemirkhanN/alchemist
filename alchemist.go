@@ -1,34 +1,41 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"log"
+	"os"
+	"strings"
 )
 
 func main() {
-	bread := Ingredient{
-		"Bread",
-		[]Effect{
-			{"Stamina+", "Restores stamina", 10},
-			{"Hunger-", "Decreases hunger", -20},
-		},
-	}
+	ingredientRepository := initStorage()
 
-	salmon := Ingredient{
-		"Salmon",
-		[]Effect{
-			{"Stamina+", "Restores stamina", 30},
-			{"Hunger-", "Decreases hunger", -50},
-		},
-	}
+	fmt.Println("Input comma-separated ingredients names(bread, salmon)")
 
-	ingredients := [2]Ingredient{
-		salmon,
-		bread,
+	var usedIngredients []Ingredient
+	reader := bufio.NewReader(os.Stdin)
+	for {
+		ingredientsNames, _ := reader.ReadString('\n')
+		if len(ingredientsNames) > 1 {
+			var ingredientNames []string
+			for _, ingredientName := range strings.Split(ingredientsNames, ",") {
+				ingredientName = strings.Trim(ingredientName, " ")
+				ingredientName = strings.Trim(ingredientName, "\n")
+				ingredientNames = append(ingredientNames, ingredientName)
+			}
+			ingredients, err := ingredientRepository.FindByNames(ingredientNames)
+			if err != nil {
+				log.Fatal(err)
+			}
+			usedIngredients = ingredients
+			break
+		}
 	}
 
 	mortar := new(Mortar)
 
-	for _, ingredient := range ingredients {
+	for _, ingredient := range usedIngredients {
 		err := mortar.AddIngredient(ingredient)
 		if err != nil {
 			mortar.Clear()
