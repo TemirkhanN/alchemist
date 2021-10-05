@@ -23,29 +23,21 @@ func (m *Mortar) AddIngredient(newIngredient Ingredient) error {
 	return errors.New("ingredients must have similar effects to be combined")
 }
 
-func (m *Mortar) Pestle() (p Potion, e error) {
+func (m *Mortar) Pestle() (Potion, error) {
 	if len(m.ingredients) < 2 {
-		return p, errors.New("there are not enough ingredients to create a potion")
+		return Potion{}, errors.New("there are not enough ingredients to create a potion")
 	}
 
 	potionEffects := make(map[string]Effect)
-
 	for _, ingredient := range m.ingredients {
 		for _, effect := range ingredient.effects {
 			existingEffect, effectExists := potionEffects[effect.name]
-			var newEffect Effect
 			if effectExists {
-				newEffect = Effect{
-					name: existingEffect.name,
-					description: existingEffect.description,
-					// todo type overflow
-					power: existingEffect.power + effect.power,
-				}
-			} else {
-				newEffect = effect
+				// todo type overflow
+				effect.power += existingEffect.power
 			}
 
-			potionEffects[effect.name] = newEffect
+			potionEffects[effect.name] = effect
 		}
 	}
 	m.Clear()
