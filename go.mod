@@ -1,4 +1,4 @@
-module main
+module github.com/TemirkhanN/alchemist
 
 go 1.17
 

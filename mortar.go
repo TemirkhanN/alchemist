@@ -13,6 +13,10 @@ func (m *Mortar) AddIngredient(newIngredient Ingredient) error {
 		m.ingredients = append(m.ingredients, newIngredient)
 		return nil
 	}
+	if len(m.ingredients) == 4 {
+		return errors.New("there can not be more than 4 ingredients")
+	}
+
 	for _, existingIngredient := range m.ingredients {
 		if existingIngredient.hasSimilarEffects(newIngredient) {
 			m.ingredients = append(m.ingredients, newIngredient)

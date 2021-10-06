@@ -12,6 +12,7 @@ type IngredientRepository struct {
 type IngredientFinder interface {
 	FindByName(name string) (Ingredient, error)
 	FindByNames(names []string) ([]Ingredient, error)
+	All() []Ingredient
 }
 
 func initStorage() IngredientRepository {
@@ -57,4 +58,8 @@ func (r IngredientRepository) FindByNames(names []string) ([]Ingredient, error) 
 	}
 
 	return ingredients, nil
+}
+
+func (r IngredientRepository) All() []Ingredient {
+	return r.ingredients
 }
