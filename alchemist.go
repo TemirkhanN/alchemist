@@ -3,12 +3,17 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"github.com/faiface/pixel/pixelgl"
 	"log"
 	"os"
 	"strings"
 )
 
 func main() {
+	pixelgl.Run(launch)
+}
+
+func launch() {
 	ingredientRepository := initStorage()
 
 	fmt.Println("Input comma-separated ingredients names(bread, salmon)")
