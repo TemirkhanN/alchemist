@@ -10,8 +10,8 @@ type IngredientRepository struct {
 }
 
 type IngredientFinder interface {
-	FindByName(name string) Ingredient
-	FindByNames(names []string) []Ingredient
+	FindByName(name string) (Ingredient, error)
+	FindByNames(names []string) ([]Ingredient, error)
 }
 
 func initStorage() IngredientRepository {

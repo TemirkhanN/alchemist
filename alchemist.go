@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"log"
 	"os"
@@ -14,8 +15,21 @@ func main() {
 }
 
 func launch() {
+	cfg := pixelgl.WindowConfig{
+		Title:  "Alchemist",
+		Bounds: pixel.R(0, 0, 1024, 768),
+	}
+	win, err := pixelgl.NewWindow(cfg)
+	if err != nil {
+		panic(err)
+	}
+
 	ingredientRepository := initStorage()
 
+	runGame(win, ingredientRepository)
+}
+
+func runGame(window *pixelgl.Window, storage IngredientFinder) {
 	fmt.Println("Input comma-separated ingredients names(bread, salmon)")
 
 	var usedIngredients []Ingredient
@@ -29,7 +43,7 @@ func launch() {
 				ingredientName = strings.Trim(ingredientName, "\n")
 				ingredientNames = append(ingredientNames, ingredientName)
 			}
-			ingredients, err := ingredientRepository.FindByNames(ingredientNames)
+			ingredients, err := storage.FindByNames(ingredientNames)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -57,4 +71,8 @@ func launch() {
 
 	fmt.Println("Congratulations! You've created a potion!")
 	fmt.Println(potion.Description())
+
+	for !window.Closed() {
+		window.Update()
+	}
 }
