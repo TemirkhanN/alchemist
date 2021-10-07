@@ -38,7 +38,7 @@ func initStorage() IngredientRepository {
 
 func (r IngredientRepository) FindByName(name string) (Ingredient, error) {
 	for _, ingredient := range r.ingredients {
-		if strings.ToLower(ingredient.name) == strings.ToLower(name) {
+		if strings.EqualFold(ingredient.name, name) {
 			return ingredient, nil
 		}
 	}
