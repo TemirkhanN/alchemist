@@ -18,7 +18,6 @@ func main() {
 }
 
 func launch() {
-	ingredientRepository := initStorage()
 	assets := GUI.Assets{}
 	// todo shall filesystem be passed by reference or not?
 	err := assets.RegisterAssets("assets/sprites", &spritesFs)
@@ -28,10 +27,22 @@ func launch() {
 	}
 
 	window := GUI.CreateWindow(1024, 768)
-	runGame(window, assets, ingredientRepository)
+	runGame(window, assets)
 }
 
-func runGame(window *GUI.Window, assets GUI.Assets, storage IngredientFinder) {
+func runGame(window *GUI.Window, assets GUI.Assets) {
+	ingredientsLayout := createIngredientsLayout(window, assets)
+	mainLayout := createMortarLayoutLayout(window, assets, ingredientsLayout)
+
+	window.AddLayer(mainLayout)
+	window.AddLayer(ingredientsLayout)
+
+	for !window.Closed() {
+		window.Refresh()
+	}
+}
+
+func createMortarLayoutLayout(window *GUI.Window, assets GUI.Assets, ingredientsLayout *GUI.Layer) *GUI.Layer {
 	mortar := new(Mortar)
 
 	alchemyLayoutSprite := assets.GetSprite("mortar-interface")
@@ -39,18 +50,7 @@ func runGame(window *GUI.Window, assets GUI.Assets, storage IngredientFinder) {
 	createPotionButtonSprite := assets.GetSprite("btn.create-potion")
 	exitButtonSprite := assets.GetSprite("btn.exit")
 
-	ingredientsLayoutSprite := assets.GetSprite("ingredients-interface")
-
-	ingredientsLayout := new(GUI.Layer)
-	ingredientsLayout.AddCanvas(window.CreateCanvas(ingredientsLayoutSprite, GUI.Position{}))
-	ingredientsLayout.Hide()
-
-	closeIngredientsLayoutButton := window.CreateButton(exitButtonSprite, GUI.Position{X: 410, Y: 65})
-	closeIngredientsLayoutButton.SetClickHandler(func() { ingredientsLayout.Hide() })
-	ingredientsLayout.AddCanvas(closeIngredientsLayoutButton)
-
 	mortarLayout := new(GUI.Layer)
-	mortarLayout.Show()
 
 	mortarLayout.AddCanvas(window.CreateCanvas(alchemyLayoutSprite, GUI.Position{}))
 
@@ -74,13 +74,26 @@ func runGame(window *GUI.Window, assets GUI.Assets, storage IngredientFinder) {
 
 	mortarLayout.AddCanvas(createPotionButton)
 	mortarLayout.AddCanvas(exitButton)
+	mortarLayout.Show()
 
-	window.AddLayer(mortarLayout)
-	window.AddLayer(ingredientsLayout)
+	return mortarLayout
+}
 
-	for !window.Closed() {
-		window.Refresh()
-	}
+func createIngredientsLayout(window *GUI.Window, assets GUI.Assets) *GUI.Layer {
+	//ingredientRepository := initStorage()
+	exitButtonSprite := assets.GetSprite("btn.exit")
+	ingredientsLayoutSprite := assets.GetSprite("ingredients-interface")
+
+	ingredientsLayout := new(GUI.Layer)
+	ingredientsLayout.AddCanvas(window.CreateCanvas(ingredientsLayoutSprite, GUI.Position{}))
+
+	closeIngredientsLayoutButton := window.CreateButton(exitButtonSprite, GUI.Position{X: 410, Y: 65})
+	closeIngredientsLayoutButton.SetClickHandler(func() { ingredientsLayout.Hide() })
+
+	ingredientsLayout.AddCanvas(closeIngredientsLayoutButton)
+	ingredientsLayout.Hide()
+
+	return ingredientsLayout
 }
 
 func createPotion(mortar *Mortar) {
