@@ -1,0 +1,14 @@
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+name: code-quality-check
+jobs:
+  linter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: golangci/golangci-lint-action@v2
