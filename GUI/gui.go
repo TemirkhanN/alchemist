@@ -60,14 +60,3 @@ func (assets Assets) GetSprite(spriteName string) *pixel.Sprite {
 
 	return pixel.NewSprite(pic, pic.Bounds())
 }
-
-/*
-func drawText() {
-	basicAtlas := text.NewAtlas(basicfont.Face7x13, text.ASCII)
-	basicTxt := text.New(pixel.V(100, 500), basicAtlas)
-
-	fmt.Fprintln(basicTxt, "Some text")
-
-	basicTxt.Draw(window, pixel.IM)
-}
-*/

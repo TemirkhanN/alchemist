@@ -15,21 +15,23 @@ type IngredientFinder interface {
 	All() []Ingredient
 }
 
-func initStorage() IngredientRepository {
+func initStorage() IngredientFinder {
 	return IngredientRepository{
 		ingredients: []Ingredient{
 			{
+				"ingr.bread",
 				"Bread",
 				[]Effect{
-					{"Stamina+", "Restores stamina", 10},
-					{"Hunger-", "Decreases hunger", -20},
+					{name: "Fatigue+", description: "Restores fatigue", power: 10},
+					{name: "Hunger-", description: "Decreases hunger", power: -20},
 				},
 			},
 			{
-				"Salmon",
+				"ingr.cheese",
+				"Cheese",
 				[]Effect{
-					{"Stamina+", "Restores stamina", 30},
-					{"Hunger-", "Decreases hunger", -50},
+					{name: "Fatigue+", description: "Restores fatigue", power: 30},
+					{name: "Resist Fire+", description: "Increases fire resistance", power: 10},
 				},
 			},
 		},

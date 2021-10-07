@@ -7,6 +7,7 @@ type Effect struct {
 }
 
 type Ingredient struct {
+	sprite  string
 	name    string
 	effects []Effect
 }

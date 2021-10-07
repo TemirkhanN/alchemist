@@ -1,9 +1,12 @@
 package GUI
 
 import (
+	"fmt"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
+	"github.com/faiface/pixel/text"
 	"golang.org/x/image/colornames"
+	"golang.org/x/image/font/basicfont"
 )
 
 type Position struct {
@@ -35,24 +38,40 @@ func (w *Window) AddLayer(layer *Layer) {
 	w.layers = append(w.layers, layer)
 }
 
-func (w *Window) CreateCanvas(sprite *pixel.Sprite, position Position) *CommonCanvas {
-	return &CommonCanvas{
-		position:    position,
-		visible:     true,
-		sprite:      sprite,
-		drawnOn:     w,
-		needsRedraw: true,
+func (w *Window) CreateSpriteCanvas(sprite *pixel.Sprite, position Position) *SpriteCanvas {
+	return &SpriteCanvas{
+		sprite: sprite,
+		CommonCanvas: CommonCanvas{
+			position:    position,
+			visible:     true,
+			drawnOn:     w,
+			needsRedraw: true,
+		},
+	}
+}
+
+func (w *Window) CreateTextCanvas(text string, position Position) *TextCanvas {
+	return &TextCanvas{
+		text:  text,
+		CommonCanvas: CommonCanvas{
+			position:    position,
+			visible:     true,
+			needsRedraw: true,
+			drawnOn:     w,
+		},
 	}
 }
 
 func (w *Window) CreateButton(sprite *pixel.Sprite, position Position) *Button {
 	return &Button{
-		CommonCanvas: CommonCanvas{
-			position:    position,
-			sprite:      sprite,
-			drawnOn:     w,
-			visible:     true,
-			needsRedraw: true,
+		SpriteCanvas: SpriteCanvas{
+			sprite: sprite,
+			CommonCanvas: CommonCanvas{
+				position:    position,
+				drawnOn:     w,
+				visible:     true,
+				needsRedraw: true,
+			},
 		},
 		onclickfn: nil,
 	}
@@ -81,6 +100,15 @@ func (w *Window) Refresh() {
 	w.handleClicks()
 	w.draw()
 	w.window.Update()
+}
+
+func (w *Window) DrawText(textValue string, position Position) {
+	basicAtlas := text.NewAtlas(basicfont.Face7x13, text.ASCII)
+	basicTxt := text.New(pixel.V(position.X, position.Y), basicAtlas)
+
+	fmt.Fprintln(basicTxt, textValue)
+
+	basicTxt.DrawColorMask(w.window, pixel.IM, colornames.Black)
 }
 
 func (w *Window) draw() {

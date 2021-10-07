@@ -2,7 +2,6 @@ package main
 
 import (
 	"embed"
-	"fmt"
 	"github.com/TemirkhanN/alchemist/GUI"
 	"github.com/faiface/pixel/pixelgl"
 	_ "image/png"
@@ -30,9 +29,13 @@ func launch() {
 	runGame(window, assets)
 }
 
+// todo mistake number 1 - GUI shall be predefined structure. Not constructed dynamically.
 func runGame(window *GUI.Window, assets GUI.Assets) {
-	ingredientsLayout := createIngredientsLayout(window, assets)
-	mainLayout := createMortarLayoutLayout(window, assets, ingredientsLayout)
+	mortar := new(Mortar)
+	mortar.alchemyLevel = MortarLevel(APPRENTICE)
+
+	ingredientsLayout := createIngredientsLayout(window, assets, mortar)
+	mainLayout := createMortarLayoutLayout(window, assets, ingredientsLayout, mortar)
 
 	window.AddLayer(mainLayout)
 	window.AddLayer(ingredientsLayout)
@@ -42,9 +45,7 @@ func runGame(window *GUI.Window, assets GUI.Assets) {
 	}
 }
 
-func createMortarLayoutLayout(window *GUI.Window, assets GUI.Assets, ingredientsLayout *GUI.Layer) *GUI.Layer {
-	mortar := new(Mortar)
-
+func createMortarLayoutLayout(window *GUI.Window, assets GUI.Assets, ingredientsLayout *GUI.Layer, mortar *Mortar) *GUI.Layer {
 	alchemyLayoutSprite := assets.GetSprite("mortar-interface")
 	addIngredientButtonSprite := assets.GetSprite("btn.add-ingredient")
 	createPotionButtonSprite := assets.GetSprite("btn.create-potion")
@@ -52,7 +53,10 @@ func createMortarLayoutLayout(window *GUI.Window, assets GUI.Assets, ingredients
 
 	mortarLayout := new(GUI.Layer)
 
-	mortarLayout.AddCanvas(window.CreateCanvas(alchemyLayoutSprite, GUI.Position{}))
+	// todo
+	descriptionText := window.CreateTextCanvas("Description here", GUI.Position{X: 555, Y: 430})
+
+	mortarLayout.AddCanvas(window.CreateSpriteCanvas(alchemyLayoutSprite, GUI.Position{}))
 
 	ingredientSelectors := []*GUI.Button{
 		window.CreateButton(addIngredientButtonSprite, GUI.Position{X: 187, Y: 180}),
@@ -62,46 +66,60 @@ func createMortarLayoutLayout(window *GUI.Window, assets GUI.Assets, ingredients
 	}
 
 	for _, ingredientButton := range ingredientSelectors {
-		ingredientButton.SetClickHandler(func() { ingredientsLayout.Show() })
+		ingredientButton.SetClickHandler(func() {
+			ingredientsLayout.Show()
+		})
 		mortarLayout.AddCanvas(ingredientButton)
 	}
 
 	createPotionButton := window.CreateButton(createPotionButtonSprite, GUI.Position{X: 253, Y: 116})
-	createPotionButton.SetClickHandler(func() { createPotion(mortar) })
+	createPotionButton.SetClickHandler(func() {
+		potion, err := mortar.Pestle()
+		if err != nil {
+			log.Fatal(err)
+		}
+		descriptionText.ChangeText(potion.Description())
+	})
 
 	exitButton := window.CreateButton(exitButtonSprite, GUI.Position{X: 646, Y: 115})
 	exitButton.SetClickHandler(func() { os.Exit(0) })
 
 	mortarLayout.AddCanvas(createPotionButton)
 	mortarLayout.AddCanvas(exitButton)
+	mortarLayout.AddCanvas(descriptionText)
 	mortarLayout.Show()
 
 	return mortarLayout
 }
 
-func createIngredientsLayout(window *GUI.Window, assets GUI.Assets) *GUI.Layer {
-	//ingredientRepository := initStorage()
+func createIngredientsLayout(window *GUI.Window, assets GUI.Assets, mortar *Mortar) *GUI.Layer {
+	backpack := initStorage()
 	exitButtonSprite := assets.GetSprite("btn.exit")
 	ingredientsLayoutSprite := assets.GetSprite("ingredients-interface")
 
 	ingredientsLayout := new(GUI.Layer)
-	ingredientsLayout.AddCanvas(window.CreateCanvas(ingredientsLayoutSprite, GUI.Position{}))
+	ingredientsLayout.AddCanvas(window.CreateSpriteCanvas(ingredientsLayoutSprite, GUI.Position{}))
 
 	closeIngredientsLayoutButton := window.CreateButton(exitButtonSprite, GUI.Position{X: 410, Y: 65})
 	closeIngredientsLayoutButton.SetClickHandler(func() { ingredientsLayout.Hide() })
+
+	lastIngredientPosition := GUI.Position{X: 50, Y: 500}
+	for _, ingredient := range backpack.All() {
+		button := window.CreateButton(assets.GetSprite(ingredient.sprite), lastIngredientPosition)
+		button.SetClickHandler(func() {
+			err := mortar.AddIngredient(ingredient)
+			// TODO remove after creating structured GUI interface
+			if err != nil {
+				log.Fatal(err)
+			}
+			ingredientsLayout.Hide()
+		})
+		ingredientsLayout.AddCanvas(button)
+		lastIngredientPosition.Y -= 64
+	}
 
 	ingredientsLayout.AddCanvas(closeIngredientsLayoutButton)
 	ingredientsLayout.Hide()
 
 	return ingredientsLayout
-}
-
-func createPotion(mortar *Mortar) {
-	potion, err := mortar.Pestle()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	fmt.Println("Congratulations! You've created a potion!")
-	fmt.Println(potion.Description())
 }

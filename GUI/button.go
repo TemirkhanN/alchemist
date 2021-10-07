@@ -1,7 +1,7 @@
 package GUI
 
 type Button struct {
-	CommonCanvas
+	SpriteCanvas
 	onclickfn func()
 }
 

@@ -4,7 +4,18 @@ import (
 	"errors"
 )
 
+type MortarLevel float32
+
+const (
+	APPRENTICE MortarLevel = 0.1
+	//NOVICE = 0.25
+	//JOURNEYMAN = 0.5
+	//EXPERT = 0.75
+	//MASTER = 1
+)
+
 type Mortar struct {
+	alchemyLevel MortarLevel
 	ingredients []Ingredient
 }
 
@@ -48,6 +59,7 @@ func (m *Mortar) Pestle() (Potion, error) {
 
 	list := make([]Effect, 0, len(potionEffects))
 	for _, potionEffect := range potionEffects {
+		potionEffect.power = potionEffect.power * int16(m.alchemyLevel * 25)
 		list = append(list, potionEffect)
 	}
 
