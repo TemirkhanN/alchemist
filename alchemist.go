@@ -106,14 +106,8 @@ func createIngredientsLayout(window *GUI.Window, assets GUI.Assets, mortar *Mort
 	lastIngredientPosition := GUI.Position{X: 50, Y: 500}
 	for _, ingredient := range backpack.All() {
 		button := window.CreateButton(assets.GetSprite(ingredient.sprite), lastIngredientPosition)
-		button.SetClickHandler(func() {
-			err := mortar.AddIngredient(ingredient)
-			// TODO remove after creating structured GUI interface
-			if err != nil {
-				log.Fatal(err)
-			}
-			ingredientsLayout.Hide()
-		})
+		button.SetClickHandler(addIngredient(ingredient, mortar, ingredientsLayout))
+
 		ingredientsLayout.AddCanvas(button)
 		lastIngredientPosition.Y -= 64
 	}
@@ -122,4 +116,16 @@ func createIngredientsLayout(window *GUI.Window, assets GUI.Assets, mortar *Mort
 	ingredientsLayout.Hide()
 
 	return ingredientsLayout
+}
+
+// todo
+func addIngredient(ingredient Ingredient, mortar *Mortar, layer *GUI.Layer) func () {
+	return func () {
+		err := mortar.AddIngredient(ingredient)
+		// TODO remove after creating structured GUI interface
+		if err != nil {
+			log.Fatal(err)
+		}
+		layer.Hide()
+	}
 }

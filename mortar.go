@@ -50,6 +50,7 @@ func (m *Mortar) Pestle() (Potion, error) {
 			if effectExists {
 				// todo type overflow
 				effect.power += existingEffect.power
+				effect.increased = true
 			}
 
 			potionEffects[effect.name] = effect
@@ -59,6 +60,10 @@ func (m *Mortar) Pestle() (Potion, error) {
 
 	list := make([]Effect, 0, len(potionEffects))
 	for _, potionEffect := range potionEffects {
+		// remove effects that didn't match between multiple ingredients
+		if !potionEffect.increased {
+			continue
+		}
 		potionEffect.power = potionEffect.power * int16(m.alchemyLevel * 25)
 		list = append(list, potionEffect)
 	}

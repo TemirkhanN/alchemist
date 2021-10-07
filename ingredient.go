@@ -4,6 +4,7 @@ type Effect struct {
 	name        string
 	description string
 	power       int16
+	increased   bool
 }
 
 type Ingredient struct {
