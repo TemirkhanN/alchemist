@@ -11,21 +11,7 @@ import (
 
 type Assets struct {
 	filesystem *embed.FS
-	pathMap map[string]string
-}
-
-type Drawer interface {
-	Draw()
-	NeedsRedraw() bool
-}
-
-type Interactive interface {
-	Enable()
-	Disable()
-	Click()
-	SetClickHandler(func())
-	IsUnderPosition(position Position) bool
-	Drawer
+	pathMap    map[string]string
 }
 
 func (assets *Assets) RegisterAssets(directory string, fs *embed.FS) error {

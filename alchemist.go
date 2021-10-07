@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/TemirkhanN/alchemist/GUI"
 	"github.com/faiface/pixel/pixelgl"
-	//"golang.org/x/image/colornames"
 	_ "image/png"
 	"log"
 	"os"
@@ -35,12 +34,15 @@ func launch() {
 func runGame(window *GUI.Window, assets GUI.Assets, storage IngredientFinder) {
 	mortar := new(Mortar)
 
-	var interactiveElements []GUI.Interactive
-
-	//alchemyWindow := assets.GetSprite("mortar-interface")
+	alchemyWindowSprite := assets.GetSprite("mortar-interface")
 	addIngredientButtonSprite := assets.GetSprite("btn.add-ingredient")
 	createPotionButtonSprite := assets.GetSprite("btn.create-potion")
 	exitButtonSprite := assets.GetSprite("btn.exit")
+
+	alchemyWindowLayer := GUI.Layer{}
+
+	mortarBackground := window.CreateCanvas(alchemyWindowSprite, GUI.Position{})
+	alchemyWindowLayer.AddCanvas(mortarBackground)
 
 	ingredientSelectors := []*GUI.Button{
 		window.CreateButton(addIngredientButtonSprite, GUI.Position{X: 187, Y: 180}),
@@ -51,6 +53,7 @@ func runGame(window *GUI.Window, assets GUI.Assets, storage IngredientFinder) {
 
 	for _, ingredientButton := range ingredientSelectors {
 		ingredientButton.SetClickHandler(func() {})
+		alchemyWindowLayer.AddCanvas(ingredientButton)
 	}
 
 	createPotionButton := window.CreateButton(createPotionButtonSprite, GUI.Position{X: 253, Y: 116})
@@ -59,37 +62,12 @@ func runGame(window *GUI.Window, assets GUI.Assets, storage IngredientFinder) {
 	exitButton := window.CreateButton(exitButtonSprite, GUI.Position{X: 646, Y: 115})
 	exitButton.SetClickHandler(func() { os.Exit(0) })
 
-	for _, button := range ingredientSelectors {
-		interactiveElements = append(interactiveElements, button)
-	}
-	interactiveElements = append(interactiveElements, createPotionButton)
-	interactiveElements = append(interactiveElements, exitButton)
+	alchemyWindowLayer.AddCanvas(createPotionButton)
+	alchemyWindowLayer.AddCanvas(exitButton)
 
-	needRedraw := true
+	window.AddLayer(alchemyWindowLayer)
+
 	for !window.Closed() {
-		for _, interactiveElement := range interactiveElements {
-			if window.LeftButtonClicked() {
-				if interactiveElement.IsUnderPosition(window.ClickedPosition()) {
-					interactiveElement.Click()
-				}
-			}
-
-			if !needRedraw && interactiveElement.NeedsRedraw() {
-				needRedraw = true
-			}
-		}
-
-		if needRedraw {
-			//window.Clear(colornames.White)
-			//placeSprite(alchemyWindow, window, 0, 0)
-
-			for _, interactiveElement := range interactiveElements {
-				interactiveElement.Draw()
-			}
-
-			needRedraw = false
-		}
-
 		window.Refresh()
 	}
 }
