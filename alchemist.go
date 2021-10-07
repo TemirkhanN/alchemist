@@ -1,12 +1,18 @@
 package main
 
 import (
+	"embed"
 	"fmt"
+	"github.com/TemirkhanN/alchemist/GUI"
 	"github.com/faiface/pixel/pixelgl"
-	"golang.org/x/image/colornames"
+	//"golang.org/x/image/colornames"
 	_ "image/png"
+	"log"
 	"os"
 )
+
+//go:embed assets/sprites/*.png
+var spritesFs embed.FS
 
 func main() {
 	pixelgl.Run(launch)
@@ -14,37 +20,44 @@ func main() {
 
 func launch() {
 	ingredientRepository := initStorage()
+	assets := GUI.Assets{}
+	// todo shall filesystem be passed by reference or not?
+	err := assets.RegisterAssets("assets/sprites", &spritesFs)
 
-	window := createWindow(1024, 768)
-	runGame(window, ingredientRepository)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	window := GUI.CreateWindow(1024, 768)
+	runGame(window, assets, ingredientRepository)
 }
 
-func runGame(window *pixelgl.Window, storage IngredientFinder) {
+func runGame(window *GUI.Window, assets GUI.Assets, storage IngredientFinder) {
 	mortar := new(Mortar)
 
-	var interactiveElements []Interactive
+	var interactiveElements []GUI.Interactive
 
-	alchemyWindow := loadSprite("mortar-interface")
-	addIngredientButtonSprite := loadSprite("btn.add-ingredient")
-	createPotionButtonSprite := loadSprite("btn.create-potion")
-	exitButtonSprite := loadSprite("btn.exit")
+	//alchemyWindow := assets.GetSprite("mortar-interface")
+	addIngredientButtonSprite := assets.GetSprite("btn.add-ingredient")
+	createPotionButtonSprite := assets.GetSprite("btn.create-potion")
+	exitButtonSprite := assets.GetSprite("btn.exit")
 
-	ingredientSelectors := []*Button{
-		placeButton(addIngredientButtonSprite, window, 187, 180),
-		placeButton(addIngredientButtonSprite, window, 187, 250),
-		placeButton(addIngredientButtonSprite, window, 187, 320),
-		placeButton(addIngredientButtonSprite, window, 187, 390),
+	ingredientSelectors := []*GUI.Button{
+		window.CreateButton(addIngredientButtonSprite, GUI.Position{X: 187, Y: 180}),
+		window.CreateButton(addIngredientButtonSprite, GUI.Position{X: 187, Y: 250}),
+		window.CreateButton(addIngredientButtonSprite, GUI.Position{X: 187, Y: 320}),
+		window.CreateButton(addIngredientButtonSprite, GUI.Position{X: 187, Y: 390}),
 	}
 
 	for _, ingredientButton := range ingredientSelectors {
-		ingredientButton.onclickfn = func () {}
+		ingredientButton.SetClickHandler(func() {})
 	}
 
-	createPotionButton := placeButton(createPotionButtonSprite, window, 253, 116)
-	createPotionButton.onclickfn = func() { createPotion(mortar) }
+	createPotionButton := window.CreateButton(createPotionButtonSprite, GUI.Position{X: 253, Y: 116})
+	createPotionButton.SetClickHandler(func() { createPotion(mortar) })
 
-	exitButton := placeButton(exitButtonSprite, window, 646, 115)
-	exitButton.onclickfn = func() { os.Exit(0) }
+	exitButton := window.CreateButton(exitButtonSprite, GUI.Position{X: 646, Y: 115})
+	exitButton.SetClickHandler(func() { os.Exit(0) })
 
 	for _, button := range ingredientSelectors {
 		interactiveElements = append(interactiveElements, button)
@@ -55,8 +68,8 @@ func runGame(window *pixelgl.Window, storage IngredientFinder) {
 	needRedraw := true
 	for !window.Closed() {
 		for _, interactiveElement := range interactiveElements {
-			if window.JustPressed(pixelgl.MouseButtonLeft) && window.MouseInsideWindow() {
-				if interactiveElement.IsUnderPosition(window.MousePosition()) {
+			if window.LeftButtonClicked() {
+				if interactiveElement.IsUnderPosition(window.ClickedPosition()) {
 					interactiveElement.Click()
 				}
 			}
@@ -67,8 +80,8 @@ func runGame(window *pixelgl.Window, storage IngredientFinder) {
 		}
 
 		if needRedraw {
-			window.Clear(colornames.White)
-			placeSprite(alchemyWindow, window, 0, 0)
+			//window.Clear(colornames.White)
+			//placeSprite(alchemyWindow, window, 0, 0)
 
 			for _, interactiveElement := range interactiveElements {
 				interactiveElement.Draw()
@@ -77,7 +90,7 @@ func runGame(window *pixelgl.Window, storage IngredientFinder) {
 			needRedraw = false
 		}
 
-		window.Update()
+		window.Refresh()
 	}
 }
 
