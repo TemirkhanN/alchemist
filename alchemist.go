@@ -52,7 +52,7 @@ func runGame(window *GUI.Window, assets GUI.Assets, storage IngredientFinder) {
 	}
 
 	for _, ingredientButton := range ingredientSelectors {
-		ingredientButton.SetClickHandler(func() {})
+		ingredientButton.SetClickHandler(func() {fmt.Println("Show ingredient list window")})
 		alchemyWindowLayer.AddCanvas(ingredientButton)
 	}
 

@@ -17,7 +17,7 @@ type InteractiveCanvas interface {
 }
 
 type CommonCanvas struct {
-	position Position
+	position    Position
 	visible     bool
 	sprite      *pixel.Sprite
 	drawnOn     *Window
@@ -28,8 +28,12 @@ func (canvas CommonCanvas) NeedsRedraw() bool {
 	return canvas.needsRedraw && canvas.visible
 }
 
-func (canvas CommonCanvas) Draw() {
+func (canvas *CommonCanvas) Draw() {
+	if !canvas.NeedsRedraw() {
+		return
+	}
 	canvas.drawnOn.drawSprite(canvas.sprite, Position{X: canvas.position.X, Y: canvas.position.Y})
+	canvas.needsRedraw = false
 }
 
 func (canvas *CommonCanvas) Show() {

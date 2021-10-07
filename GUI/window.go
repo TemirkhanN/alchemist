@@ -41,12 +41,12 @@ func (w *Window) CreateCanvas(sprite *pixel.Sprite, position Position) *CommonCa
 		visible:     true,
 		sprite:      sprite,
 		drawnOn:     w,
-		needsRedraw: false,
+		needsRedraw: true,
 	}
 }
 
 func (w *Window) CreateButton(sprite *pixel.Sprite, position Position) *Button {
-	button := &Button{
+	return &Button{
 		CommonCanvas: CommonCanvas{
 			position:    position,
 			sprite:      sprite,
@@ -56,11 +56,6 @@ func (w *Window) CreateButton(sprite *pixel.Sprite, position Position) *Button {
 		},
 		onclickfn: nil,
 	}
-
-	button.Draw()
-	button.needsRedraw = true
-
-	return button
 }
 
 func (w Window) LeftButtonClicked() bool {
@@ -83,7 +78,6 @@ func (w *Window) Refresh() {
 		return
 	}
 
-	needRedraw := true
 	leftClickHandled := false
 	for _, layer := range w.layers {
 		// Interaction priority is LIFO. Click over canvasB which is drawn over canvasA shall start from canvas B handle
@@ -97,23 +91,24 @@ func (w *Window) Refresh() {
 					leftClickHandled = true
 				}
 			}
-
-			if !needRedraw && element.NeedsRedraw() {
-				needRedraw = true
-			}
 		}
 	}
 
-	if !needRedraw {
-		return
+	for _, layer := range w.layers {
+		if layer.NeedsRedraw() {
+			w.redraw()
+			break
+		}
 	}
 
+	w.window.Update()
+}
+
+func (w *Window) redraw() {
 	w.window.Clear(colornames.White)
 	for _, layer := range w.layers {
 		layer.Draw()
 	}
-
-	w.window.Update()
 }
 
 func (w *Window) drawSprite(sprite *pixel.Sprite, position Position) {
