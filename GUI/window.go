@@ -12,7 +12,7 @@ type Position struct {
 }
 
 type Window struct {
-	layers []Layer
+	layers []*Layer
 	window *pixelgl.Window
 }
 
@@ -31,7 +31,7 @@ func CreateWindow(width float64, height float64) *Window {
 	return &Window{window: window}
 }
 
-func (w *Window) AddLayer(layer Layer) {
+func (w *Window) AddLayer(layer *Layer) {
 	w.layers = append(w.layers, layer)
 }
 
@@ -78,36 +78,46 @@ func (w *Window) Refresh() {
 		return
 	}
 
-	leftClickHandled := false
-	for _, layer := range w.layers {
-		// Interaction priority is LIFO. Click over canvasB which is drawn over canvasA shall start from canvas B handle
-		for i := len(layer.elements) - 1; i >= 0; i-- {
-			element := layer.elements[i]
-			interactiveElement, isInteractiveElement := element.(InteractiveCanvas)
-			if !leftClickHandled && isInteractiveElement && w.LeftButtonClicked() {
-				if interactiveElement.IsUnderPosition(w.ClickedPosition()) {
-					interactiveElement.Click()
-					// First item that handles click stops further propagation
-					leftClickHandled = true
-				}
-			}
-		}
-	}
-
-	for _, layer := range w.layers {
-		if layer.NeedsRedraw() {
-			w.redraw()
-			break
-		}
-	}
-
+	w.handleClicks()
+	w.draw()
 	w.window.Update()
 }
 
-func (w *Window) redraw() {
-	w.window.Clear(colornames.White)
+func (w *Window) draw() {
 	for _, layer := range w.layers {
-		layer.Draw()
+		if layer.NeedsRedraw() {
+			w.window.Clear(colornames.White)
+			for _, layer := range w.layers {
+				layer.Draw()
+			}
+			break
+		}
+	}
+}
+
+func (w *Window) handleClicks() {
+	if !w.LeftButtonClicked() {
+		return
+	}
+	// Interaction priority is LIFO. Click over canvasB which is drawn over canvasA shall start from canvas B handle
+	for i := len(w.layers) - 1; i >= 0; i-- {
+		layer := w.layers[i]
+		if !layer.visible {
+			continue
+		}
+		for j := len(layer.elements) - 1; j >= 0; j-- {
+			element := layer.elements[j]
+			if !element.IsUnderPosition(w.ClickedPosition()) {
+				continue
+			}
+
+			interactiveElement, isInteractiveElement := element.(InteractiveCanvas)
+			if isInteractiveElement {
+				interactiveElement.Click()
+			}
+			// stop further propagation
+			return
+		}
 	}
 }
 

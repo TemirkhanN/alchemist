@@ -7,12 +7,12 @@ type Canvas interface {
 	Hide()
 	Draw()
 	NeedsRedraw() bool
+	IsUnderPosition(position Position) bool
 }
 
 type InteractiveCanvas interface {
 	Click()
 	SetClickHandler(func())
-	IsUnderPosition(position Position) bool
 	Canvas
 }
 
@@ -29,7 +29,7 @@ func (canvas CommonCanvas) NeedsRedraw() bool {
 }
 
 func (canvas *CommonCanvas) Draw() {
-	if !canvas.NeedsRedraw() {
+	if !canvas.visible {
 		return
 	}
 	canvas.drawnOn.drawSprite(canvas.sprite, Position{X: canvas.position.X, Y: canvas.position.Y})
@@ -42,4 +42,20 @@ func (canvas *CommonCanvas) Show() {
 
 func (canvas *CommonCanvas) Hide() {
 	canvas.visible = false
+}
+
+func (canvas CommonCanvas) IsUnderPosition(position Position) bool {
+	buttonWidth := canvas.sprite.Picture().Bounds().W()
+	buttonHeight := canvas.sprite.Picture().Bounds().H()
+
+	bottomLeftX := canvas.position.X
+	bottomLeftY := canvas.position.Y
+	topRightX := canvas.position.X + buttonWidth
+	topRightY := canvas.position.Y + buttonHeight
+
+	if (position.X > bottomLeftX && position.X < topRightX) && (position.Y > bottomLeftY && position.Y < topRightY) {
+		return true
+	}
+
+	return false
 }

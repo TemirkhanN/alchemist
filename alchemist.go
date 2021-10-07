@@ -34,15 +34,25 @@ func launch() {
 func runGame(window *GUI.Window, assets GUI.Assets, storage IngredientFinder) {
 	mortar := new(Mortar)
 
-	alchemyWindowSprite := assets.GetSprite("mortar-interface")
+	alchemyLayoutSprite := assets.GetSprite("mortar-interface")
 	addIngredientButtonSprite := assets.GetSprite("btn.add-ingredient")
 	createPotionButtonSprite := assets.GetSprite("btn.create-potion")
 	exitButtonSprite := assets.GetSprite("btn.exit")
 
-	alchemyWindowLayer := GUI.Layer{}
+	ingredientsLayoutSprite := assets.GetSprite("ingredients-interface")
 
-	mortarBackground := window.CreateCanvas(alchemyWindowSprite, GUI.Position{})
-	alchemyWindowLayer.AddCanvas(mortarBackground)
+	ingredientsLayout := new(GUI.Layer)
+	ingredientsLayout.AddCanvas(window.CreateCanvas(ingredientsLayoutSprite, GUI.Position{}))
+	ingredientsLayout.Hide()
+
+	closeIngredientsLayoutButton := window.CreateButton(exitButtonSprite, GUI.Position{X: 410, Y: 65})
+	closeIngredientsLayoutButton.SetClickHandler(func() { ingredientsLayout.Hide() })
+	ingredientsLayout.AddCanvas(closeIngredientsLayoutButton)
+
+	mortarLayout := new(GUI.Layer)
+	mortarLayout.Show()
+
+	mortarLayout.AddCanvas(window.CreateCanvas(alchemyLayoutSprite, GUI.Position{}))
 
 	ingredientSelectors := []*GUI.Button{
 		window.CreateButton(addIngredientButtonSprite, GUI.Position{X: 187, Y: 180}),
@@ -52,8 +62,8 @@ func runGame(window *GUI.Window, assets GUI.Assets, storage IngredientFinder) {
 	}
 
 	for _, ingredientButton := range ingredientSelectors {
-		ingredientButton.SetClickHandler(func() {fmt.Println("Show ingredient list window")})
-		alchemyWindowLayer.AddCanvas(ingredientButton)
+		ingredientButton.SetClickHandler(func() { ingredientsLayout.Show() })
+		mortarLayout.AddCanvas(ingredientButton)
 	}
 
 	createPotionButton := window.CreateButton(createPotionButtonSprite, GUI.Position{X: 253, Y: 116})
@@ -62,10 +72,11 @@ func runGame(window *GUI.Window, assets GUI.Assets, storage IngredientFinder) {
 	exitButton := window.CreateButton(exitButtonSprite, GUI.Position{X: 646, Y: 115})
 	exitButton.SetClickHandler(func() { os.Exit(0) })
 
-	alchemyWindowLayer.AddCanvas(createPotionButton)
-	alchemyWindowLayer.AddCanvas(exitButton)
+	mortarLayout.AddCanvas(createPotionButton)
+	mortarLayout.AddCanvas(exitButton)
 
-	window.AddLayer(alchemyWindowLayer)
+	window.AddLayer(mortarLayout)
+	window.AddLayer(ingredientsLayout)
 
 	for !window.Closed() {
 		window.Refresh()
