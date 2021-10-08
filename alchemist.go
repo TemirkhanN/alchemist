@@ -27,20 +27,21 @@ var assets = func() *GUI.Assets {
 }()
 
 func main() {
-	pixelgl.Run(func () {
+	pixelgl.Run(func() {
 		launch(1024, 768)
 	})
 }
 
 func launch(windowWidth float64, windowHeight float64) {
 	window := GUI.CreateWindow(windowWidth, windowHeight)
+
 	mortar := domain.NewApprenticeMortar()
 
-	mainLayout := new(MainLayout)
-	mainLayout.init(window, mortar)
+	mainLayout := NewMainLayout(window, mortar)
+	backpackLayout := NewBackpackLayout(window)
 
-	backpackLayout := new(BackpackLayout)
-	backpackLayout.init(window)
+	window.AddLayer(mainLayout.graphics)
+	window.AddLayer(backpackLayout.graphics)
 
 	for !window.Closed() {
 		window.Refresh()
@@ -71,13 +72,15 @@ type MainLayout struct {
 
 type BackpackLayout struct {
 	initialized bool
+	graphics    *GUI.Layer
 
 	background      *GUI.SpriteCanvas
 	ingredients     []*domain.Ingredient
 	ingredientsBtns []*GUI.Button
 }
 
-func (layout *MainLayout) init(window *GUI.Window, mortar *domain.Mortar) {
+func NewMainLayout(window *GUI.Window, mortar *domain.Mortar) *MainLayout {
+	layout := new(MainLayout)
 	if layout.initialized {
 		log.Fatal("can not initialize layout more than one time")
 	}
@@ -162,7 +165,7 @@ func (layout *MainLayout) init(window *GUI.Window, mortar *domain.Mortar) {
 
 	layout.render()
 
-	window.AddLayer(layout.graphics)
+	return layout
 }
 
 func (layout *MainLayout) render() {
@@ -182,8 +185,9 @@ func (layout *MainLayout) render() {
 	layout.graphics.Show()
 }
 
-// todo rename repo to backpack
-func (layout *BackpackLayout) init(window *GUI.Window) {
+// NewBackpackLayout todo rename repo to backpack
+func NewBackpackLayout(window *GUI.Window) *BackpackLayout {
+	layout := new(BackpackLayout)
 	if layout.initialized {
 		log.Fatal("can not initialize layout more than one time")
 	}
@@ -197,18 +201,18 @@ func (layout *BackpackLayout) init(window *GUI.Window) {
 	closeButtonSprite := assets.GetSprite("btn.exit")
 	ingredientsLayoutSprite := assets.GetSprite("ingredients-interface")
 
-	firstLayer := new(GUI.Layer)
+	layout.graphics = new(GUI.Layer)
 	layout.background = window.CreateSpriteCanvas(ingredientsLayoutSprite, GUI.Position{})
 
 	closeBackpackBtn := window.CreateButton(closeButtonSprite, GUI.Position{X: 410, Y: 65})
-	closeBackpackBtn.SetClickHandler(func() { firstLayer.Hide() })
+	closeBackpackBtn.SetClickHandler(func() { layout.graphics.Hide() })
 
 	lastIngredientPosition := GUI.Position{X: 50, Y: 500}
 	for _, ingredient := range layout.ingredients {
 		ingredientBtn := window.CreateButton(GetIngredientSprite(*ingredient), lastIngredientPosition)
 		ingredientBtn.SetClickHandler(func(selected *domain.Ingredient) func() {
 			return func() {
-				firstLayer.Hide()
+				layout.graphics.Hide()
 				event.FireEvent(&IngredientSelected{ingredient: selected})
 			}
 		}(ingredient))
@@ -217,20 +221,20 @@ func (layout *BackpackLayout) init(window *GUI.Window) {
 		layout.ingredientsBtns = append(layout.ingredientsBtns, ingredientBtn)
 	}
 
-	firstLayer.AddCanvas(layout.background)
+	layout.graphics.AddCanvas(layout.background)
 	for _, ingredientBtn := range layout.ingredientsBtns {
-		firstLayer.AddCanvas(ingredientBtn)
+		layout.graphics.AddCanvas(ingredientBtn)
 	}
 
-	firstLayer.AddCanvas(closeBackpackBtn)
-	firstLayer.Hide()
+	layout.graphics.AddCanvas(closeBackpackBtn)
+	layout.graphics.Hide()
 
 	event.On(EventAddIngredientButtonClicked, event.ListenerFunc(func(e event.Event) error {
-		firstLayer.Show()
+		layout.graphics.Show()
 		return nil
 	}))
 
-	window.AddLayer(firstLayer)
+	return layout
 }
 
 func GetIngredientSprite(ingredient domain.Ingredient) *pixel.Sprite {
