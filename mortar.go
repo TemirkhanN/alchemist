@@ -58,6 +58,10 @@ func (m Mortar) IngredientAllowed(ingredient Ingredient) bool {
 	return false
 }
 
+func (m Mortar) Ingredients() []Ingredient{
+	return m.ingredients
+}
+
 func (m *Mortar) Pestle() (Potion, error) {
 	if len(m.ingredients) < 2 {
 		return Potion{}, errors.New("there are not enough ingredients to create a potion")

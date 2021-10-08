@@ -120,6 +120,11 @@ func (layout *MainLayout) init(window *GUI.Window, assets *GUI.Assets, mortar *M
 
 	layout.createPotionButton = window.CreateButton(createPotionBtnSprite, GUI.Position{X: 253, Y: 116})
 	layout.createPotionButton.SetClickHandler(func() {
+		if len(mortar.Ingredients()) < 2 {
+			layout.textBlock.ChangeText("You need at least 2 ingredients to make potion")
+			return
+		}
+
 		potion, err := mortar.Pestle()
 		if err != nil {
 			log.Fatal(err)
