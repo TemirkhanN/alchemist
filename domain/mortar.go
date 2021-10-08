@@ -1,4 +1,4 @@
-package main
+package domain
 
 import (
 	"errors"
@@ -16,7 +16,7 @@ const (
 
 type Mortar struct {
 	alchemyLevel MortarLevel
-	ingredients []Ingredient
+	ingredients  []Ingredient
 }
 
 func (m *Mortar) AddIngredient(newIngredient Ingredient) error {
@@ -58,7 +58,7 @@ func (m Mortar) IngredientAllowed(ingredient Ingredient) bool {
 	return false
 }
 
-func (m Mortar) Ingredients() []Ingredient{
+func (m Mortar) Ingredients() []Ingredient {
 	return m.ingredients
 }
 
@@ -100,4 +100,11 @@ func (m *Mortar) Pestle() (Potion, error) {
 
 func (m *Mortar) Clear() {
 	m.ingredients = nil
+}
+
+func NewApprenticeMortar() *Mortar {
+	return &Mortar{
+		alchemyLevel: MortarLevel(APPRENTICE),
+		ingredients:  nil,
+	}
 }

@@ -1,4 +1,4 @@
-package main
+package domain
 
 import (
 	"errors"
@@ -19,7 +19,6 @@ func initStorage() IngredientFinder {
 	return IngredientRepository{
 		ingredients: []Ingredient{
 			{
-				"ingr.bread",
 				"Bread",
 				[]Effect{
 					{name: "Fatigue+", description: "Restores fatigue", power: 10},
@@ -27,7 +26,6 @@ func initStorage() IngredientFinder {
 				},
 			},
 			{
-				"ingr.cheese",
 				"Cheese",
 				[]Effect{
 					{name: "Fatigue+", description: "Restores fatigue", power: 30},
@@ -65,3 +63,6 @@ func (r IngredientRepository) FindByNames(names []string) ([]Ingredient, error) 
 func (r IngredientRepository) All() []Ingredient {
 	return r.ingredients
 }
+
+
+var IngredientsDatabase = initStorage()

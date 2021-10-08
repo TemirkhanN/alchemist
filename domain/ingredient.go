@@ -1,4 +1,4 @@
-package main
+package domain
 
 type Effect struct {
 	name        string
@@ -8,14 +8,13 @@ type Effect struct {
 }
 
 type Ingredient struct {
-	sprite  string
 	name    string
 	effects []Effect
 }
 
-func (ingredient1 Ingredient) hasSimilarEffects(ingredient2 Ingredient) bool {
-	for _, effect1 := range ingredient1.effects {
-		for _, effect2 := range ingredient2.effects {
+func (i Ingredient) hasSimilarEffects(withIngredient Ingredient) bool {
+	for _, effect1 := range i.effects {
+		for _, effect2 := range withIngredient.effects {
 			if effect1.name == effect2.name {
 				return true
 			}
@@ -23,4 +22,8 @@ func (ingredient1 Ingredient) hasSimilarEffects(ingredient2 Ingredient) bool {
 	}
 
 	return false
+}
+
+func (i Ingredient) Name() string {
+	return i.name
 }

@@ -3,43 +3,46 @@ package main
 import (
 	"embed"
 	"github.com/TemirkhanN/alchemist/GUI"
+	"github.com/TemirkhanN/alchemist/domain"
+	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/gookit/event"
 	_ "image/png"
 	"log"
 	"os"
+	"strings"
 )
 
 //go:embed assets/sprites/*.png
 var spritesFs embed.FS
-var ingredientsDatabase = initStorage()
+var assets = func() *GUI.Assets {
+	loadedAssets := new(GUI.Assets)
+	// todo shall filesystem be passed by reference or not?
+	err := loadedAssets.RegisterAssets("assets/sprites", &spritesFs)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return loadedAssets
+}()
 
 func main() {
 	pixelgl.Run(launch)
 }
 
 func launch() {
-	assets := new(GUI.Assets)
-	// todo shall filesystem be passed by reference or not?
-	err := assets.RegisterAssets("assets/sprites", &spritesFs)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	window := GUI.CreateWindow(1024, 768)
-	runGame(window, assets)
+	runGame(window)
 }
 
-func runGame(window *GUI.Window, assets *GUI.Assets) {
-	mortar := new(Mortar)
-	mortar.alchemyLevel = MortarLevel(APPRENTICE)
+func runGame(window *GUI.Window) {
+	mortar := domain.NewApprenticeMortar()
 
 	mainLayout := new(MainLayout)
-	mainLayout.init(window, assets, mortar)
+	mainLayout.init(window, mortar)
 
 	backpackLayout := new(BackpackLayout)
-	backpackLayout.init(window, assets, mortar)
+	backpackLayout.init(window)
 
 	for !window.Closed() {
 		window.Refresh()
@@ -72,11 +75,11 @@ type BackpackLayout struct {
 	initialized bool
 
 	background      *GUI.SpriteCanvas
-	ingredients     []*Ingredient
+	ingredients     []*domain.Ingredient
 	ingredientsBtns []*GUI.Button
 }
 
-func (layout *MainLayout) init(window *GUI.Window, assets *GUI.Assets, mortar *Mortar) {
+func (layout *MainLayout) init(window *GUI.Window, mortar *domain.Mortar) {
 	if layout.initialized {
 		log.Fatal("can not initialize layout more than one time")
 	}
@@ -147,7 +150,7 @@ func (layout *MainLayout) init(window *GUI.Window, assets *GUI.Assets, mortar *M
 	event.On(EventIngredientSelected, event.ListenerFunc(func(e event.Event) error {
 		actualEvent := e.(*IngredientSelected)
 
-		ingredientIcon := assets.GetSprite(actualEvent.ingredient.sprite)
+		ingredientIcon := GetIngredientSprite(*actualEvent.ingredient)
 		slotPosition := layout.ingredientSlots[layout.activeSlot].Position()
 		layout.ingredientSlots[layout.activeSlot] = window.CreateSpriteCanvas(ingredientIcon, slotPosition)
 
@@ -182,13 +185,13 @@ func (layout *MainLayout) render() {
 }
 
 // todo rename repo to backpack
-func (layout *BackpackLayout) init(window *GUI.Window, assets *GUI.Assets, mortar *Mortar) {
+func (layout *BackpackLayout) init(window *GUI.Window) {
 	if layout.initialized {
 		log.Fatal("can not initialize layout more than one time")
 	}
 	layout.initialized = true
 
-	for _, ingredient := range ingredientsDatabase.All() {
+	for _, ingredient := range domain.IngredientsDatabase.All() {
 		deref := ingredient
 		layout.ingredients = append(layout.ingredients, &deref)
 	}
@@ -204,8 +207,8 @@ func (layout *BackpackLayout) init(window *GUI.Window, assets *GUI.Assets, morta
 
 	lastIngredientPosition := GUI.Position{X: 50, Y: 500}
 	for _, ingredient := range layout.ingredients {
-		ingredientBtn := window.CreateButton(assets.GetSprite(ingredient.sprite), lastIngredientPosition)
-		ingredientBtn.SetClickHandler(func(selected *Ingredient) func() {
+		ingredientBtn := window.CreateButton(GetIngredientSprite(*ingredient), lastIngredientPosition)
+		ingredientBtn.SetClickHandler(func(selected *domain.Ingredient) func() {
 			return func() {
 				firstLayer.Hide()
 				event.FireEvent(&IngredientSelected{ingredient: selected})
@@ -230,4 +233,10 @@ func (layout *BackpackLayout) init(window *GUI.Window, assets *GUI.Assets, morta
 	}))
 
 	window.AddLayer(firstLayer)
+}
+
+func GetIngredientSprite(ingredient domain.Ingredient) *pixel.Sprite {
+	spriteName := "ingr." + strings.ToLower(ingredient.Name())
+
+	return assets.GetSprite(spriteName)
 }

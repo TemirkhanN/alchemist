@@ -1,9 +1,12 @@
 package main
 
-import "github.com/gookit/event"
+import (
+	"github.com/TemirkhanN/alchemist/domain"
+	"github.com/gookit/event"
+)
 
 type IngredientSelected struct {
-	ingredient *Ingredient
+	ingredient *domain.Ingredient
 	event.BasicEvent
 }
 
