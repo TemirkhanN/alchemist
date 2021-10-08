@@ -27,15 +27,13 @@ var assets = func() *GUI.Assets {
 }()
 
 func main() {
-	pixelgl.Run(launch)
+	pixelgl.Run(func () {
+		launch(1024, 768)
+	})
 }
 
-func launch() {
-	window := GUI.CreateWindow(1024, 768)
-	runGame(window)
-}
-
-func runGame(window *GUI.Window) {
+func launch(windowWidth float64, windowHeight float64) {
+	window := GUI.CreateWindow(windowWidth, windowHeight)
 	mortar := domain.NewApprenticeMortar()
 
 	mainLayout := new(MainLayout)
