@@ -8,6 +8,7 @@ type Canvas interface {
 	Draw()
 	NeedsRedraw() bool
 	IsUnderPosition(position Position) bool
+	Position() Position
 }
 
 type InteractiveCanvas interface {
@@ -45,6 +46,18 @@ func (canvas *CommonCanvas) Hide() {
 	canvas.visible = false
 }
 
+func (canvas *CommonCanvas) Draw() {
+
+}
+
+func (canvas CommonCanvas) Position() Position {
+	return canvas.position
+}
+
+func (canvas CommonCanvas) IsUnderPosition(position Position) bool {
+	return false
+}
+
 func (canvas *SpriteCanvas) Draw() {
 	if !canvas.visible {
 		return
@@ -69,17 +82,18 @@ func (canvas SpriteCanvas) IsUnderPosition(position Position) bool {
 	return false
 }
 
-func (canvas TextCanvas) Draw() {
+func (canvas *SpriteCanvas) ChangeSprite(withSprite *pixel.Sprite) {
+	canvas.sprite = withSprite
+	canvas.needsRedraw = true
+}
+
+func (canvas *TextCanvas) Draw() {
 	if !canvas.visible {
 		return
 	}
 
 	canvas.drawnOn.DrawText(canvas.text, canvas.position)
 	canvas.needsRedraw = false
-}
-
-func (canvas TextCanvas) IsUnderPosition(position Position) bool {
-	return false
 }
 
 func (canvas *TextCanvas) ChangeText(text string) {

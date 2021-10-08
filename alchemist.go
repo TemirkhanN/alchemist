@@ -4,6 +4,7 @@ import (
 	"embed"
 	"github.com/TemirkhanN/alchemist/GUI"
 	"github.com/faiface/pixel/pixelgl"
+	"github.com/gookit/event"
 	_ "image/png"
 	"log"
 	"os"
@@ -12,10 +13,6 @@ import (
 //go:embed assets/sprites/*.png
 var spritesFs embed.FS
 var ingredientsDatabase = initStorage()
-
-const (
-	INGREDIENT_SELECTION_BUTTON_PRESSED = 1
-)
 
 func main() {
 	pixelgl.Run(launch)
@@ -35,75 +32,91 @@ func launch() {
 }
 
 func runGame(window *GUI.Window, assets *GUI.Assets) {
-	eventDispatcher := make(chan int)
-
 	mortar := new(Mortar)
 	mortar.alchemyLevel = MortarLevel(APPRENTICE)
 
 	mainLayout := new(MainLayout)
-	mainLayout.init(window, assets, mortar, eventDispatcher)
+	mainLayout.init(window, assets, mortar)
 
 	backpackLayout := new(BackpackLayout)
-	backpackLayout.init(window, assets, mortar, eventDispatcher)
+	backpackLayout.init(window, assets, mortar)
 
 	for !window.Closed() {
 		window.Refresh()
 	}
 }
 
-// todo
-func addIngredient(ingredient Ingredient, mortar *Mortar, layer *GUI.Layer, dispatcher chan int) func() {
-	return func() {
-		err := mortar.AddIngredient(ingredient)
-		// TODO remove after creating structured GUI interface
-		if err != nil {
-			log.Fatal(err)
-		}
-		layer.Hide()
-	}
-}
+type Slot uint8
+
+const (
+	None Slot = iota
+	First
+	Second
+	Third
+	Fourth
+)
 
 type MainLayout struct {
 	initialized bool
+	activeSlot  Slot
+	graphics    *GUI.Layer
 
-	background *GUI.SpriteCanvas
-	textBlock  *GUI.TextCanvas
-	firstSlot  *GUI.Button
-	secondSlot *GUI.Button
-	thirdSlot  *GUI.Button
-	fourthSlot *GUI.Button
+	background         *GUI.SpriteCanvas
+	textBlock          *GUI.TextCanvas
+	ingredientSlots    map[Slot]GUI.Canvas
 	createPotionButton *GUI.Button
-	exitButton *GUI.Button
+	exitButton         *GUI.Button
 }
 
 type BackpackLayout struct {
 	initialized bool
 
-	background *GUI.SpriteCanvas
-	ingredients []*Ingredient
+	background      *GUI.SpriteCanvas
+	ingredients     []*Ingredient
 	ingredientsBtns []*GUI.Button
 }
 
-func (layout *MainLayout) init(window *GUI.Window, assets *GUI.Assets, mortar *Mortar, dispatcher chan int) {
+func (layout *MainLayout) init(window *GUI.Window, assets *GUI.Assets, mortar *Mortar) {
 	if layout.initialized {
 		log.Fatal("can not initialize layout more than one time")
 	}
+	layout.initialized = true
+	layout.graphics = new(GUI.Layer)
 
 	backgroundSprite := assets.GetSprite("mortar-interface")
 	addIngredientBtnSprite := assets.GetSprite("btn.add-ingredient")
 	createPotionBtnSprite := assets.GetSprite("btn.create-potion")
 	exitBtnSprite := assets.GetSprite("btn.exit")
 
+	button1 := window.CreateButton(addIngredientBtnSprite, GUI.Position{X: 187, Y: 390})
+	button1.SetClickHandler(func() {
+		layout.activeSlot = Slot(First)
+		event.TriggerEvent(&AddIngredientButtonClicked{slot: layout.activeSlot})
+	})
+	button2 := window.CreateButton(addIngredientBtnSprite, GUI.Position{X: 187, Y: 320})
+	button2.SetClickHandler(func() {
+		layout.activeSlot = Slot(Second)
+		event.TriggerEvent(&AddIngredientButtonClicked{slot: layout.activeSlot})
+	})
+	button3 := window.CreateButton(addIngredientBtnSprite, GUI.Position{X: 187, Y: 250})
+	button3.SetClickHandler(func() {
+		layout.activeSlot = Slot(Third)
+		event.TriggerEvent(&AddIngredientButtonClicked{slot: layout.activeSlot})
+	})
+	button4 := window.CreateButton(addIngredientBtnSprite, GUI.Position{X: 187, Y: 180})
+	button4.SetClickHandler(func() {
+		layout.activeSlot = Slot(Fourth)
+		event.TriggerEvent(&AddIngredientButtonClicked{slot: layout.activeSlot})
+	})
+
 	layout.background = window.CreateSpriteCanvas(backgroundSprite, GUI.Position{})
 
-	layout.firstSlot = window.CreateButton(addIngredientBtnSprite, GUI.Position{X: 187, Y: 390})
-	layout.firstSlot.SetClickHandler(func () {dispatcher <- INGREDIENT_SELECTION_BUTTON_PRESSED})
-	layout.secondSlot = window.CreateButton(addIngredientBtnSprite, GUI.Position{X: 187, Y: 320})
-	layout.secondSlot.SetClickHandler(func () {dispatcher <- INGREDIENT_SELECTION_BUTTON_PRESSED})
-	layout.thirdSlot = window.CreateButton(addIngredientBtnSprite, GUI.Position{X: 187, Y: 250})
-	layout.thirdSlot.SetClickHandler(func () {dispatcher <- INGREDIENT_SELECTION_BUTTON_PRESSED})
-	layout.fourthSlot = window.CreateButton(addIngredientBtnSprite, GUI.Position{X: 187, Y: 180})
-	layout.fourthSlot.SetClickHandler(func () {dispatcher <- INGREDIENT_SELECTION_BUTTON_PRESSED})
+	layout.ingredientSlots = map[Slot]GUI.Canvas{
+		Slot(First):  button1,
+		Slot(Second): button2,
+		Slot(Third):  button3,
+		Slot(Fourth): button4,
+	}
 
 	layout.createPotionButton = window.CreateButton(createPotionBtnSprite, GUI.Position{X: 253, Y: 116})
 	layout.createPotionButton.SetClickHandler(func() {
@@ -112,6 +125,13 @@ func (layout *MainLayout) init(window *GUI.Window, assets *GUI.Assets, mortar *M
 			log.Fatal(err)
 		}
 		layout.textBlock.ChangeText(potion.Description())
+		layout.ingredientSlots = map[Slot]GUI.Canvas{
+			Slot(First):  button1,
+			Slot(Second): button2,
+			Slot(Third):  button3,
+			Slot(Fourth): button4,
+		}
+		layout.render()
 	})
 
 	layout.exitButton = window.CreateButton(exitBtnSprite, GUI.Position{X: 646, Y: 115})
@@ -119,25 +139,53 @@ func (layout *MainLayout) init(window *GUI.Window, assets *GUI.Assets, mortar *M
 
 	layout.textBlock = window.CreateTextCanvas("Description here", GUI.Position{X: 555, Y: 430})
 
-	firstLayer := new(GUI.Layer)
+	event.On(EventIngredientSelected, event.ListenerFunc(func(e event.Event) error {
+		actualEvent := e.(*IngredientSelected)
 
-	firstLayer.AddCanvas(layout.background)
-	firstLayer.AddCanvas(layout.textBlock)
-	firstLayer.AddCanvas(layout.firstSlot)
-	firstLayer.AddCanvas(layout.secondSlot)
-	firstLayer.AddCanvas(layout.thirdSlot)
-	firstLayer.AddCanvas(layout.fourthSlot)
-	firstLayer.AddCanvas(layout.createPotionButton)
-	firstLayer.AddCanvas(layout.exitButton)
-	firstLayer.Show()
+		ingredientIcon := assets.GetSprite(actualEvent.ingredient.sprite)
+		slotPosition := layout.ingredientSlots[layout.activeSlot].Position()
+		layout.ingredientSlots[layout.activeSlot] = window.CreateSpriteCanvas(ingredientIcon, slotPosition)
 
-	window.AddLayer(firstLayer)
+		mortar.AddIngredient(*actualEvent.ingredient)
+
+		layout.activeSlot = Slot(None)
+
+		layout.render()
+		return nil
+	}))
+
+	layout.render()
+
+	window.AddLayer(layout.graphics)
+}
+
+func (layout *MainLayout) render() {
+	// if it is not initialized, then it is an empty layout. nothing to show
+	if !layout.initialized {
+		return
+	}
+
+	layout.graphics.Clear()
+	layout.graphics.AddCanvas(layout.background)
+	layout.graphics.AddCanvas(layout.textBlock)
+	for _, slotCanvas := range layout.ingredientSlots {
+		layout.graphics.AddCanvas(slotCanvas)
+	}
+	layout.graphics.AddCanvas(layout.createPotionButton)
+	layout.graphics.AddCanvas(layout.exitButton)
+	layout.graphics.Show()
 }
 
 // todo rename repo to backpack
-func (layout *BackpackLayout) init(window *GUI.Window, assets *GUI.Assets, mortar *Mortar, dispatcher chan int) {
+func (layout *BackpackLayout) init(window *GUI.Window, assets *GUI.Assets, mortar *Mortar) {
 	if layout.initialized {
 		log.Fatal("can not initialize layout more than one time")
+	}
+	layout.initialized = true
+
+	for _, ingredient := range ingredientsDatabase.All() {
+		deref := ingredient
+		layout.ingredients = append(layout.ingredients, &deref)
 	}
 
 	closeButtonSprite := assets.GetSprite("btn.exit")
@@ -150,13 +198,17 @@ func (layout *BackpackLayout) init(window *GUI.Window, assets *GUI.Assets, morta
 	closeBackpackBtn.SetClickHandler(func() { firstLayer.Hide() })
 
 	lastIngredientPosition := GUI.Position{X: 50, Y: 500}
-	for _, ingredient := range ingredientsDatabase.All() {
+	for _, ingredient := range layout.ingredients {
 		ingredientBtn := window.CreateButton(assets.GetSprite(ingredient.sprite), lastIngredientPosition)
-		ingredientBtn.SetClickHandler(addIngredient(ingredient, mortar, firstLayer, dispatcher))
+		ingredientBtn.SetClickHandler(func(selected *Ingredient) func() {
+			return func() {
+				firstLayer.Hide()
+				event.FireEvent(&IngredientSelected{ingredient: selected})
+			}
+		}(ingredient))
+
 		lastIngredientPosition.Y -= 64
 		layout.ingredientsBtns = append(layout.ingredientsBtns, ingredientBtn)
-		// Backpack shall contain
-		layout.ingredients = append(layout.ingredients, &ingredient)
 	}
 
 	firstLayer.AddCanvas(layout.background)
@@ -167,14 +219,10 @@ func (layout *BackpackLayout) init(window *GUI.Window, assets *GUI.Assets, morta
 	firstLayer.AddCanvas(closeBackpackBtn)
 	firstLayer.Hide()
 
-	go func () {
-		for {
-			signal := <-dispatcher
-			if signal == INGREDIENT_SELECTION_BUTTON_PRESSED {
-				firstLayer.Show()
-			}
-		}
-	}()
+	event.On(EventAddIngredientButtonClicked, event.ListenerFunc(func(e event.Event) error {
+		firstLayer.Show()
+		return nil
+	}))
 
 	window.AddLayer(firstLayer)
 }

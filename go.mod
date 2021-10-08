@@ -4,6 +4,7 @@ go 1.17
 
 require (
 	github.com/faiface/pixel v0.10.0
+	github.com/gookit/event v1.0.5
 	golang.org/x/image v0.0.0-20190523035834-f03afa92d3ff
 )
 

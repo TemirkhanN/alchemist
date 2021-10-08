@@ -24,8 +24,9 @@ func (m *Mortar) AddIngredient(newIngredient Ingredient) error {
 		m.ingredients = append(m.ingredients, newIngredient)
 		return nil
 	}
-	if len(m.ingredients) == 4 {
-		return errors.New("there can not be more than 4 ingredients")
+
+	if !m.IngredientAllowed(newIngredient) {
+		return errors.New("can not add this ingredient")
 	}
 
 	for _, existingIngredient := range m.ingredients {
@@ -36,6 +37,25 @@ func (m *Mortar) AddIngredient(newIngredient Ingredient) error {
 	}
 
 	return errors.New("ingredients must have similar effects to be combined")
+}
+
+func (m Mortar) IngredientAllowed(ingredient Ingredient) bool {
+	amount := len(m.ingredients)
+	if amount == 0 {
+		return true
+	}
+
+	if amount == 4 {
+		return false
+	}
+
+	for _, existingIngredient := range m.ingredients {
+		if existingIngredient.hasSimilarEffects(ingredient) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (m *Mortar) Pestle() (Potion, error) {

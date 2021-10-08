@@ -44,3 +44,7 @@ func (layer Layer) NeedsRedraw() bool {
 func (layer *Layer) AddCanvas(canvas Canvas) {
 	layer.elements = append(layer.elements, canvas)
 }
+
+func (layer *Layer) Clear() {
+	layer.elements = nil
+}
