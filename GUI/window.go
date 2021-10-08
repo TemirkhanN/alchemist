@@ -73,7 +73,7 @@ func (w *Window) CreateButton(sprite *pixel.Sprite, position Position) *Button {
 				needsRedraw: true,
 			},
 		},
-		onclickfn: nil,
+		onclickfn: func() {},
 	}
 }
 
