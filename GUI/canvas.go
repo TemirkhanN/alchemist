@@ -2,13 +2,19 @@ package GUI
 
 import "github.com/faiface/pixel"
 
-type Canvas interface {
+type Drawer interface {
 	Show()
 	Hide()
 	Draw()
+	IsVisible() bool
 	NeedsRedraw() bool
+	Elements() []Drawer
+}
+
+type Canvas interface {
 	IsUnderPosition(position Position) bool
 	Position() Position
+	Drawer
 }
 
 type InteractiveCanvas interface {
@@ -34,7 +40,7 @@ type SpriteCanvas struct {
 	CommonCanvas
 }
 
-func (canvas CommonCanvas) NeedsRedraw() bool {
+func (canvas *CommonCanvas) NeedsRedraw() bool {
 	return canvas.needsRedraw && canvas.visible
 }
 
@@ -46,16 +52,24 @@ func (canvas *CommonCanvas) Hide() {
 	canvas.visible = false
 }
 
+func (canvas *CommonCanvas) IsVisible() bool {
+	return canvas.visible
+}
+
 func (canvas *CommonCanvas) Draw() {
 
 }
 
-func (canvas CommonCanvas) Position() Position {
+func (canvas *CommonCanvas) Position() Position {
 	return canvas.position
 }
 
-func (canvas CommonCanvas) IsUnderPosition(position Position) bool {
+func (canvas *CommonCanvas) IsUnderPosition(position Position) bool {
 	return false
+}
+
+func (canvas *CommonCanvas) Elements() []Drawer {
+	return nil
 }
 
 func (canvas *SpriteCanvas) Draw() {
@@ -66,7 +80,7 @@ func (canvas *SpriteCanvas) Draw() {
 	canvas.needsRedraw = false
 }
 
-func (canvas SpriteCanvas) IsUnderPosition(position Position) bool {
+func (canvas *SpriteCanvas) IsUnderPosition(position Position) bool {
 	buttonWidth := canvas.sprite.Picture().Bounds().W()
 	buttonHeight := canvas.sprite.Picture().Bounds().H()
 

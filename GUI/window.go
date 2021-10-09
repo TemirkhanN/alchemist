@@ -15,8 +15,8 @@ type Position struct {
 }
 
 type Window struct {
-	layers []*Layer
-	window *pixelgl.Window
+	graphics *Layer
+	window   *pixelgl.Window
 }
 
 func CreateWindow(width float64, height float64) *Window {
@@ -31,11 +31,11 @@ func CreateWindow(width float64, height float64) *Window {
 		panic(err)
 	}
 
-	return &Window{window: window}
+	return &Window{window: window, graphics: &Layer{visible: true}}
 }
 
 func (w *Window) AddLayer(layer *Layer) {
-	w.layers = append(w.layers, layer)
+	w.graphics.AddElement(layer)
 }
 
 func (w *Window) CreateSpriteCanvas(sprite *pixel.Sprite, position Position) *SpriteCanvas {
@@ -52,7 +52,7 @@ func (w *Window) CreateSpriteCanvas(sprite *pixel.Sprite, position Position) *Sp
 
 func (w *Window) CreateTextCanvas(text string, position Position) *TextCanvas {
 	return &TextCanvas{
-		text:  text,
+		text: text,
 		CommonCanvas: CommonCanvas{
 			position:    position,
 			visible:     true,
@@ -77,7 +77,7 @@ func (w *Window) CreateButton(sprite *pixel.Sprite, position Position) *Button {
 	}
 }
 
-func (w Window) LeftButtonClicked() bool {
+func (w *Window) LeftButtonClicked() bool {
 	return w.window.JustPressed(pixelgl.MouseButtonLeft) && w.window.MouseInsideWindow()
 }
 
@@ -96,8 +96,9 @@ func (w *Window) Refresh() {
 	if w.Closed() {
 		return
 	}
-
-	w.handleClicks()
+	if w.LeftButtonClicked() {
+		w.handleLeftClick(w.graphics, w.ClickedPosition())
+	}
 	w.draw()
 	w.window.Update()
 }
@@ -112,41 +113,37 @@ func (w *Window) DrawText(textValue string, position Position) {
 }
 
 func (w *Window) draw() {
-	for _, layer := range w.layers {
-		if layer.NeedsRedraw() {
-			w.window.Clear(colornames.White)
-			for _, layer := range w.layers {
-				layer.Draw()
-			}
-			break
-		}
-	}
-}
-
-func (w *Window) handleClicks() {
-	if !w.LeftButtonClicked() {
+	if !w.graphics.NeedsRedraw() {
 		return
 	}
-	// Interaction priority is LIFO. Click over canvasB which is drawn over canvasA shall start from canvas B handle
-	for i := len(w.layers) - 1; i >= 0; i-- {
-		layer := w.layers[i]
-		if !layer.visible {
-			continue
-		}
-		for j := len(layer.elements) - 1; j >= 0; j-- {
-			element := layer.elements[j]
-			if !element.IsUnderPosition(w.ClickedPosition()) {
-				continue
-			}
+	w.window.Clear(colornames.White)
+	w.graphics.Draw()
+}
 
-			interactiveElement, isInteractiveElement := element.(InteractiveCanvas)
-			if isInteractiveElement {
-				interactiveElement.Click()
-			}
-			// stop further propagation
-			return
+func (w *Window) handleLeftClick(graphics Drawer, clickedPosition Position) bool {
+	if !graphics.IsVisible() {
+		return false
+	}
+
+	interactiveElement, isInteractiveElement := graphics.(InteractiveCanvas)
+	if isInteractiveElement {
+		if interactiveElement.IsUnderPosition(clickedPosition) {
+			interactiveElement.Click()
+
+			return true
 		}
 	}
+
+	// Interaction priority is LIFO. Click over canvasB which is drawn over canvasA shall start from canvas B handle
+	for i := len(graphics.Elements()) - 1; i >= 0; i-- {
+		element := graphics.Elements()[i]
+		if w.handleLeftClick(element, clickedPosition) {
+			// stop further propagation
+			return true
+		}
+	}
+
+	return false
 }
 
 func (w *Window) drawSprite(sprite *pixel.Sprite, position Position) {

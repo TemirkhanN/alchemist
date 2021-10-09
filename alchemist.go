@@ -78,6 +78,7 @@ type BackpackLayout struct {
 	background      *GUI.SpriteCanvas
 	ingredientsBtns []*GUI.Button
 	closeButton     *GUI.Button
+	ingredientsVerticalOffset float64
 
 	ingredients           []*domain.Ingredient
 	mortar *domain.Mortar
@@ -181,13 +182,13 @@ func (layout *MainLayout) render() {
 	}
 
 	layout.graphics.Clear()
-	layout.graphics.AddCanvas(layout.background)
-	layout.graphics.AddCanvas(layout.textBlock)
+	layout.graphics.AddElement(layout.background)
+	layout.graphics.AddElement(layout.textBlock)
 	for _, slotCanvas := range layout.ingredientSlots {
-		layout.graphics.AddCanvas(slotCanvas)
+		layout.graphics.AddElement(slotCanvas)
 	}
-	layout.graphics.AddCanvas(layout.createPotionButton)
-	layout.graphics.AddCanvas(layout.exitButton)
+	layout.graphics.AddElement(layout.createPotionButton)
+	layout.graphics.AddElement(layout.exitButton)
 	layout.graphics.Show()
 }
 
@@ -200,6 +201,8 @@ func NewBackpackLayout(window *GUI.Window, mortar *domain.Mortar) *BackpackLayou
 	layout.initialized = true
 	layout.window = window
 	layout.mortar = mortar
+	// Allows scrolling ingredient list
+	layout.ingredientsVerticalOffset = 500
 
 	for _, ingredient := range domain.IngredientsDatabase.All() {
 		deref := ingredient
@@ -229,8 +232,8 @@ func NewBackpackLayout(window *GUI.Window, mortar *domain.Mortar) *BackpackLayou
 
 func (layout *BackpackLayout) render() {
 	layout.graphics.Clear()
-	layout.graphics.AddCanvas(layout.background)
-	lastIngredientPosition := GUI.Position{X: 50, Y: 500}
+	layout.graphics.AddElement(layout.background)
+	lastIngredientPosition := GUI.Position{X: 50, Y: layout.ingredientsVerticalOffset}
 	for _, ingredient := range layout.ingredients {
 		if !layout.mortar.IsEmpty() && !(layout.mortar.HaveSimilarEffects(layout.mortar.Ingredients()[0], ingredient)) {
 			continue
@@ -246,10 +249,10 @@ func (layout *BackpackLayout) render() {
 
 		lastIngredientPosition.Y -= 64
 		layout.ingredientsBtns = append(layout.ingredientsBtns, ingredientBtn)
-		layout.graphics.AddCanvas(ingredientBtn)
+		layout.graphics.AddElement(ingredientBtn)
 	}
 
-	layout.graphics.AddCanvas(layout.closeButton)
+	layout.graphics.AddElement(layout.closeButton)
 }
 
 func GetIngredientSprite(ingredient domain.Ingredient) *pixel.Sprite {

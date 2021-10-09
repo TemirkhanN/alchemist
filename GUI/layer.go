@@ -1,7 +1,7 @@
 package GUI
 
 type Layer struct {
-	elements []Canvas
+	elements []Drawer
 	visible bool
 	needsRedraw bool
 }
@@ -16,6 +16,10 @@ func (layer *Layer) Hide() {
 	layer.needsRedraw = true
 }
 
+func (layer *Layer) IsVisible() bool {
+	return layer.visible
+}
+
 func (layer *Layer) Draw() {
 	if !layer.visible{
 		return
@@ -27,7 +31,7 @@ func (layer *Layer) Draw() {
 	layer.needsRedraw = false
 }
 
-func (layer Layer) NeedsRedraw() bool {
+func (layer *Layer) NeedsRedraw() bool {
 	if layer.needsRedraw {
 		return true
 	}
@@ -41,7 +45,11 @@ func (layer Layer) NeedsRedraw() bool {
 	return false
 }
 
-func (layer *Layer) AddCanvas(canvas Canvas) {
+func (layer *Layer) Elements() []Drawer {
+	return layer.elements
+}
+
+func (layer *Layer) AddElement(canvas Drawer) {
 	layer.elements = append(layer.elements, canvas)
 }
 
