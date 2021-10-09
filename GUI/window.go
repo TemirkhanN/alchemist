@@ -73,7 +73,8 @@ func (w *Window) CreateButton(sprite *pixel.Sprite, position Position) *Button {
 				needsRedraw: true,
 			},
 		},
-		onclickfn: func() {},
+		onclickFn: func() {},
+		onmouseoverFn: func() {},
 	}
 }
 
@@ -81,7 +82,7 @@ func (w *Window) LeftButtonClicked() bool {
 	return w.window.JustPressed(pixelgl.MouseButtonLeft) && w.window.MouseInsideWindow()
 }
 
-func (w Window) ClickedPosition() Position {
+func (w Window) CursorPosition() Position {
 	return Position{
 		X: w.window.MousePosition().X,
 		Y: w.window.MousePosition().Y,
@@ -96,9 +97,13 @@ func (w *Window) Refresh() {
 	if w.Closed() {
 		return
 	}
+
+	cursorPosition := w.CursorPosition()
+	w.handleMouseOver(w.graphics, cursorPosition)
 	if w.LeftButtonClicked() {
-		w.handleLeftClick(w.graphics, w.ClickedPosition())
+		w.handleLeftClick(w.graphics, cursorPosition)
 	}
+
 	w.draw()
 	w.window.Update()
 }
@@ -138,6 +143,32 @@ func (w *Window) handleLeftClick(graphics Drawer, clickedPosition Position) bool
 	for i := len(graphics.Elements()) - 1; i >= 0; i-- {
 		element := graphics.Elements()[i]
 		if w.handleLeftClick(element, clickedPosition) {
+			// stop further propagation
+			return true
+		}
+	}
+
+	return false
+}
+
+func (w *Window) handleMouseOver(graphics Drawer, onPosition Position) bool {
+	if !graphics.IsVisible() {
+		return false
+	}
+
+	interactiveElement, isInteractiveElement := graphics.(InteractiveCanvas)
+	if isInteractiveElement {
+		if interactiveElement.IsUnderPosition(onPosition) {
+			interactiveElement.EmitMouseOver()
+
+			return true
+		}
+	}
+
+	// Interaction priority is LIFO. EmitClick over canvasB which is drawn over canvasA shall start from canvas B handle
+	for i := len(graphics.Elements()) - 1; i >= 0; i-- {
+		element := graphics.Elements()[i]
+		if w.handleMouseOver(element, onPosition) {
 			// stop further propagation
 			return true
 		}

@@ -22,3 +22,7 @@ type Ingredient struct {
 func (i *Ingredient) Name() string {
 	return i.name
 }
+
+func (e *Effect) Name() string {
+	return e.name
+}

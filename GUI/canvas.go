@@ -22,6 +22,8 @@ type Canvas interface {
 type InteractiveCanvas interface {
 	EmitClick()
 	SetClickHandler(func())
+	EmitMouseOver()
+	SetMouseOverHandler(func())
 	Canvas
 }
 

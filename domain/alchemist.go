@@ -122,7 +122,7 @@ func (a *Alchemist) BrewPotion(potionName string) (Potion, error) {
 }
 
 func (a *Alchemist) Mastery() Mastery {
-	switch true {
+	switch {
 	case a.alchemyLevel < 25:
 		return MasteryNovice
 	case a.alchemyLevel < 50:
@@ -147,17 +147,16 @@ func (a *Alchemist) IdentifiableAmountOfEffects() int {
 	case MasteryJourneyman:
 		return 3
 	case MasteryExpert:
+		return 4
 	case MasteryMaster:
 		return 4
 	default:
 		panic("alchemist has unknown mastery level. Probably wrong level set somehow")
 	}
-
-	return 1 // unreachable statement
 }
 
 func (a *Alchemist) effectStrength() int {
-	effectiveLevel := a.alchemyLevel + int(0.4 * float64(a.luckLevel - 50))
+	effectiveLevel := a.alchemyLevel + int(0.4*float64(a.luckLevel-50))
 	if effectiveLevel < 0 {
 		effectiveLevel = 0
 	}
