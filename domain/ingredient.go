@@ -10,7 +10,7 @@ const (
 type Effect struct {
 	name      string
 	eType     EffectType
-	power     int16
+	power     int
 	increased bool
 }
 

@@ -36,17 +36,17 @@ type MainLayout struct {
 }
 
 type BackpackLayout struct {
-	initialized     bool
-	graphics        *GUI.Layer
-	window          *GUI.Window
-	background      *GUI.SpriteCanvas
-	ingredientsBtns []*GUI.Button
-	closeButton     *GUI.Button
-	ingredientsVerticalOffset float64
+	initialized                      bool
+	graphics                         *GUI.Layer
+	window                           *GUI.Window
+	background                       *GUI.SpriteCanvas
+	ingredientsBtns                  []*GUI.Button
+	closeButton                      *GUI.Button
+	ingredientsVerticalOffset        float64
 	ingredientsVerticalDefaultOffset float64
 
-	ingredients           []*domain.Ingredient
-	mortar *domain.Mortar
+	ingredients []*domain.Ingredient
+	alchemist   *domain.Alchemist
 }
 
 //go:embed assets/sprites
@@ -71,11 +71,12 @@ func main() {
 func launch(windowWidth float64, windowHeight float64) {
 	window := GUI.CreateWindow(windowWidth, windowHeight)
 
-	alchemistLevelHardcoded := 10
-	mortar := domain.NewNoviceMortar(alchemistLevelHardcoded)
+	alchemyLevelHardcoded := 10
+	luckLevelHardcoded := 5
+	alchemist := domain.NewAlchemist(alchemyLevelHardcoded, luckLevelHardcoded, domain.NewNoviceMortar())
 
-	mainLayout := NewMainLayout(window, mortar)
-	backpackLayout := NewBackpackLayout(window, mortar)
+	mainLayout := NewMainLayout(window, alchemist)
+	backpackLayout := NewBackpackLayout(window, alchemist)
 
 	window.AddLayer(mainLayout.graphics)
 	window.AddLayer(backpackLayout.graphics)
@@ -85,7 +86,7 @@ func launch(windowWidth float64, windowHeight float64) {
 	}
 }
 
-func NewMainLayout(window *GUI.Window, mortar *domain.Mortar) *MainLayout {
+func NewMainLayout(window *GUI.Window, alchemist *domain.Alchemist) *MainLayout {
 	layout := new(MainLayout)
 	if layout.initialized {
 		log.Fatal("can not initialize layout more than one time")
@@ -130,12 +131,12 @@ func NewMainLayout(window *GUI.Window, mortar *domain.Mortar) *MainLayout {
 
 	layout.createPotionButton = window.CreateButton(createPotionBtnSprite, GUI.Position{X: 253, Y: 116})
 	layout.createPotionButton.SetClickHandler(func() {
-		if len(mortar.Ingredients()) < 2 {
+		if len(alchemist.UsedIngredients()) < 2 {
 			layout.textBlock.ChangeText("You need at least 2 ingredients to make potion")
 			return
 		}
 
-		_, err := mortar.Pestle()
+		_, err := alchemist.BrewPotion("Some hardcoded potion name")
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -161,8 +162,8 @@ func NewMainLayout(window *GUI.Window, mortar *domain.Mortar) *MainLayout {
 		slotPosition := layout.ingredientSlots[layout.activeSlot].Position()
 		layout.ingredientSlots[layout.activeSlot] = window.CreateSpriteCanvas(ingredientIcon, slotPosition)
 
-		if mortar.IngredientAllowed(actualEvent.ingredient) {
-			mortar.AddIngredient(actualEvent.ingredient)
+		if alchemist.CanUseIngredient(actualEvent.ingredient) {
+			alchemist.UseIngredient(actualEvent.ingredient)
 		}
 
 		layout.activeSlot = Slot(None)
@@ -194,14 +195,14 @@ func (layout *MainLayout) render() {
 }
 
 // NewBackpackLayout todo rename repo to backpack
-func NewBackpackLayout(window *GUI.Window, mortar *domain.Mortar) *BackpackLayout {
+func NewBackpackLayout(window *GUI.Window, alchemist *domain.Alchemist) *BackpackLayout {
 	layout := new(BackpackLayout)
 	if layout.initialized {
 		log.Fatal("can not initialize layout more than one time")
 	}
 	layout.initialized = true
 	layout.window = window
-	layout.mortar = mortar
+	layout.alchemist = alchemist
 	// Allows scrolling ingredient list
 	layout.ingredientsVerticalDefaultOffset = 500
 	layout.ingredientsVerticalOffset = layout.ingredientsVerticalDefaultOffset
@@ -238,7 +239,7 @@ func (layout *BackpackLayout) render() {
 	layout.ingredientsBtns = nil
 	offset := layout.ingredientsVerticalDefaultOffset
 	for _, ingredient := range layout.ingredients {
-		if !layout.mortar.IsEmpty() && !(layout.mortar.HaveSimilarEffects(layout.mortar.Ingredients()[0], ingredient)) {
+		if !layout.alchemist.CanUseIngredient(ingredient) {
 			continue
 		}
 		ingredientBtn := layout.window.CreateButton(
