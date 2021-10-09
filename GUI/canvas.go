@@ -6,6 +6,8 @@ type Drawer interface {
 	Show()
 	Hide()
 	Draw()
+	Width() float64
+	Height() float64
 	IsVisible() bool
 	NeedsRedraw() bool
 	Elements() []Drawer
@@ -96,6 +98,14 @@ func (canvas *SpriteCanvas) IsUnderPosition(position Position) bool {
 	return false
 }
 
+func (canvas *SpriteCanvas) Width() float64 {
+	return canvas.sprite.Picture().Bounds().W()
+}
+
+func (canvas *SpriteCanvas) Height() float64 {
+	return canvas.sprite.Picture().Bounds().H()
+}
+
 func (canvas *SpriteCanvas) ChangeSprite(withSprite *pixel.Sprite) {
 	canvas.sprite = withSprite
 	canvas.needsRedraw = true
@@ -108,6 +118,16 @@ func (canvas *TextCanvas) Draw() {
 
 	canvas.drawnOn.DrawText(canvas.text, canvas.position)
 	canvas.needsRedraw = false
+}
+
+func (canvas *TextCanvas) Width() float64 {
+	// todo
+	return 0
+}
+
+func (canvas *TextCanvas) Height() float64 {
+	// todo
+	return 0
 }
 
 func (canvas *TextCanvas) ChangeText(text string) {

@@ -13,6 +13,42 @@ import (
 	"strings"
 )
 
+type Slot uint8
+
+const (
+	None Slot = iota
+	First
+	Second
+	Third
+	Fourth
+)
+
+type MainLayout struct {
+	initialized bool
+	activeSlot  Slot
+	graphics    *GUI.Layer
+
+	background         *GUI.SpriteCanvas
+	textBlock          *GUI.TextCanvas
+	ingredientSlots    map[Slot]GUI.Canvas
+	createPotionButton *GUI.Button
+	exitButton         *GUI.Button
+}
+
+type BackpackLayout struct {
+	initialized     bool
+	graphics        *GUI.Layer
+	window          *GUI.Window
+	background      *GUI.SpriteCanvas
+	ingredientsBtns []*GUI.Button
+	closeButton     *GUI.Button
+	ingredientsVerticalOffset float64
+	ingredientsVerticalDefaultOffset float64
+
+	ingredients           []*domain.Ingredient
+	mortar *domain.Mortar
+}
+
 //go:embed assets/sprites
 var spritesFs embed.FS
 var assets = func() *GUI.Assets {
@@ -49,48 +85,13 @@ func launch(windowWidth float64, windowHeight float64) {
 	}
 }
 
-type Slot uint8
-
-const (
-	None Slot = iota
-	First
-	Second
-	Third
-	Fourth
-)
-
-type MainLayout struct {
-	initialized bool
-	activeSlot  Slot
-	graphics    *GUI.Layer
-
-	background         *GUI.SpriteCanvas
-	textBlock          *GUI.TextCanvas
-	ingredientSlots    map[Slot]GUI.Canvas
-	createPotionButton *GUI.Button
-	exitButton         *GUI.Button
-}
-
-type BackpackLayout struct {
-	initialized     bool
-	graphics        *GUI.Layer
-	window          *GUI.Window
-	background      *GUI.SpriteCanvas
-	ingredientsBtns []*GUI.Button
-	closeButton     *GUI.Button
-	ingredientsVerticalOffset float64
-
-	ingredients           []*domain.Ingredient
-	mortar *domain.Mortar
-}
-
 func NewMainLayout(window *GUI.Window, mortar *domain.Mortar) *MainLayout {
 	layout := new(MainLayout)
 	if layout.initialized {
 		log.Fatal("can not initialize layout more than one time")
 	}
 	layout.initialized = true
-	layout.graphics = new(GUI.Layer)
+	layout.graphics = GUI.NewLayer(0, 0, true)
 
 	backgroundSprite := assets.GetSprite("mortar-interface")
 	addIngredientBtnSprite := assets.GetSprite("btn.add-ingredient")
@@ -202,7 +203,8 @@ func NewBackpackLayout(window *GUI.Window, mortar *domain.Mortar) *BackpackLayou
 	layout.window = window
 	layout.mortar = mortar
 	// Allows scrolling ingredient list
-	layout.ingredientsVerticalOffset = 500
+	layout.ingredientsVerticalDefaultOffset = 500
+	layout.ingredientsVerticalOffset = layout.ingredientsVerticalDefaultOffset
 
 	for _, ingredient := range domain.IngredientsDatabase.All() {
 		deref := ingredient
@@ -212,7 +214,7 @@ func NewBackpackLayout(window *GUI.Window, mortar *domain.Mortar) *BackpackLayou
 	closeButtonSprite := assets.GetSprite("btn.exit")
 	ingredientsLayoutSprite := assets.GetSprite("ingredients-interface")
 
-	layout.graphics = new(GUI.Layer)
+	layout.graphics = GUI.NewLayer(0, 0, false)
 	layout.background = window.CreateSpriteCanvas(ingredientsLayoutSprite, GUI.Position{})
 
 	layout.closeButton = window.CreateButton(closeButtonSprite, GUI.Position{X: 410, Y: 65})
@@ -225,20 +227,24 @@ func NewBackpackLayout(window *GUI.Window, mortar *domain.Mortar) *BackpackLayou
 		return nil
 	}))
 
-	layout.graphics.Hide()
-
 	return layout
 }
 
 func (layout *BackpackLayout) render() {
 	layout.graphics.Clear()
 	layout.graphics.AddElement(layout.background)
-	lastIngredientPosition := GUI.Position{X: 50, Y: layout.ingredientsVerticalOffset}
+
+	ingredientsLayer := GUI.NewLayer(0, 448, true)
+	layout.ingredientsBtns = nil
+	offset := layout.ingredientsVerticalDefaultOffset
 	for _, ingredient := range layout.ingredients {
 		if !layout.mortar.IsEmpty() && !(layout.mortar.HaveSimilarEffects(layout.mortar.Ingredients()[0], ingredient)) {
 			continue
 		}
-		ingredientBtn := layout.window.CreateButton(GetIngredientSprite(*ingredient), lastIngredientPosition)
+		ingredientBtn := layout.window.CreateButton(
+			GetIngredientSprite(*ingredient),
+			GUI.Position{X: 50, Y: offset},
+		)
 		ingredientBtn.SetClickHandler(func(selected *domain.Ingredient) func() {
 			return func() {
 				// todo potentially vulnerable for mistake on main(mortar) side
@@ -247,10 +253,12 @@ func (layout *BackpackLayout) render() {
 			}
 		}(ingredient))
 
-		lastIngredientPosition.Y -= 64
+		offset -= 64
 		layout.ingredientsBtns = append(layout.ingredientsBtns, ingredientBtn)
-		layout.graphics.AddElement(ingredientBtn)
+		ingredientsLayer.AddElement(ingredientBtn)
 	}
+	ingredientsLayer.Show()
+	layout.graphics.AddElement(ingredientsLayer)
 
 	layout.graphics.AddElement(layout.closeButton)
 }
