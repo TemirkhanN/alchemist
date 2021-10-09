@@ -7,20 +7,21 @@ import (
 type MortarLevel float32
 
 const (
-	APPRENTICE MortarLevel = 0.1
-	//NOVICE = 0.25
+	Novice MortarLevel = 0.1
+	//Apprentice = 0.25
 	//JOURNEYMAN = 0.5
 	//EXPERT = 0.75
 	//MASTER = 1
 )
 
 type Mortar struct {
-	alchemyLevel MortarLevel
-	ingredients  []Ingredient
+	alchemistLevel int
+	level          MortarLevel
+	ingredients    []*Ingredient
 }
 
-func (m *Mortar) AddIngredient(newIngredient Ingredient) error {
-	if len(m.ingredients) == 0 {
+func (m *Mortar) AddIngredient(newIngredient *Ingredient) error {
+	if m.IsEmpty() {
 		m.ingredients = append(m.ingredients, newIngredient)
 		return nil
 	}
@@ -30,7 +31,7 @@ func (m *Mortar) AddIngredient(newIngredient Ingredient) error {
 	}
 
 	for _, existingIngredient := range m.ingredients {
-		if existingIngredient.hasSimilarEffects(newIngredient) {
+		if m.HaveSimilarEffects(existingIngredient, newIngredient) {
 			m.ingredients = append(m.ingredients, newIngredient)
 			return nil
 		}
@@ -39,7 +40,7 @@ func (m *Mortar) AddIngredient(newIngredient Ingredient) error {
 	return errors.New("ingredients must have similar effects to be combined")
 }
 
-func (m Mortar) IngredientAllowed(ingredient Ingredient) bool {
+func (m *Mortar) IngredientAllowed(ingredient *Ingredient) bool {
 	amount := len(m.ingredients)
 	if amount == 0 {
 		return true
@@ -49,8 +50,9 @@ func (m Mortar) IngredientAllowed(ingredient Ingredient) bool {
 		return false
 	}
 
+	// todo is it allowed to mix ingredients that can be mixed but has no identified effects yet?
 	for _, existingIngredient := range m.ingredients {
-		if existingIngredient.hasSimilarEffects(ingredient) {
+		if m.HaveSimilarEffects(existingIngredient, ingredient) {
 			return true
 		}
 	}
@@ -58,7 +60,7 @@ func (m Mortar) IngredientAllowed(ingredient Ingredient) bool {
 	return false
 }
 
-func (m Mortar) Ingredients() []Ingredient {
+func (m *Mortar) Ingredients() []*Ingredient {
 	return m.ingredients
 }
 
@@ -69,7 +71,7 @@ func (m *Mortar) Pestle() (Potion, error) {
 
 	potionEffects := make(map[string]Effect)
 	for _, ingredient := range m.ingredients {
-		for _, effect := range ingredient.effects {
+		for _, effect := range m.DetermineEffects(ingredient) {
 			existingEffect, effectExists := potionEffects[effect.name]
 			if effectExists {
 				// todo type overflow
@@ -88,7 +90,7 @@ func (m *Mortar) Pestle() (Potion, error) {
 		if !potionEffect.increased {
 			continue
 		}
-		potionEffect.power = potionEffect.power * int16(m.alchemyLevel * 25)
+		potionEffect.power = potionEffect.power * int16(m.level*25)
 		list = append(list, potionEffect)
 	}
 
@@ -102,9 +104,54 @@ func (m *Mortar) Clear() {
 	m.ingredients = nil
 }
 
-func NewApprenticeMortar() *Mortar {
+func NewNoviceMortar(alchemistLevel int) *Mortar {
+	if alchemistLevel > 100 || alchemistLevel < 1 {
+		panic("todo runtime")
+	}
+
 	return &Mortar{
-		alchemyLevel: MortarLevel(APPRENTICE),
-		ingredients:  nil,
+		alchemistLevel: alchemistLevel,
+		level:          MortarLevel(Novice),
+		ingredients:    nil,
+	}
+}
+
+func (m *Mortar) IsEmpty() bool {
+	return len(m.ingredients) == 0
+}
+
+func (m *Mortar) HaveSimilarEffects(ingredient1 *Ingredient, ingredient2 *Ingredient) bool {
+	for _, effect1 := range m.DetermineEffects(ingredient1) {
+		for _, effect2 := range m.DetermineEffects(ingredient2) {
+			if effect1.name == effect2.name {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+func (m *Mortar) DetermineEffects(ingredient *Ingredient) []Effect {
+	identifiableAmountOfEffects := m.getIdentifiableAmountOfEffects()
+
+	return ingredient.effects[:identifiableAmountOfEffects]
+}
+
+func (m *Mortar) getIdentifiableAmountOfEffects() int {
+	switch true {
+	case m.alchemistLevel < 25 :
+		return 1
+	case m.alchemistLevel < 50 :
+		return 2
+	case m.alchemistLevel < 75 :
+		return 3
+	case m.alchemistLevel < 100 :
+		return 4
+	case m.alchemistLevel == 100 :
+		return 4
+	default:
+		return 1
+
 	}
 }

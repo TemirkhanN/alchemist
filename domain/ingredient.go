@@ -1,10 +1,17 @@
 package domain
 
+type EffectType string
+
+const (
+	Positive EffectType = "+"
+	Negative EffectType = "-"
+)
+
 type Effect struct {
-	name        string
-	description string
-	power       int16
-	increased   bool
+	name      string
+	eType     EffectType
+	power     int16
+	increased bool
 }
 
 type Ingredient struct {
@@ -12,18 +19,6 @@ type Ingredient struct {
 	effects []Effect
 }
 
-func (i Ingredient) hasSimilarEffects(withIngredient Ingredient) bool {
-	for _, effect1 := range i.effects {
-		for _, effect2 := range withIngredient.effects {
-			if effect1.name == effect2.name {
-				return true
-			}
-		}
-	}
-
-	return false
-}
-
-func (i Ingredient) Name() string {
+func (i *Ingredient) Name() string {
 	return i.name
 }

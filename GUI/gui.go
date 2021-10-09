@@ -11,16 +11,18 @@ import (
 
 type Assets struct {
 	filesystem *embed.FS
-	pathMap    map[string]string
+	sprites    map[string]string
 }
 
 func (assets *Assets) RegisterAssets(directory string, fs *embed.FS) error {
-	if assets.filesystem != nil {
-		return errors.New("multiple attempts to register assets")
+	if assets.filesystem == nil {
+		assets.filesystem = fs
+		assets.sprites = make(map[string]string)
 	}
 
-	assets.filesystem = fs
-	assets.pathMap = make(map[string]string)
+	if assets.filesystem != fs {
+		return errors.New("multiple attempts to register assets")
+	}
 
 	directory = strings.TrimRight(directory, "/")
 	dirEntries, err := fs.ReadDir(directory)
@@ -30,9 +32,13 @@ func (assets *Assets) RegisterAssets(directory string, fs *embed.FS) error {
 
 	for _, dirEntry := range dirEntries {
 		if dirEntry.IsDir() {
+			_ = assets.RegisterAssets(fmt.Sprintf("%s/%s", directory, dirEntry.Name()), fs)
 			continue
 		}
-		assets.pathMap[dirEntry.Name()] = fmt.Sprintf("%s/%s", directory, dirEntry.Name())
+
+		if strings.HasSuffix(dirEntry.Name(), ".png") {
+			assets.sprites[dirEntry.Name()] = fmt.Sprintf("%s/%s", directory, dirEntry.Name())
+		}
 	}
 
 	return nil
@@ -40,7 +46,7 @@ func (assets *Assets) RegisterAssets(directory string, fs *embed.FS) error {
 
 func (assets Assets) GetSprite(spriteName string) *pixel.Sprite {
 	key := fmt.Sprintf("%s.%s", spriteName, "png")
-	spritePath, spriteExists := assets.pathMap[key]
+	spritePath, spriteExists := assets.sprites[key]
 	if !spriteExists {
 		panic(fmt.Sprintf("sprite %s does not exist", spriteName))
 	}
