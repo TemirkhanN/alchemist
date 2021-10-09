@@ -20,7 +20,7 @@ type Canvas interface {
 }
 
 type InteractiveCanvas interface {
-	Click()
+	EmitClick()
 	SetClickHandler(func())
 	Canvas
 }

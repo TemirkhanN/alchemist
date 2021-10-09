@@ -9,6 +9,6 @@ func (b *Button) SetClickHandler(handler func()) {
 	b.onclickfn = handler
 }
 
-func (b *Button) Click() {
+func (b *Button) EmitClick() {
 	b.onclickfn()
 }

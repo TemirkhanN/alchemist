@@ -128,13 +128,13 @@ func (w *Window) handleLeftClick(graphics Drawer, clickedPosition Position) bool
 	interactiveElement, isInteractiveElement := graphics.(InteractiveCanvas)
 	if isInteractiveElement {
 		if interactiveElement.IsUnderPosition(clickedPosition) {
-			interactiveElement.Click()
+			interactiveElement.EmitClick()
 
 			return true
 		}
 	}
 
-	// Interaction priority is LIFO. Click over canvasB which is drawn over canvasA shall start from canvas B handle
+	// Interaction priority is LIFO. EmitClick over canvasB which is drawn over canvasA shall start from canvas B handle
 	for i := len(graphics.Elements()) - 1; i >= 0; i-- {
 		element := graphics.Elements()[i]
 		if w.handleLeftClick(element, clickedPosition) {
