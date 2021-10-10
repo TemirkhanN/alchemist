@@ -38,13 +38,18 @@ func (a *Alchemist) CanUseIngredient(ingredient *Ingredient) bool {
 		return false
 	}
 
+	canUse := false
 	for _, usedIngredient := range a.currentlyUsedIngredients {
-		if a.CanCombineIngredients(usedIngredient, ingredient) {
-			return true
+		if usedIngredient.Name() == ingredient.Name() {
+			return false
+		}
+
+		if !canUse && a.CanCombineIngredients(usedIngredient, ingredient) {
+			canUse = true
 		}
 	}
 
-	return false
+	return canUse
 }
 
 func (a *Alchemist) UseIngredient(newIngredient *Ingredient) error {
@@ -62,7 +67,13 @@ func (a *Alchemist) UsedIngredients() []*Ingredient {
 
 func (a *Alchemist) CanCombineIngredients(ingredient1 *Ingredient, ingredient2 *Ingredient) bool {
 	for _, effect1 := range a.DetermineEffects(ingredient1) {
+		if effect1.IsUnknown() {
+			continue
+		}
 		for _, effect2 := range a.DetermineEffects(ingredient2) {
+			if effect2.IsUnknown() {
+				continue
+			}
 			if effect1.name == effect2.name {
 				return true
 			}
@@ -101,6 +112,9 @@ func (a *Alchemist) BrewPotion(potionName string) (Potion, error) {
 	potionEffects := make(map[string]Effect)
 	for _, ingredient := range a.currentlyUsedIngredients {
 		for _, effect := range a.DetermineEffects(ingredient) {
+			if effect.IsUnknown() {
+				continue
+			}
 			_, effectExists := potionEffects[effect.name]
 			if effectExists {
 				// todo type overflow
