@@ -4,6 +4,8 @@ type Button struct {
 	SpriteCanvas
 	onclickFn func()
 	onmouseoverFn func()
+	onmouseoutFn func()
+	hovered bool
 }
 
 func (b *Button) SetClickHandler(handler func()) {
@@ -11,7 +13,9 @@ func (b *Button) SetClickHandler(handler func()) {
 }
 
 func (b *Button) EmitClick() {
-	b.onclickFn()
+	if b.onclickFn != nil {
+		b.onclickFn()
+	}
 }
 
 func (b *Button) SetMouseOverHandler(handler func()) {
@@ -19,5 +23,19 @@ func (b *Button) SetMouseOverHandler(handler func()) {
 }
 
 func (b *Button) EmitMouseOver() {
-	b.onmouseoverFn()
+	if !b.hovered && b.onmouseoverFn != nil {
+		b.hovered = true
+		b.onmouseoverFn()
+	}
+}
+
+func (b *Button) SetMouseOutHandler(handler func()) {
+	b.onmouseoutFn = handler
+}
+
+func (b *Button) EmitMouseOut() {
+	if b.hovered && b.onmouseoutFn != nil {
+		b.hovered = false
+		b.onmouseoutFn()
+	}
 }

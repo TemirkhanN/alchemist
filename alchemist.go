@@ -255,8 +255,10 @@ func (layout *BackpackLayout) render() {
 			}
 		}(ingredient))
 
+		var lastHoveredIngredient string
 		ingredientBtn.SetMouseOverHandler(func(hovered *domain.Ingredient) func() {
 			return func() {
+				lastHoveredIngredient = hovered.Name()
 				ingredientEffectsLayer.Clear()
 				initialPosition := GUI.Position{X: 650, Y: 380}
 				for _, effect := range layout.alchemist.DetermineEffects(hovered) {
@@ -273,6 +275,15 @@ func (layout *BackpackLayout) render() {
 					initialPosition.Y -= 68
 				}
 				ingredientEffectsLayer.Show()
+			}
+		}(ingredient))
+		ingredientBtn.SetMouseOutHandler(func(hovered *domain.Ingredient) func() {
+			return func() {
+				// If mouse is out, and it is not different ingredient hovered, then hide effect layer
+				if lastHoveredIngredient == hovered.Name(){
+					ingredientEffectsLayer.Clear()
+					ingredientEffectsLayer.Hide()
+				}
 			}
 		}(ingredient))
 
