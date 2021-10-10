@@ -129,8 +129,7 @@ func NewMainLayout(window *GUI.Window, alchemist *domain.Alchemist) *MainLayout 
 
 	layout.createPotionButton = window.CreateButton(createPotionBtnSprite, GUI.Position{X: 253, Y: 116})
 	layout.createPotionButton.SetClickHandler(func() {
-		if len(alchemist.UsedIngredients()) < 2 {
-			layout.textBlock.ChangeText("You need at least 2 ingredients to make potion")
+		if !alchemist.CanStartBrewing() {
 			return
 		}
 

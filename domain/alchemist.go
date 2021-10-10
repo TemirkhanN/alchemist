@@ -2,16 +2,6 @@ package domain
 
 import "errors"
 
-type Mastery int
-
-const (
-	MasteryNovice Mastery = iota
-	MasteryApprentice
-	MasteryJourneyman
-	MasteryExpert
-	MasteryMaster
-)
-
 type Alchemist struct {
 	luckLevel    int
 	alchemyLevel int
@@ -103,28 +93,47 @@ func (a *Alchemist) DiscardIngredients() {
 	a.currentlyUsedIngredients = nil
 }
 
+func (a *Alchemist) CanStartBrewing() bool {
+	usedIngredientsAmount := len(a.UsedIngredients())
+	if usedIngredientsAmount == 0 {
+		return false
+	}
+
+	if usedIngredientsAmount == 1 && !a.IsMaster() {
+		return false
+	}
+
+	return true
+}
+
 func (a *Alchemist) BrewPotion(potionName string) (Potion, error) {
 	usedIngredientsAmount := len(a.UsedIngredients())
-	if usedIngredientsAmount < 2 && a.Mastery() != MasteryMaster {
+	if !a.CanStartBrewing() {
 		return Potion{}, errors.New("there are not enough ingredients to create a potion")
 	}
 
 	potionEffects := make(map[string]Effect)
-	for _, ingredient := range a.currentlyUsedIngredients {
-		for _, effect := range a.DetermineEffects(ingredient) {
-			if effect.IsUnknown() {
-				continue
-			}
-			_, effectExists := potionEffects[effect.name]
-			if effectExists {
-				// todo type overflow
-				effect.increased = true
-			}
+	if usedIngredientsAmount == 1 && a.IsMaster() {
+		theOnlyEffect := a.currentlyUsedIngredients[0].Effects()[0]
+		theOnlyEffect.increased = true
+		potionEffects[theOnlyEffect.Name()] = theOnlyEffect
+	} else {
+		for _, ingredient := range a.currentlyUsedIngredients {
+			for _, effect := range a.DetermineEffects(ingredient) {
+				if effect.IsUnknown() {
+					continue
+				}
+				_, effectExists := potionEffects[effect.name]
+				if effectExists {
+					// todo type overflow
+					effect.increased = true
+				}
 
-			if a.Mastery() == MasteryMaster && usedIngredientsAmount == 1 {
-				effect.increased = true
+				if a.IsMaster() && usedIngredientsAmount == 1 {
+					effect.increased = true
+				}
+				potionEffects[effect.name] = effect
 			}
-			potionEffects[effect.name] = effect
 		}
 	}
 	a.DiscardIngredients()
@@ -145,34 +154,37 @@ func (a *Alchemist) BrewPotion(potionName string) (Potion, error) {
 	}, nil
 }
 
-func (a *Alchemist) Mastery() Mastery {
-	switch {
-	case a.alchemyLevel < 25:
-		return MasteryNovice
-	case a.alchemyLevel < 50:
-		return MasteryApprentice
-	case a.alchemyLevel < 75:
-		return MasteryJourneyman
-	case a.alchemyLevel < 100:
-		return MasteryExpert
-	case a.alchemyLevel == 100:
-		return MasteryMaster
-	default:
-		panic("alchemist has unknown mastery level. Probably wrong level set somehow")
-	}
+func (a *Alchemist) IsNovice() bool {
+	return a.alchemyLevel < 25
+}
+
+func (a *Alchemist) IsApprentice() bool {
+	return a.alchemyLevel >= 25 && a.alchemyLevel < 50
+}
+
+func (a *Alchemist) IsJourneyMan() bool {
+	return a.alchemyLevel >= 50 && a.alchemyLevel < 75
+}
+
+func (a *Alchemist) IsExpert() bool {
+	return a.alchemyLevel >= 75 && a.alchemyLevel < 100
+}
+
+func (a *Alchemist) IsMaster() bool {
+	return a.alchemyLevel == 100
 }
 
 func (a *Alchemist) IdentifiableAmountOfEffects() int {
-	switch a.Mastery() {
-	case MasteryNovice:
+	switch {
+	case a.IsNovice():
 		return 1
-	case MasteryApprentice:
+	case a.IsApprentice():
 		return 2
-	case MasteryJourneyman:
+	case a.IsJourneyMan():
 		return 3
-	case MasteryExpert:
+	case a.IsExpert():
 		return 4
-	case MasteryMaster:
+	case a.IsMaster():
 		return 4
 	default:
 		panic("alchemist has unknown mastery level. Probably wrong level set somehow")
