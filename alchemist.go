@@ -71,7 +71,7 @@ func main() {
 func launch(windowWidth float64, windowHeight float64) {
 	window := GUI.CreateWindow(windowWidth, windowHeight)
 
-	alchemyLevelHardcoded := 76
+	alchemyLevelHardcoded := 26
 	luckLevelHardcoded := 5
 	alchemist := domain.NewAlchemist(alchemyLevelHardcoded, luckLevelHardcoded, domain.NewNoviceMortar())
 
@@ -237,6 +237,9 @@ func (layout *BackpackLayout) render() {
 
 	ingredientsLayer := GUI.NewLayer(0, 448, true)
 	ingredientEffectsLayer := GUI.NewLayer(0, 0, false)
+	ingredientsLayerBackgroundPosition := GUI.Position{X: 605, Y: 200}
+	ingredientsLayerBackground := layout.window.CreateSpriteCanvas(assets.GetSprite("interface.effects"), ingredientsLayerBackgroundPosition)
+
 	layout.ingredientsBtns = nil
 	offset := layout.ingredientsVerticalDefaultOffset
 	for _, ingredient := range layout.ingredients {
@@ -260,19 +263,13 @@ func (layout *BackpackLayout) render() {
 			return func() {
 				lastHoveredIngredient = hovered.Name()
 				ingredientEffectsLayer.Clear()
-				initialPosition := GUI.Position{X: 650, Y: 380}
+				ingredientEffectsLayer.AddElement(ingredientsLayerBackground)
+				initialPosition := GUI.Position{X: 610, Y: 370}
 				for _, effect := range layout.alchemist.DetermineEffects(hovered) {
-					preview := layout.window.CreateSpriteCanvas(assets.GetSprite(effect.Name()), initialPosition)
-					// todo bake images with fonts and effect names
-					initialPosition.X += 64
-					initialPosition.Y += 25
-					effectName := layout.window.CreateTextCanvas(effect.Name(), initialPosition)
-					initialPosition.X -= 64
-					initialPosition.Y -= 25
-					ingredientEffectsLayer.AddElement(preview)
-					ingredientEffectsLayer.AddElement(effectName)
+					effectPreview := layout.window.CreateSpriteCanvas(assets.GetSprite(effect.Name()), initialPosition)
+					ingredientEffectsLayer.AddElement(effectPreview)
 
-					initialPosition.Y -= 68
+					initialPosition.Y -= 55
 				}
 				ingredientEffectsLayer.Show()
 			}

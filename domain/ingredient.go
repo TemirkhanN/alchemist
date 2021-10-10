@@ -26,3 +26,20 @@ func (i *Ingredient) Name() string {
 func (e *Effect) Name() string {
 	return e.name
 }
+
+func (i *Ingredient) Effects() []Effect {
+	return i.effects
+}
+
+func HideEffect(effect Effect) Effect {
+	return Effect{
+		name:      "Unknown Effect",
+		eType:     effect.eType,
+		power:     effect.power,
+		increased: effect.increased,
+	}
+}
+
+func (e Effect) IsUnknown() bool {
+	return e.name == "Unknown Effect"
+}
