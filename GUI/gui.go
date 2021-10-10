@@ -12,12 +12,14 @@ import (
 type Assets struct {
 	filesystem *embed.FS
 	sprites    map[string]string
+	cache map[string]*pixel.Sprite
 }
 
 func (assets *Assets) RegisterAssets(directory string, fs *embed.FS) error {
 	if assets.filesystem == nil {
 		assets.filesystem = fs
 		assets.sprites = make(map[string]string)
+		assets.cache = make(map[string]*pixel.Sprite)
 	}
 
 	if assets.filesystem != fs {
@@ -45,24 +47,33 @@ func (assets *Assets) RegisterAssets(directory string, fs *embed.FS) error {
 }
 
 func (assets Assets) GetSprite(spriteName string) *pixel.Sprite {
-	key := fmt.Sprintf("%s.%s", spriteName, "png")
-	spritePath, spriteExists := assets.sprites[key]
-	if !spriteExists {
-		panic(fmt.Sprintf("sprite %s does not exist", spriteName))
+	if assets.cache == nil {
+		panic("attempt to load sprite while there are not any assets registered")
 	}
 
-	file, err := assets.filesystem.Open(spritePath)
-	if err != nil {
-		panic(err)
+	cachedSprite := assets.cache[spriteName]
+	if cachedSprite == nil {
+		key := fmt.Sprintf("%s.%s", spriteName, "png")
+		spritePath, spriteExists := assets.sprites[key]
+		if !spriteExists {
+			panic(fmt.Sprintf("sprite %s does not exist", spriteName))
+		}
+
+		file, err := assets.filesystem.Open(spritePath)
+		if err != nil {
+			panic(err)
+		}
+		defer file.Close()
+
+		img, _, err := image.Decode(file)
+		if err != nil {
+			panic(err)
+		}
+
+		pic := pixel.PictureDataFromImage(img)
+
+		assets.cache[spriteName] = pixel.NewSprite(pic, pic.Bounds())
 	}
-	defer file.Close()
 
-	img, _, err := image.Decode(file)
-	if err != nil {
-		panic(err)
-	}
-
-	pic := pixel.PictureDataFromImage(img)
-
-	return pixel.NewSprite(pic, pic.Bounds())
+	return assets.cache[spriteName]
 }
