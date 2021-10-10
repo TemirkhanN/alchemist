@@ -94,7 +94,7 @@ func NewMainLayout(window *GUI.Window, alchemist *domain.Alchemist) *MainLayout 
 	layout.initialized = true
 	layout.graphics = GUI.NewLayer(0, 0, true)
 
-	backgroundSprite := assets.GetSprite("mortar-interface")
+	backgroundSprite := assets.GetSprite("interface.alchemy")
 	addIngredientBtnSprite := assets.GetSprite("btn.add-ingredient")
 	createPotionBtnSprite := assets.GetSprite("btn.create-potion")
 	exitBtnSprite := assets.GetSprite("btn.exit")
@@ -213,7 +213,7 @@ func NewBackpackLayout(window *GUI.Window, alchemist *domain.Alchemist) *Backpac
 	}
 
 	closeButtonSprite := assets.GetSprite("btn.exit")
-	ingredientsLayoutSprite := assets.GetSprite("ingredients-interface")
+	ingredientsLayoutSprite := assets.GetSprite("interface.ingredients")
 
 	layout.graphics = GUI.NewLayer(0, 0, false)
 	layout.background = window.CreateSpriteCanvas(ingredientsLayoutSprite, GUI.Position{})
