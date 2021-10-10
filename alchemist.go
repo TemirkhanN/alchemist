@@ -4,7 +4,6 @@ import (
 	"embed"
 	"github.com/TemirkhanN/alchemist/GUI"
 	"github.com/TemirkhanN/alchemist/domain"
-	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/gookit/event"
 	_ "image/png"
@@ -277,7 +276,7 @@ func (layout *BackpackLayout) render() {
 		ingredientBtn.SetMouseOutHandler(func(hovered *domain.Ingredient) func() {
 			return func() {
 				// If mouse is out, and it is not different ingredient hovered, then hide effect layer
-				if lastHoveredIngredient == hovered.Name(){
+				if lastHoveredIngredient == hovered.Name() {
 					ingredientEffectsLayer.Clear()
 					ingredientEffectsLayer.Hide()
 				}
@@ -296,7 +295,7 @@ func (layout *BackpackLayout) render() {
 	layout.graphics.AddElement(layout.closeButton)
 }
 
-func GetIngredientSprite(ingredient domain.Ingredient) *pixel.Sprite {
+func GetIngredientSprite(ingredient domain.Ingredient) *GUI.Sprite {
 	spriteName := "ingr." + strings.ReplaceAll(strings.ToLower(ingredient.Name()), "'", "")
 
 	return assets.GetSprite(spriteName)

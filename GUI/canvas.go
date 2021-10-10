@@ -1,7 +1,5 @@
 package GUI
 
-import "github.com/faiface/pixel"
-
 type Drawer interface {
 	Show()
 	Hide()
@@ -42,7 +40,7 @@ type TextCanvas struct {
 }
 
 type SpriteCanvas struct {
-	sprite *pixel.Sprite
+	sprite *Sprite
 	CommonCanvas
 }
 
@@ -87,8 +85,8 @@ func (canvas *SpriteCanvas) Draw() {
 }
 
 func (canvas *SpriteCanvas) IsUnderPosition(position Position) bool {
-	buttonWidth := canvas.sprite.Picture().Bounds().W()
-	buttonHeight := canvas.sprite.Picture().Bounds().H()
+	buttonWidth := canvas.sprite.Width()
+	buttonHeight := canvas.sprite.Height()
 
 	bottomLeftX := canvas.position.X
 	bottomLeftY := canvas.position.Y
@@ -103,14 +101,14 @@ func (canvas *SpriteCanvas) IsUnderPosition(position Position) bool {
 }
 
 func (canvas *SpriteCanvas) Width() float64 {
-	return canvas.sprite.Picture().Bounds().W()
+	return canvas.sprite.Width()
 }
 
 func (canvas *SpriteCanvas) Height() float64 {
-	return canvas.sprite.Picture().Bounds().H()
+	return canvas.sprite.Height()
 }
 
-func (canvas *SpriteCanvas) ChangeSprite(withSprite *pixel.Sprite) {
+func (canvas *SpriteCanvas) ChangeSprite(withSprite *Sprite) {
 	canvas.sprite = withSprite
 	canvas.needsRedraw = true
 }

@@ -12,14 +12,14 @@ import (
 type Assets struct {
 	filesystem *embed.FS
 	sprites    map[string]string
-	cache map[string]*pixel.Sprite
+	cache      map[string]*Sprite
 }
 
 func (assets *Assets) RegisterAssets(directory string, fs *embed.FS) error {
 	if assets.filesystem == nil {
 		assets.filesystem = fs
 		assets.sprites = make(map[string]string)
-		assets.cache = make(map[string]*pixel.Sprite)
+		assets.cache = make(map[string]*Sprite)
 	}
 
 	if assets.filesystem != fs {
@@ -46,7 +46,7 @@ func (assets *Assets) RegisterAssets(directory string, fs *embed.FS) error {
 	return nil
 }
 
-func (assets Assets) GetSprite(spriteName string) *pixel.Sprite {
+func (assets Assets) GetSprite(spriteName string) *Sprite {
 	if assets.cache == nil {
 		panic("attempt to load sprite while there are not any assets registered")
 	}
@@ -72,7 +72,7 @@ func (assets Assets) GetSprite(spriteName string) *pixel.Sprite {
 
 		pic := pixel.PictureDataFromImage(img)
 
-		assets.cache[spriteName] = pixel.NewSprite(pic, pic.Bounds())
+		assets.cache[spriteName] = &Sprite{src: pixel.NewSprite(pic, pic.Bounds())}
 	}
 
 	return assets.cache[spriteName]

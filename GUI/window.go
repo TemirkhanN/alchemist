@@ -38,7 +38,7 @@ func (w *Window) AddLayer(layer *Layer) {
 	w.graphics.AddElement(layer)
 }
 
-func (w *Window) CreateSpriteCanvas(sprite *pixel.Sprite, position Position) *SpriteCanvas {
+func (w *Window) CreateSpriteCanvas(sprite *Sprite, position Position) *SpriteCanvas {
 	return &SpriteCanvas{
 		sprite: sprite,
 		CommonCanvas: CommonCanvas{
@@ -62,7 +62,7 @@ func (w *Window) CreateTextCanvas(text string, position Position) *TextCanvas {
 	}
 }
 
-func (w *Window) CreateButton(sprite *pixel.Sprite, position Position) *Button {
+func (w *Window) CreateButton(sprite *Sprite, position Position) *Button {
 	return &Button{
 		SpriteCanvas: SpriteCanvas{
 			sprite: sprite,
@@ -195,11 +195,6 @@ func (w *Window) handleMouseOut(graphics Drawer, lastCursorPosition Position) {
 	}
 }
 
-func (w *Window) drawSprite(sprite *pixel.Sprite, position Position) {
-	fromLeftBottomCorner := pixel.Vec{
-		X: sprite.Picture().Bounds().Center().X + position.X,
-		Y: sprite.Picture().Bounds().Center().Y + position.Y,
-	}
-
-	sprite.Draw(w.window, pixel.IM.Moved(fromLeftBottomCorner))
+func (w *Window) drawSprite(sprite *Sprite, position Position) {
+	sprite.draw(w, position)
 }
