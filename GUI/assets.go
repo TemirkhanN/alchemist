@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/faiface/pixel"
 	"image"
+	_ "image/png"
 	"strings"
 )
 

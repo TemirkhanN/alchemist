@@ -6,7 +6,6 @@ import (
 	"github.com/TemirkhanN/alchemist/domain"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/gookit/event"
-	_ "image/png"
 	"log"
 	"os"
 	"strings"
