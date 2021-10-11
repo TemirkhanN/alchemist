@@ -866,14 +866,15 @@ func (r IngredientRepository) FindByName(name string) (Ingredient, error) {
 }
 
 func (r IngredientRepository) FindByNames(names []string) ([]Ingredient, error) {
-	var ingredients []Ingredient
+	ingredients := make([]Ingredient, len(names))
 
-	for _, name := range names {
+	for key, name := range names {
 		ingredient, err := r.FindByName(name)
 		if err != nil {
 			return []Ingredient{}, err
 		}
-		ingredients = append(ingredients, ingredient)
+
+		ingredients[key] = ingredient
 	}
 
 	return ingredients, nil

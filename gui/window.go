@@ -1,7 +1,8 @@
-package GUI
+package gui
 
 import (
 	"fmt"
+
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/faiface/pixel/text"
@@ -21,9 +22,19 @@ type Window struct {
 
 func CreateWindow(width float64, height float64) *Window {
 	cfg := pixelgl.WindowConfig{
-		Title:  "Alchemist",
-		Bounds: pixel.R(0, 0, width, height),
-		VSync:  true,
+		Title:                  "Alchemist",
+		Icon:                   nil,
+		Bounds:                 pixel.R(0, 0, width, height),
+		Position:               pixel.Vec{X: 0, Y: 0},
+		Monitor:                nil,
+		Resizable:              false,
+		Undecorated:            false,
+		NoIconify:              false,
+		AlwaysOnTop:            false,
+		TransparentFramebuffer: false,
+		VSync:                  true,
+		Maximized:              false,
+		Invisible:              false,
 	}
 
 	window, err := pixelgl.NewWindow(cfg)
@@ -31,7 +42,7 @@ func CreateWindow(width float64, height float64) *Window {
 		panic(err)
 	}
 
-	return &Window{window: window, graphics: &Layer{visible: true}}
+	return &Window{window: window, graphics: NewLayer(0, 0, true)}
 }
 
 func (w *Window) AddLayer(layer *Layer) {
@@ -73,6 +84,10 @@ func (w *Window) CreateButton(sprite *Sprite, position Position) *Button {
 				needsRedraw: true,
 			},
 		},
+		onclickFn:     nil,
+		onmouseoverFn: nil,
+		onmouseoutFn:  nil,
+		hovered:       false,
 	}
 }
 
@@ -99,6 +114,7 @@ func (w *Window) Refresh() {
 	cursorPosition := w.CursorPosition()
 	w.handleMouseOut(w.graphics, cursorPosition)
 	w.handleMouseOver(w.graphics, cursorPosition)
+
 	if w.LeftButtonClicked() {
 		w.handleLeftClick(w.graphics, cursorPosition)
 	}
@@ -120,12 +136,13 @@ func (w *Window) draw() {
 	if !w.graphics.NeedsRedraw() {
 		return
 	}
+
 	w.window.Clear(colornames.White)
 	w.graphics.Draw()
 }
 
 func (w *Window) handleLeftClick(graphics Drawer, clickedPosition Position) bool {
-	if !graphics.IsVisible() {
+	if !graphics.isVisible() {
 		return false
 	}
 
@@ -151,7 +168,7 @@ func (w *Window) handleLeftClick(graphics Drawer, clickedPosition Position) bool
 }
 
 func (w *Window) handleMouseOver(graphics Drawer, onPosition Position) bool {
-	if !graphics.IsVisible() {
+	if !graphics.isVisible() {
 		return false
 	}
 
@@ -177,7 +194,7 @@ func (w *Window) handleMouseOver(graphics Drawer, onPosition Position) bool {
 }
 
 func (w *Window) handleMouseOut(graphics Drawer, lastCursorPosition Position) {
-	if !graphics.IsVisible() {
+	if !graphics.isVisible() {
 		return
 	}
 
@@ -198,3 +215,7 @@ func (w *Window) handleMouseOut(graphics Drawer, lastCursorPosition Position) {
 func (w *Window) drawSprite(sprite *Sprite, position Position) {
 	sprite.draw(w, position)
 }
+
+var (
+	ZeroPosition = Position{X: 0, Y: 0}
+)

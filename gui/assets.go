@@ -1,13 +1,13 @@
-package GUI
+package gui
 
 import (
 	"embed"
 	"errors"
 	"fmt"
-	"github.com/faiface/pixel"
 	"image"
-	_ "image/png"
 	"strings"
+
+	"github.com/faiface/pixel"
 )
 
 type Assets struct {
@@ -27,8 +27,7 @@ func (assets *Assets) RegisterAssets(directory string, fs *embed.FS) error {
 		return errors.New("multiple attempts to register assets")
 	}
 
-	directory = strings.TrimRight(directory, "/")
-	dirEntries, err := fs.ReadDir(directory)
+	dirEntries, err := fs.ReadDir(strings.TrimRight(directory, "/"))
 	if err != nil {
 		return err
 	}
@@ -36,6 +35,7 @@ func (assets *Assets) RegisterAssets(directory string, fs *embed.FS) error {
 	for _, dirEntry := range dirEntries {
 		if dirEntry.IsDir() {
 			_ = assets.RegisterAssets(fmt.Sprintf("%s/%s", directory, dirEntry.Name()), fs)
+
 			continue
 		}
 
@@ -56,6 +56,7 @@ func (assets Assets) GetSprite(spriteName string) *Sprite {
 	if cachedSprite == nil {
 		key := fmt.Sprintf("%s.%s", spriteName, "png")
 		spritePath, spriteExists := assets.sprites[key]
+
 		if !spriteExists {
 			panic(fmt.Sprintf("sprite %s does not exist", spriteName))
 		}

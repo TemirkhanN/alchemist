@@ -1,4 +1,4 @@
-package GUI
+package gui
 
 type Layer struct {
 	elements    []Drawer
@@ -14,6 +14,7 @@ func NewLayer(width float64, height float64, visible bool) *Layer {
 		needsRedraw: true,
 		width:       width,
 		height:      height,
+		elements:    nil,
 	}
 }
 
@@ -27,7 +28,7 @@ func (layer *Layer) Hide() {
 	layer.needsRedraw = true
 }
 
-func (layer *Layer) IsVisible() bool {
+func (layer *Layer) isVisible() bool {
 	return layer.visible
 }
 
@@ -42,8 +43,10 @@ func (layer *Layer) Draw() {
 		if renderedHeight > layer.Height() {
 			break
 		}
+
 		element.Draw()
 	}
+
 	layer.needsRedraw = false
 }
 
@@ -82,6 +85,7 @@ func (layer *Layer) Width() float64 {
 	return layer.width
 }
 
+// Height todo fix invalid calculation because of different positioning. Elements on layer are not positioned in rows.
 func (layer *Layer) Height() float64 {
 	if layer.height != 0.0 {
 		return layer.height

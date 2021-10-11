@@ -1,0 +1,66 @@
+run:
+  skip-dirs:
+    - assets
+severity:
+  default-severity: warning
+linters:
+  enable:
+    - cyclop
+    - dogsled
+    - dupl
+    - errcheck
+    - errorlint
+    - exhaustive
+    - exhaustivestruct
+    - forbidigo
+    - funlen
+    - gci
+    - gocognit
+    - goconst
+    - gocritic
+    - gocyclo
+    - godot
+    # - godox triggers on todo and etc. turn on later
+    # - gofmt same v
+    # - gofumpt recheck in the end
+    - goheader
+    # - goimports same as^
+    #- gomnd extremely controversial rule
+    - gomoddirectives
+    - gomodguard
+    - gosec
+    - gosimple
+    - govet
+    - depguard
+    - ifshort
+    - importas
+    - lll
+    - makezero
+    - misspell
+    - nakedret
+    - nestif
+    - nlreturn
+    - nolintlint
+    - prealloc
+    - promlinter
+    - predeclared
+    - rowserrcheck
+    - revive
+    - staticcheck
+    - stylecheck
+    - tagliatelle
+    - testpackage
+    - thelper
+    - unparam
+    - unused
+    - whitespace
+    #- wrapcheck
+    - wsl
+linters-settings:
+  wsl:
+    # This rule is extremely volatile. It prevents any logical assign before call
+    allow-cuddle-declarations: true
+  goimports:
+    local-prefixes: github.com/TemirkhanN/alchemist
+  funlen:
+    lines: 100

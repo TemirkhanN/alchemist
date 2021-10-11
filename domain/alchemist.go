@@ -12,9 +12,10 @@ type Alchemist struct {
 
 func NewAlchemist(level int, luckLevel int, mortar *Mortar) *Alchemist {
 	return &Alchemist{
-		alchemyLevel: level,
-		luckLevel:    luckLevel,
-		mortar:       mortar,
+		alchemyLevel:             level,
+		luckLevel:                luckLevel,
+		mortar:                   mortar,
+		currentlyUsedIngredients: []*Ingredient{},
 	}
 }
 
@@ -29,6 +30,7 @@ func (a *Alchemist) CanUseIngredient(ingredient *Ingredient) bool {
 	}
 
 	canUse := false
+
 	for _, usedIngredient := range a.currentlyUsedIngredients {
 		if usedIngredient.Name() == ingredient.Name() {
 			return false
@@ -45,6 +47,7 @@ func (a *Alchemist) CanUseIngredient(ingredient *Ingredient) bool {
 func (a *Alchemist) UseIngredient(newIngredient *Ingredient) error {
 	if len(a.currentlyUsedIngredients) == 0 || a.CanUseIngredient(newIngredient) {
 		a.currentlyUsedIngredients = append(a.currentlyUsedIngredients, newIngredient)
+
 		return nil
 	}
 
@@ -60,10 +63,12 @@ func (a *Alchemist) CanCombineIngredients(ingredient1 *Ingredient, ingredient2 *
 		if effect1.IsUnknown() {
 			continue
 		}
+
 		for _, effect2 := range a.DetermineEffects(ingredient2) {
 			if effect2.IsUnknown() {
 				continue
 			}
+
 			if effect1.name == effect2.name {
 				return true
 			}
@@ -107,50 +112,56 @@ func (a *Alchemist) CanStartBrewing() bool {
 }
 
 func (a *Alchemist) BrewPotion(potionName string) (Potion, error) {
-	usedIngredientsAmount := len(a.UsedIngredients())
 	if !a.CanStartBrewing() {
 		return Potion{}, errors.New("there are not enough ingredients to create a potion")
 	}
 
-	potionEffects := make(map[string]Effect)
+	defer a.DiscardIngredients()
+
+	usedIngredientsAmount := len(a.UsedIngredients())
 	if usedIngredientsAmount == 1 && a.IsMaster() {
 		theOnlyEffect := a.currentlyUsedIngredients[0].Effects()[0]
 		theOnlyEffect.increased = true
-		potionEffects[theOnlyEffect.Name()] = theOnlyEffect
-	} else {
-		for _, ingredient := range a.currentlyUsedIngredients {
-			for _, effect := range a.DetermineEffects(ingredient) {
-				if effect.IsUnknown() {
-					continue
-				}
-				_, effectExists := potionEffects[effect.name]
-				if effectExists {
-					// todo type overflow
-					effect.increased = true
-				}
+		theOnlyEffect.power = a.effectStrength()
 
-				if a.IsMaster() && usedIngredientsAmount == 1 {
-					effect.increased = true
-				}
-				potionEffects[effect.name] = effect
+		return Potion{
+			name:    potionName,
+			effects: []Effect{theOnlyEffect},
+		}, nil
+	}
+
+	allEffects := make(map[string]Effect)
+
+	for _, ingredient := range a.currentlyUsedIngredients {
+		for _, effect := range a.DetermineEffects(ingredient) {
+			if effect.IsUnknown() {
+				continue
 			}
+
+			_, effectExists := allEffects[effect.Name()]
+			if effectExists {
+				effect.increased = true
+			}
+
+			allEffects[effect.Name()] = effect
 		}
 	}
-	a.DiscardIngredients()
 
-	list := make([]Effect, 0, len(potionEffects))
-	for _, potionEffect := range potionEffects {
+	potionEffects :=make([]Effect, 0)
+
+	for _, potionEffect := range allEffects {
 		// remove effects that didn't match between multiple ingredients
 		if !potionEffect.increased {
 			continue
 		}
+
 		potionEffect.power = a.effectStrength()
-		list = append(list, potionEffect)
+		potionEffects = append(potionEffects, potionEffect)
 	}
 
 	return Potion{
 		name:    potionName,
-		effects: list,
+		effects: potionEffects,
 	}, nil
 }
 
@@ -196,8 +207,10 @@ func (a *Alchemist) effectStrength() int {
 	if effectiveLevel < 0 {
 		effectiveLevel = 0
 	}
+
 	if effectiveLevel > 100 {
 		effectiveLevel = 100
 	}
+
 	return effectiveLevel + int(a.mortar.Strength())
 }

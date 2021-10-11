@@ -1,8 +1,11 @@
 package main
 
 import (
-	"github.com/TemirkhanN/alchemist/domain"
+	"log"
+
 	"github.com/gookit/event"
+
+	"github.com/TemirkhanN/alchemist/domain"
 )
 
 type IngredientSelected struct {
@@ -27,3 +30,10 @@ const (
 	EventIngredientSelected         = "ingredientSelected"
 	EventAddIngredientButtonClicked = "addIngredientButtonClicked"
 )
+
+func newAddIngredientButtonClickedEvent(inSlot Slot) {
+	err := event.TriggerEvent(&AddIngredientButtonClicked{slot: inSlot, BasicEvent: event.BasicEvent{}})
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+}

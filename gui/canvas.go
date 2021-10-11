@@ -1,4 +1,4 @@
-package GUI
+package gui
 
 type Drawer interface {
 	Show()
@@ -6,7 +6,7 @@ type Drawer interface {
 	Draw()
 	Width() float64
 	Height() float64
-	IsVisible() bool
+	isVisible() bool
 	NeedsRedraw() bool
 	Elements() []Drawer
 }
@@ -56,7 +56,7 @@ func (canvas *CommonCanvas) Hide() {
 	canvas.visible = false
 }
 
-func (canvas *CommonCanvas) IsVisible() bool {
+func (canvas *CommonCanvas) isVisible() bool {
 	return canvas.visible
 }
 
@@ -80,6 +80,7 @@ func (canvas *SpriteCanvas) Draw() {
 	if !canvas.visible {
 		return
 	}
+
 	canvas.drawnOn.drawSprite(canvas.sprite, Position{X: canvas.position.X, Y: canvas.position.Y})
 	canvas.needsRedraw = false
 }

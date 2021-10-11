@@ -1,4 +1,4 @@
-package GUI
+package gui
 
 type Button struct {
 	SpriteCanvas
