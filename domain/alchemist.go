@@ -1,6 +1,9 @@
 package domain
 
-import "errors"
+import (
+	"errors"
+	"math"
+)
 
 type Alchemist struct {
 	luckLevel    int
@@ -85,7 +88,7 @@ func (a *Alchemist) DetermineEffects(ingredient *Ingredient) []Effect {
 	for i := 0; i < 4; i++ {
 		effect := ingredient.effects[i]
 		if i+1 > identifiableAmountOfEffects {
-			effect = HideEffect(effect)
+			effect = effect.HideEffectDetails()
 		}
 
 		effects = append(effects, effect)
@@ -121,15 +124,14 @@ func (a *Alchemist) BrewPotion(potionName string) (Potion, error) {
 	usedIngredientsAmount := len(a.UsedIngredients())
 	if usedIngredientsAmount == 1 && a.IsMaster() {
 		theOnlyEffect := a.currentlyUsedIngredients[0].Effects()[0]
-		theOnlyEffect.increased = true
-		theOnlyEffect.power = a.effectStrength()
 
 		return Potion{
 			name:    potionName,
-			effects: []Effect{theOnlyEffect},
+			effects: []PotionEffect{a.Refine(theOnlyEffect)},
 		}, nil
 	}
 
+	potionEffects := make(map[string]PotionEffect)
 	allEffects := make(map[string]Effect)
 
 	for _, ingredient := range a.currentlyUsedIngredients {
@@ -139,29 +141,24 @@ func (a *Alchemist) BrewPotion(potionName string) (Potion, error) {
 			}
 
 			_, effectExists := allEffects[effect.Name()]
-			if effectExists {
-				effect.increased = true
+			if !effectExists {
+				allEffects[effect.Name()] = effect
+
+				continue
 			}
 
-			allEffects[effect.Name()] = effect
+			potionEffects[effect.Name()] = a.Refine(effect)
 		}
 	}
 
-	potionEffects := make([]Effect, 0)
-
-	for _, potionEffect := range allEffects {
-		// remove effects that didn't match between multiple ingredients
-		if !potionEffect.increased {
-			continue
-		}
-
-		potionEffect.power = a.effectStrength()
-		potionEffects = append(potionEffects, potionEffect)
+	effects := make([]PotionEffect, 0)
+	for _, effect := range potionEffects {
+		effects = append(effects, effect)
 	}
 
 	return Potion{
 		name:    potionName,
-		effects: potionEffects,
+		effects: effects,
 	}, nil
 }
 
@@ -202,15 +199,63 @@ func (a *Alchemist) IdentifiableAmountOfEffects() int {
 	}
 }
 
-func (a *Alchemist) effectStrength() int {
-	effectiveLevel := a.alchemyLevel + int(0.4*float64(a.luckLevel-50))
+func (a *Alchemist) Refine(effect Effect) PotionEffect {
+	magnitude := math.Round(a.calculateMagnitude(effect))
+	if magnitude < 1 {
+		magnitude = 1
+	}
+
+	duration := math.Round(a.calculateDuration(effect))
+	if duration < 1 {
+		duration = 1
+	}
+
+	return PotionEffect{
+		magnitude: magnitude,
+		duration:  duration,
+		Effect: Effect{
+			name:     effect.Name(),
+			positive: effect.positive,
+			eType:    effect.eType,
+			baseCost: effect.baseCost,
+		},
+	}
+}
+
+func (a *Alchemist) effectiveAlchemyLevel() float64 {
+	effectiveLevel := float64(a.alchemyLevel) + (0.4 * float64(a.luckLevel-50))
 	if effectiveLevel < 0 {
-		effectiveLevel = 0
+		return 0
 	}
 
 	if effectiveLevel > 100 {
-		effectiveLevel = 100
+		return 100
 	}
 
-	return effectiveLevel + int(a.mortar.Strength())
+	return effectiveLevel
+}
+
+func (a *Alchemist) calculateMagnitude(effect Effect) float64 {
+	if effect.IsDurationOnly() {
+		return 1.0
+	}
+
+	delta := 4.0
+	if effect.IsMagnitudeOnly() {
+		delta = 1.0
+	}
+
+	return math.Pow((a.effectiveAlchemyLevel()+a.mortar.Strength())/(effect.baseCost/10*delta), 1/2.28)
+}
+
+func (a *Alchemist) calculateDuration(effect Effect) float64 {
+	if effect.IsMagnitudeOnly() {
+		return 1.0
+	}
+
+	if effect.IsDurationOnly() {
+		return (a.effectiveAlchemyLevel() + a.mortar.Strength()) / (effect.baseCost / 10)
+	}
+
+	return 4 * a.calculateMagnitude(effect)
 }
