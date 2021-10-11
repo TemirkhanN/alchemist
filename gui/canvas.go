@@ -60,9 +60,7 @@ func (canvas *CommonCanvas) isVisible() bool {
 	return canvas.visible
 }
 
-func (canvas *CommonCanvas) Draw() {
-
-}
+func (canvas *CommonCanvas) Draw() {}
 
 func (canvas *CommonCanvas) Position() Position {
 	return canvas.position
