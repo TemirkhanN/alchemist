@@ -2,10 +2,10 @@ package GUI
 
 type Button struct {
 	SpriteCanvas
-	onclickFn func()
+	onclickFn     func()
 	onmouseoverFn func()
-	onmouseoutFn func()
-	hovered bool
+	onmouseoutFn  func()
+	hovered       bool
 }
 
 func (b *Button) SetClickHandler(handler func()) {

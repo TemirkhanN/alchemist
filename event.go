@@ -15,7 +15,7 @@ type AddIngredientButtonClicked struct {
 	event.BasicEvent
 }
 
-func (e IngredientSelected) Name() string{
+func (e IngredientSelected) Name() string {
 	return EventIngredientSelected
 }
 
@@ -24,6 +24,6 @@ func (e AddIngredientButtonClicked) Name() string {
 }
 
 const (
-	EventIngredientSelected = "ingredientSelected"
+	EventIngredientSelected         = "ingredientSelected"
 	EventAddIngredientButtonClicked = "addIngredientButtonClicked"
 )

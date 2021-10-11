@@ -8,7 +8,6 @@ type Sprite struct {
 	src *pixel.Sprite
 }
 
-
 func (s *Sprite) Width() float64 {
 	return s.src.Picture().Bounds().W()
 }
