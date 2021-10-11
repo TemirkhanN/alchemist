@@ -100,22 +100,34 @@ func NewMainLayout(window *GUI.Window, alchemist *domain.Alchemist) *MainLayout 
 	button1 := window.CreateButton(addIngredientBtnSprite, GUI.Position{X: 187, Y: 390})
 	button1.SetClickHandler(func() {
 		layout.activeSlot = Slot(First)
-		event.TriggerEvent(&AddIngredientButtonClicked{slot: layout.activeSlot})
+		err := event.TriggerEvent(&AddIngredientButtonClicked{slot: layout.activeSlot})
+		if err != nil {
+			log.Fatal(err)
+		}
 	})
 	button2 := window.CreateButton(addIngredientBtnSprite, GUI.Position{X: 187, Y: 320})
 	button2.SetClickHandler(func() {
 		layout.activeSlot = Slot(Second)
-		event.TriggerEvent(&AddIngredientButtonClicked{slot: layout.activeSlot})
+		err := event.TriggerEvent(&AddIngredientButtonClicked{slot: layout.activeSlot})
+		if err != nil {
+			log.Fatal(err)
+		}
 	})
 	button3 := window.CreateButton(addIngredientBtnSprite, GUI.Position{X: 187, Y: 250})
 	button3.SetClickHandler(func() {
 		layout.activeSlot = Slot(Third)
-		event.TriggerEvent(&AddIngredientButtonClicked{slot: layout.activeSlot})
+		err := event.TriggerEvent(&AddIngredientButtonClicked{slot: layout.activeSlot})
+		if err != nil {
+			log.Fatal(err)
+		}
 	})
 	button4 := window.CreateButton(addIngredientBtnSprite, GUI.Position{X: 187, Y: 180})
 	button4.SetClickHandler(func() {
 		layout.activeSlot = Slot(Fourth)
-		event.TriggerEvent(&AddIngredientButtonClicked{slot: layout.activeSlot})
+		err := event.TriggerEvent(&AddIngredientButtonClicked{slot: layout.activeSlot})
+		if err != nil {
+			log.Fatal(err)
+		}
 	})
 
 	layout.background = window.CreateSpriteCanvas(backgroundSprite, GUI.Position{})
@@ -160,7 +172,10 @@ func NewMainLayout(window *GUI.Window, alchemist *domain.Alchemist) *MainLayout 
 		layout.ingredientSlots[layout.activeSlot] = window.CreateSpriteCanvas(ingredientIcon, slotPosition)
 
 		if alchemist.CanUseIngredient(actualEvent.ingredient) {
-			alchemist.UseIngredient(actualEvent.ingredient)
+			err := alchemist.UseIngredient(actualEvent.ingredient)
+			if err != nil {
+				layout.textBlock.ChangeText(err.Error())
+			}
 		}
 
 		layout.activeSlot = Slot(None)
@@ -251,7 +266,10 @@ func (layout *BackpackLayout) render() {
 			return func() {
 				// todo potentially vulnerable for mistake on main(mortar) side
 				layout.graphics.Hide()
-				event.FireEvent(&IngredientSelected{ingredient: selected})
+				err := event.FireEvent(&IngredientSelected{ingredient: selected})
+				if err != nil {
+					log.Fatal(err)
+				}
 			}
 		}(ingredient))
 
