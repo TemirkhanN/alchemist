@@ -50,19 +50,6 @@ type BackpackLayout struct {
 	alchemist   *domain.Alchemist
 }
 
-//go:embed assets/sprites
-var spritesFs embed.FS
-var assets = func() *gui.Assets {
-	loadedAssets := new(gui.Assets)
-	// todo shall filesystem be passed by reference or not?
-	err := loadedAssets.RegisterAssets("assets", &spritesFs)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return loadedAssets
-}()
-
 func main() {
 	pixelgl.Run(func() {
 		launch(1024, 768)
@@ -320,3 +307,17 @@ func GetIngredientSprite(ingredient domain.Ingredient) *gui.Sprite {
 
 	return assets.GetSprite(spriteName)
 }
+
+//go:embed assets/sprites
+var spritesFs embed.FS
+
+var assets = func() *gui.Assets {
+	loadedAssets := new(gui.Assets)
+	// todo shall filesystem be passed by reference or not?
+	err := loadedAssets.RegisterAssets("assets", &spritesFs)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return loadedAssets
+}()

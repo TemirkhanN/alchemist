@@ -147,7 +147,7 @@ func (a *Alchemist) BrewPotion(potionName string) (Potion, error) {
 		}
 	}
 
-	potionEffects :=make([]Effect, 0)
+	potionEffects := make([]Effect, 0)
 
 	for _, potionEffect := range allEffects {
 		// remove effects that didn't match between multiple ingredients

@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/faiface/pixel"
+	errors2 "github.com/pkg/errors"
 )
 
 type Assets struct {
@@ -29,7 +30,7 @@ func (assets *Assets) RegisterAssets(directory string, fs *embed.FS) error {
 
 	dirEntries, err := fs.ReadDir(strings.TrimRight(directory, "/"))
 	if err != nil {
-		return err
+		return errors2.Wrap(err, "Couldn't register assets")
 	}
 
 	for _, dirEntry := range dirEntries {

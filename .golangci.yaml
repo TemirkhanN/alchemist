@@ -21,10 +21,10 @@ linters:
     - gocyclo
     - godot
     # - godox triggers on todo and etc. turn on later
-    # - gofmt same v
-    # - gofumpt recheck in the end
+    - gofmt
+    - gofumpt
     - goheader
-    # - goimports same as^
+    - goimports
     #- gomnd extremely controversial rule
     - gomoddirectives
     - gomodguard
@@ -54,7 +54,7 @@ linters:
     - unparam
     - unused
     - whitespace
-    #- wrapcheck
+    - wrapcheck
     - wsl
 linters-settings:
   wsl:

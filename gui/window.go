@@ -216,6 +216,4 @@ func (w *Window) drawSprite(sprite *Sprite, position Position) {
 	sprite.draw(w, position)
 }
 
-var (
-	ZeroPosition = Position{X: 0, Y: 0}
-)
+var ZeroPosition = Position{X: 0, Y: 0}
