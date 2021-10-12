@@ -72,7 +72,7 @@ func (canvas *CommonCanvas) setPosition(position Position) {
 	canvas.position = position
 }
 
-func (canvas *CommonCanvas) IsUnderPosition(position Position) bool {
+func (canvas *CommonCanvas) IsUnderPosition(Position) bool {
 	return false
 }
 
@@ -85,7 +85,7 @@ func (canvas *SpriteCanvas) Draw() {
 		return
 	}
 
-	canvas.drawnOn.drawSprite(canvas.sprite, Position{X: canvas.position.X, Y: canvas.position.Y})
+	canvas.drawnOn.drawSprite(canvas.sprite, canvas.position)
 	canvas.needsRedraw = false
 }
 
@@ -93,12 +93,15 @@ func (canvas *SpriteCanvas) IsUnderPosition(position Position) bool {
 	buttonWidth := canvas.sprite.Width()
 	buttonHeight := canvas.sprite.Height()
 
-	bottomLeftX := canvas.position.X
-	bottomLeftY := canvas.position.Y
-	topRightX := canvas.position.X + buttonWidth
-	topRightY := canvas.position.Y + buttonHeight
+	bottomLeftX := canvas.position.X()
+	bottomLeftY := canvas.position.Y()
+	topRightX := canvas.position.X() + buttonWidth
+	topRightY := canvas.position.Y() + buttonHeight
 
-	if (position.X > bottomLeftX && position.X < topRightX) && (position.Y > bottomLeftY && position.Y < topRightY) {
+	posX := position.X()
+	posY := position.Y()
+
+	if (posX > bottomLeftX && posX < topRightX) && (posY > bottomLeftY && posY < topRightY) {
 		return true
 	}
 

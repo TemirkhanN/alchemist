@@ -110,21 +110,21 @@ func (layer Layer) Position() Position {
 
 func (layer Layer) canFullyFit(element Drawer) bool {
 	// element is placed left from the layer
-	if layer.Position().X > element.Position().X {
+	if layer.Position().X() > element.Position().X() {
 		return false
 	}
 
 	// element is not fitting on layer width
-	if layer.Position().X+layer.Width() < element.Position().X+element.Width() {
+	if layer.Position().X()+layer.Width() < element.Position().X()+element.Width() {
 		return false
 	}
 
 	// element is placed below the layer
-	if layer.Position().Y > element.Position().Y {
+	if layer.Position().Y() > element.Position().Y() {
 		return false
 	}
 
-	if layer.Position().Y+layer.Height() < element.Position().Y+element.Height() {
+	if layer.Position().Y()+layer.Height() < element.Position().Y()+element.Height() {
 		return false
 	}
 

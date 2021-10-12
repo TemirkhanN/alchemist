@@ -18,8 +18,8 @@ func (s *Sprite) Height() float64 {
 
 func (s *Sprite) draw(window *Window, position Position) {
 	fromLeftBottomCorner := pixel.Vec{
-		X: s.src.Picture().Bounds().Center().X + position.X,
-		Y: s.src.Picture().Bounds().Center().Y + position.Y,
+		X: s.src.Picture().Bounds().Center().X + position.X(),
+		Y: s.src.Picture().Bounds().Center().Y + position.Y(),
 	}
 
 	s.src.Draw(window.window, pixel.IM.Moved(fromLeftBottomCorner))

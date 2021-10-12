@@ -178,15 +178,15 @@ func (layout *PrimaryLayout) render() {
 
 	layout.graphics.Clear()
 	layout.graphics.AddElement(layout.background, gui.ZeroPosition)
-	layout.graphics.AddElement(layout.textBlock, gui.Position{X: 555, Y: 430})
+	layout.graphics.AddElement(layout.textBlock, gui.NewPosition(555, 430))
 
-	layout.graphics.AddElement(layout.ingredientSlots[First], gui.Position{X: 187, Y: 390})
-	layout.graphics.AddElement(layout.ingredientSlots[Second], gui.Position{X: 187, Y: 320})
-	layout.graphics.AddElement(layout.ingredientSlots[Third], gui.Position{X: 187, Y: 250})
-	layout.graphics.AddElement(layout.ingredientSlots[Fourth], gui.Position{X: 187, Y: 180})
+	layout.graphics.AddElement(layout.ingredientSlots[First], gui.NewPosition(187, 390))
+	layout.graphics.AddElement(layout.ingredientSlots[Second], gui.NewPosition(187, 320))
+	layout.graphics.AddElement(layout.ingredientSlots[Third], gui.NewPosition(187, 250))
+	layout.graphics.AddElement(layout.ingredientSlots[Fourth], gui.NewPosition(187, 180))
 
-	layout.graphics.AddElement(layout.createPotionButton, gui.Position{X: 253, Y: 116})
-	layout.graphics.AddElement(layout.exitButton, gui.Position{X: 646, Y: 115})
+	layout.graphics.AddElement(layout.createPotionButton, gui.NewPosition(253, 116))
+	layout.graphics.AddElement(layout.exitButton, gui.NewPosition(646, 115))
 	layout.graphics.Show()
 }
 
@@ -261,13 +261,13 @@ func (layout *BackpackLayout) render() {
 			return func() {
 				lastHoveredIngredient = hovered.Name()
 				ingredientEffectsLayer.Clear()
-				ingredientEffectsLayer.AddElement(ingredientsEffectsLayerBackground, gui.Position{X: 605, Y: 200})
-				initialPosition := gui.Position{X: 610, Y: 365}
+				ingredientEffectsLayer.AddElement(ingredientsEffectsLayerBackground, gui.NewPosition(605, 200))
+				posY := 365.0
 				for _, effect := range layout.alchemist.DetermineEffects(hovered) {
 					effectPreview := layout.window.CreateSpriteCanvas(assets.GetSprite(effect.Name()))
-					ingredientEffectsLayer.AddElement(effectPreview, initialPosition)
+					ingredientEffectsLayer.AddElement(effectPreview, gui.NewPosition(610, posY))
 
-					initialPosition.Y -= 55
+					posY -= 55
 				}
 				ingredientEffectsLayer.Show()
 			}
@@ -286,14 +286,14 @@ func (layout *BackpackLayout) render() {
 
 		offset -= 64
 
-		ingredientsLayer.AddElement(ingredientBtn, gui.Position{X: 50, Y: offset})
+		ingredientsLayer.AddElement(ingredientBtn, gui.NewPosition(50, offset))
 	}
 
 	layout.graphics.Show()
 
-	layout.graphics.AddElement(ingredientsLayer, gui.Position{X: 50, Y: 115})
-	layout.graphics.AddElement(ingredientEffectsLayer, gui.Position{X: 605, Y: 200})
-	layout.graphics.AddElement(layout.closeButton, gui.Position{X: 410, Y: 65})
+	layout.graphics.AddElement(ingredientsLayer, gui.NewPosition(50, 115))
+	layout.graphics.AddElement(ingredientEffectsLayer, gui.NewPosition(605, 200))
+	layout.graphics.AddElement(layout.closeButton, gui.NewPosition(410, 65))
 }
 
 func GetIngredientSprite(ingredient domain.Ingredient) *gui.Sprite {

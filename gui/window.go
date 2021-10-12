@@ -12,8 +12,20 @@ import (
 
 // Position todo make it mutable from package only.
 type Position struct {
-	X float64
-	Y float64
+	x float64
+	y float64
+}
+
+func (p Position) X() float64 {
+	return p.x
+}
+
+func (p Position) Y() float64 {
+	return p.y
+}
+
+func NewPosition(x float64, y float64) Position {
+	return Position{x: x, y: y}
 }
 
 type Window struct {
@@ -112,8 +124,8 @@ func (w *Window) LeftButtonClicked() bool {
 
 func (w Window) CursorPosition() Position {
 	return Position{
-		X: w.window.MousePosition().X,
-		Y: w.window.MousePosition().Y,
+		x: w.window.MousePosition().X,
+		y: w.window.MousePosition().Y,
 	}
 }
 
@@ -224,7 +236,7 @@ func (w *Window) drawSprite(sprite *Sprite, position Position) {
 }
 
 func (w *Window) drawText(textValue string, position Position) {
-	basicTxt := text.New(pixel.V(position.X, position.Y), basicAtlas)
+	basicTxt := text.New(pixel.V(position.X(), position.Y()), basicAtlas)
 
 	fmt.Fprintln(basicTxt, textValue)
 
@@ -233,5 +245,5 @@ func (w *Window) drawText(textValue string, position Position) {
 
 var (
 	basicAtlas   = text.NewAtlas(basicfont.Face7x13, text.ASCII)
-	ZeroPosition = Position{X: 0, Y: 0}
+	ZeroPosition = Position{x: 0, y: 0}
 )

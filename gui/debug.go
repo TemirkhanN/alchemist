@@ -26,11 +26,15 @@ func (layer *Layer) debugDraw() {
 
 	imd := imdraw.New(nil)
 	imd.Color = pixel.RGB(0, 0, 0)
-	imd.Push(pixel.V(layer.Position().X, layer.Position().Y))
-	imd.Push(pixel.V(layer.Position().X, layer.Position().Y+layer.Height()))
-	imd.Push(pixel.V(layer.Position().X+layer.Width(), layer.Position().Y+layer.Height()))
-	imd.Push(pixel.V(layer.Position().X+layer.Width(), layer.Position().Y))
-	imd.Push(pixel.V(layer.Position().X, layer.Position().Y))
+	// ↑
+	imd.Push(pixel.V(layer.Position().X(), layer.Position().Y()))
+	imd.Push(pixel.V(layer.Position().X(), layer.Position().Y()+layer.Height()))
+	// →
+	imd.Push(pixel.V(layer.Position().X()+layer.Width(), layer.Position().Y()+layer.Height()))
+	// ↓
+	imd.Push(pixel.V(layer.Position().X()+layer.Width(), layer.Position().Y()))
+	// ←
+	imd.Push(pixel.V(layer.Position().X(), layer.Position().Y()))
 	imd.Rectangle(1)
 	imd.Draw(layer._debug.window)
 
