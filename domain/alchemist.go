@@ -83,9 +83,10 @@ func (a *Alchemist) CanCombineIngredients(ingredient1 *Ingredient, ingredient2 *
 
 func (a *Alchemist) DetermineEffects(ingredient *Ingredient) []Effect {
 	identifiableAmountOfEffects := a.IdentifiableAmountOfEffects()
+	ingredientEffectsAmount := len(ingredient.effects)
 
 	var effects []Effect
-	for i := 0; i < 4; i++ {
+	for i := 0; i < 4 && ingredientEffectsAmount > i; i++ {
 		effect := ingredient.effects[i]
 		if i+1 > identifiableAmountOfEffects {
 			effect = effect.HideEffectDetails()
