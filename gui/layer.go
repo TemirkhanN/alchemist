@@ -96,7 +96,6 @@ func (layer *Layer) Width() float64 {
 	return layer.width
 }
 
-// Height todo fix invalid calculation because of different positioning. Elements on layer are not positioned in rows.
 func (layer *Layer) Height() float64 {
 	return layer.height
 }
