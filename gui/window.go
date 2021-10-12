@@ -138,13 +138,14 @@ func (w *Window) Refresh() {
 		return
 	}
 
-	// only if w.window.MouseInsideWindow()
-	cursorPosition := w.CursorPosition()
-	w.handleMouseOut(w.graphics, cursorPosition)
-	w.handleMouseOver(w.graphics, cursorPosition)
+	if w.window.MouseInsideWindow() {
+		cursorPosition := w.CursorPosition()
+		w.handleMouseOut(w.graphics, cursorPosition)
+		w.handleMouseOver(w.graphics, cursorPosition)
 
-	if w.LeftButtonClicked() {
-		w.handleLeftClick(w.graphics, cursorPosition)
+		if w.LeftButtonClicked() {
+			w.handleLeftClick(w.graphics, cursorPosition)
+		}
 	}
 
 	w.draw()
