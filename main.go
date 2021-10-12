@@ -56,7 +56,7 @@ func main() {
 }
 
 func launch(windowWidth float64, windowHeight float64) {
-	window := gui.CreateWindow(windowWidth, windowHeight)
+	window := gui.NewWindow(windowWidth, windowHeight)
 
 	alchemyLevelHardcoded := 26
 	luckLevelHardcoded := 5
@@ -261,13 +261,12 @@ func (layout *BackpackLayout) render() {
 			return func() {
 				lastHoveredIngredient = hovered.Name()
 				ingredientEffectsLayer.Clear()
-				ingredientEffectsLayer.AddElement(ingredientsEffectsLayerBackground, gui.NewPosition(605, 200))
-				posY := 365.0
+				ingredientEffectsLayer.AddElement(ingredientsEffectsLayerBackground, gui.ZeroPosition)
+				posY := ingredientEffectsLayer.Height()
 				for _, effect := range layout.alchemist.DetermineEffects(hovered) {
-					effectPreview := layout.window.CreateSpriteCanvas(assets.GetSprite(effect.Name()))
-					ingredientEffectsLayer.AddElement(effectPreview, gui.NewPosition(610, posY))
-
 					posY -= 55
+					effectPreview := layout.window.CreateSpriteCanvas(assets.GetSprite(effect.Name()))
+					ingredientEffectsLayer.AddElement(effectPreview, gui.NewPosition(0, posY))
 				}
 				ingredientEffectsLayer.Show()
 			}

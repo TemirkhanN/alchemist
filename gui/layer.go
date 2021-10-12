@@ -78,8 +78,10 @@ func (layer *Layer) Elements() []Drawer {
 	return layer.elements
 }
 
-func (layer *Layer) AddElement(drawer Drawer, position Position) {
-	drawer.setPosition(position)
+func (layer *Layer) AddElement(drawer Drawer, relativePosition Position) {
+	absPosition := NewPosition(layer.position.X()+relativePosition.X(), layer.position.Y()+relativePosition.Y())
+
+	drawer.setPosition(absPosition)
 	layer.elements = append(layer.elements, drawer)
 }
 

@@ -33,7 +33,7 @@ type Window struct {
 	window   *pixelgl.Window
 }
 
-func CreateWindow(width float64, height float64, debugMode ...bool) *Window {
+func NewWindow(width float64, height float64, debugMode ...bool) *Window {
 	cfg := pixelgl.WindowConfig{
 		Title:                  "Alchemist",
 		Icon:                   nil,
