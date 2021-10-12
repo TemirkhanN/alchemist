@@ -54,7 +54,8 @@ var (
 				lightEffect,
 				damageFatigueEffect,
 			},
-		}, {
+		},
+		{
 			"Aloe Vera Leaves",
 			[]Effect{
 				restoreFatigueEffect,
@@ -80,7 +81,8 @@ var (
 				fortifyStrengthEffect,
 				burdenEffect,
 			},
-		}, {
+		},
+		{
 			"Beef",
 			[]Effect{
 				restoreFatigueEffect,
@@ -88,7 +90,8 @@ var (
 				fortifyAgilityEffect,
 				dispelEffect,
 			},
-		}, {
+		},
+		{
 			"Bergamot Seeds",
 			[]Effect{
 				resistDiseaseEffect,
@@ -96,7 +99,8 @@ var (
 				damageMagickaEffect,
 				silenceEffect,
 			},
-		}, {
+		},
+		{
 			"Blackberry",
 			[]Effect{
 				restoreFatigueEffect,
@@ -104,7 +108,8 @@ var (
 				fortifyEnduranceEffect,
 				restoreMagickaEffect,
 			},
-		}, {
+		},
+		{
 			"Bloodgrass",
 			[]Effect{
 				chameleonEffect,
@@ -112,7 +117,8 @@ var (
 				burdenEffect,
 				fortifyHealthEffect,
 			},
-		}, {
+		},
+		{
 			"Boar Meat",
 			[]Effect{
 				restoreHealthEffect,
@@ -120,7 +126,8 @@ var (
 				fortifyHealthEffect,
 				burdenEffect,
 			},
-		}, {
+		},
+		{
 			"Bog Beacon Asco Cap",
 			[]Effect{
 				restoreMagickaEffect,
@@ -128,7 +135,8 @@ var (
 				damagePersonalityEffect,
 				damageEnduranceEffect,
 			},
-		}, {
+		},
+		{
 			"Bonemeal",
 			[]Effect{
 				damageFatigueEffect,
@@ -136,7 +144,8 @@ var (
 				fortifyLuckEffect,
 				nightEyeEffect,
 			},
-		}, {
+		},
+		{
 			"Bread Loaf",
 			[]Effect{
 				restoreFatigueEffect,
@@ -144,7 +153,8 @@ var (
 				damageAgilityEffect,
 				damageStrengthEffect,
 			},
-		}, {
+		},
+		{
 			"Cairn Bolete Cap",
 			[]Effect{
 				restoreHealthEffect,
@@ -152,7 +162,8 @@ var (
 				resistParalysisEffect,
 				shockDamageEffect,
 			},
-		}, {
+		},
+		{
 			"Carrot",
 			[]Effect{
 				restoreFatigueEffect,
@@ -160,7 +171,8 @@ var (
 				fortifyIntelligenceEffect,
 				damageEnduranceEffect,
 			},
-		}, {
+		},
+		{
 			"Cheese Wheel",
 			[]Effect{
 				restoreFatigueEffect,
@@ -168,7 +180,8 @@ var (
 				damageLuckEffect,
 				fortifyWillpowerEffect,
 			},
-		}, {
+		},
+		{
 			"Cinnabar Polypore Red Cap",
 			[]Effect{
 				restoreAgilityEffect,
@@ -176,7 +189,8 @@ var (
 				damagePersonalityEffect,
 				damageEnduranceEffect,
 			},
-		}, {
+		},
+		{
 			"Cinnabar Polypore Yellow Cap",
 			[]Effect{
 				restoreEnduranceEffect,
@@ -184,7 +198,8 @@ var (
 				damagePersonalityEffect,
 				reflectSpellEffect,
 			},
-		}, {
+		},
+		{
 			"Clannfear Claws",
 			[]Effect{
 				cureDiseaseEffect,
@@ -192,7 +207,8 @@ var (
 				paralyzeEffect,
 				damageHealthEffect,
 			},
-		}, {
+		},
+		{
 			"Clouded Funnel Cap",
 			[]Effect{
 				restoreIntelligenceEffect,
@@ -200,7 +216,8 @@ var (
 				damageEnduranceEffect,
 				damageMagickaEffect,
 			},
-		}, {
+		},
+		{
 			"Columbine Root Pulp",
 			[]Effect{
 				restorePersonalityEffect,
@@ -208,7 +225,8 @@ var (
 				fortifyMagickaEffect,
 				chameleonEffect,
 			},
-		}, {
+		},
+		{
 			"Corn",
 			[]Effect{
 				restoreFatigueEffect,
@@ -216,7 +234,8 @@ var (
 				damageAgilityEffect,
 				shockShieldEffect,
 			},
-		}, {
+		},
+		{
 			"Crab Meat",
 			[]Effect{
 				restoreEnduranceEffect,
@@ -224,7 +243,8 @@ var (
 				damageFatigueEffect,
 				fireShieldEffect,
 			},
-		}, {
+		},
+		{
 			"Daedra Heart",
 			[]Effect{
 				restoreHealthEffect,
@@ -232,7 +252,8 @@ var (
 				damageMagickaEffect,
 				silenceEffect,
 			},
-		}, {
+		},
+		{
 			"Daedra Silk",
 			[]Effect{
 				burdenEffect,
@@ -280,7 +301,8 @@ var (
 				waterBreathingEffect,
 				damageHealthEffect,
 			},
-		}, {
+		},
+		{
 			"Dryad Saddle Polypore Cap",
 			[]Effect{
 				restoreLuckEffect,
@@ -288,7 +310,8 @@ var (
 				damageSpeedEffect,
 				frostDamageEffect,
 			},
-		}, {
+		},
+		{
 			"Ectoplasm",
 			[]Effect{
 				shockDamageEffect,
@@ -296,7 +319,8 @@ var (
 				fortifyMagickaEffect,
 				damageHealthEffect,
 			},
-		}, {
+		},
+		{
 			"Elf Cup Cap",
 			[]Effect{
 				damageWillpowerEffect,
@@ -304,7 +328,8 @@ var (
 				fortifyStrengthEffect,
 				damageIntelligenceEffect,
 			},
-		}, {
+		},
+		{
 			"Emetic Russula Cap",
 			[]Effect{
 				restoreAgilityEffect,
@@ -312,7 +337,8 @@ var (
 				damagePersonalityEffect,
 				damageEnduranceEffect,
 			},
-		}, {
+		},
+		{
 			"Fennel Seeds",
 			[]Effect{
 				restoreFatigueEffect,
@@ -320,7 +346,8 @@ var (
 				damageMagickaEffect,
 				paralyzeEffect,
 			},
-		}, {
+		},
+		{
 			"Fire Salts",
 			[]Effect{
 				fireDamageEffect,
@@ -328,7 +355,8 @@ var (
 				restoreMagickaEffect,
 				fireShieldEffect,
 			},
-		}, {
+		},
+		{
 			"Flax Seeds",
 			[]Effect{
 				restoreMagickaEffect,
@@ -336,7 +364,8 @@ var (
 				shieldEffect,
 				damageHealthEffect,
 			},
-		}, {
+		},
+		{
 			"Flour",
 			[]Effect{
 				restoreFatigueEffect,
@@ -344,7 +373,8 @@ var (
 				fortifyFatigueEffect,
 				reflectDamageEffect,
 			},
-		}, {
+		},
+		{
 			"Fly Amanita Cap",
 			[]Effect{
 				restoreAgilityEffect,
@@ -352,7 +382,8 @@ var (
 				restoreHealthEffect,
 				shockDamageEffect,
 			},
-		}, {
+		},
+		{
 			"Foxglove Nectar",
 			[]Effect{
 				resistPoisonEffect,
@@ -360,7 +391,8 @@ var (
 				restoreLuckEffect,
 				resistDiseaseEffect,
 			},
-		}, {
+		},
+		{
 			"Frost Salts",
 			[]Effect{
 				frostDamageEffect,
@@ -368,7 +400,8 @@ var (
 				silenceEffect,
 				frostShieldEffect,
 			},
-		}, {
+		},
+		{
 			"Garlic",
 			[]Effect{
 				resistDiseaseEffect,
@@ -376,7 +409,8 @@ var (
 				frostShieldEffect,
 				fortifyStrengthEffect,
 			},
-		}, {
+		},
+		{
 			"Ginkgo Leaf",
 			[]Effect{
 				restoreSpeedEffect,
@@ -384,7 +418,8 @@ var (
 				damageLuckEffect,
 				shockDamageEffect,
 			},
-		}, {
+		},
+		{
 			"Ginseng",
 			[]Effect{
 				damageLuckEffect,
@@ -392,7 +427,8 @@ var (
 				burdenEffect,
 				fortifyMagickaEffect,
 			},
-		}, {
+		},
+		{
 			"Glow Dust",
 			[]Effect{
 				restoreSpeedEffect,
@@ -400,7 +436,8 @@ var (
 				reflectSpellEffect,
 				damageHealthEffect,
 			},
-		}, {
+		},
+		{
 			"Grapes",
 			[]Effect{
 				restoreFatigueEffect,
@@ -408,7 +445,8 @@ var (
 				dispelEffect,
 				damageHealthEffect,
 			},
-		}, {
+		},
+		{
 			"Green Stain Cup Cap",
 			[]Effect{
 				restoreFatigueEffect,
@@ -416,7 +454,8 @@ var (
 				reflectDamageEffect,
 				damageHealthEffect,
 			},
-		}, {
+		},
+		{
 			"Green Stain Shelf Cap",
 			[]Effect{
 				restoreLuckEffect,
@@ -424,7 +463,8 @@ var (
 				damageFatigueEffect,
 				restoreHealthEffect,
 			},
-		}, {
+		},
+		{
 			"Ham",
 			[]Effect{
 				restoreFatigueEffect,
@@ -432,7 +472,8 @@ var (
 				damageMagickaEffect,
 				damageLuckEffect,
 			},
-		}, {
+		},
+		{
 			"Harrada",
 			[]Effect{
 				damageHealthEffect,
@@ -440,7 +481,8 @@ var (
 				silenceEffect,
 				paralyzeEffect,
 			},
-		}, {
+		},
+		{
 			"Imp Gall",
 			[]Effect{
 				fortifyPersonalityEffect,
@@ -448,7 +490,8 @@ var (
 				damageHealthEffect,
 				fireDamageEffect,
 			},
-		}, {
+		},
+		{
 			"Ironwood Nut",
 			[]Effect{
 				restoreIntelligenceEffect,
@@ -456,7 +499,8 @@ var (
 				damageFatigueEffect,
 				fortifyHealthEffect,
 			},
-		}, {
+		},
+		{
 			"Lady's Mantle Leaves",
 			[]Effect{
 				restoreHealthEffect,
@@ -484,7 +528,8 @@ var (
 				restoreHealthEffect,
 				damageLuckEffect,
 			},
-		}, {
+		},
+		{
 			"Leek",
 			[]Effect{
 				restoreFatigueEffect,
@@ -492,7 +537,8 @@ var (
 				damagePersonalityEffect,
 				damageStrengthEffect,
 			},
-		}, {
+		},
+		{
 			"Lettuce",
 			[]Effect{
 				restoreFatigueEffect,
@@ -523,7 +569,8 @@ var (
 				cureParalysisEffect,
 				paralyzeEffect,
 			},
-		}, {
+		},
+		{
 			"Minotaur Horn",
 			[]Effect{
 				restoreWillpowerEffect,
@@ -531,7 +578,8 @@ var (
 				fortifyEnduranceEffect,
 				resistParalysisEffect,
 			},
-		}, {
+		},
+		{
 			"Monkshood Root Pulp",
 			[]Effect{
 				restoreStrengthEffect,
@@ -539,7 +587,8 @@ var (
 				fortifyEnduranceEffect,
 				burdenEffect,
 			},
-		}, {
+		},
+		{
 			"Morning Glory Root Pulp",
 			[]Effect{
 				burdenEffect,
@@ -547,7 +596,8 @@ var (
 				frostShieldEffect,
 				damageMagickaEffect,
 			},
-		}, {
+		},
+		{
 			"Mort Flesh",
 			[]Effect{
 				damageFatigueEffect,
@@ -555,7 +605,8 @@ var (
 				fortifyHealthEffect,
 				silenceEffect,
 			},
-		}, {
+		},
+		{
 			"Motherwort Sprig",
 			[]Effect{
 				resistPoisonEffect,
@@ -579,7 +630,8 @@ var (
 				damageLuckEffect,
 				fortifyMagickaEffect,
 			},
-		}, {
+		},
+		{
 			"Ogre's Teeth",
 			[]Effect{
 				damageIntelligenceEffect,
@@ -587,7 +639,8 @@ var (
 				shockDamageEffect,
 				fortifyStrengthEffect,
 			},
-		}, {
+		},
+		{
 			"Onion",
 			[]Effect{
 				restoreFatigueEffect,
@@ -595,7 +648,8 @@ var (
 				detectLifeEffect,
 				damageHealthEffect,
 			},
-		}, {
+		},
+		{
 			"Orange",
 			[]Effect{
 				restoreFatigueEffect,
@@ -603,7 +657,8 @@ var (
 				burdenEffect,
 				shieldEffect,
 			},
-		}, {
+		},
+		{
 			"Pear",
 			[]Effect{
 				restoreFatigueEffect,
@@ -611,7 +666,8 @@ var (
 				fortifySpeedEffect,
 				damageHealthEffect,
 			},
-		}, {
+		},
+		{
 			"Peony Seeds",
 			[]Effect{
 				restoreStrengthEffect,
@@ -619,7 +675,8 @@ var (
 				damageSpeedEffect,
 				restoreFatigueEffect,
 			},
-		}, {
+		},
+		{
 			"Potato",
 			[]Effect{
 				restoreFatigueEffect,
@@ -627,7 +684,8 @@ var (
 				burdenEffect,
 				frostShieldEffect,
 			},
-		}, {
+		},
+		{
 			"Primrose Leaves",
 			[]Effect{
 				restoreWillpowerEffect,
@@ -635,7 +693,8 @@ var (
 				fortifyLuckEffect,
 				damageStrengthEffect,
 			},
-		}, {
+		},
+		{
 			"Pumpkin",
 			[]Effect{
 				restoreFatigueEffect,
@@ -643,7 +702,8 @@ var (
 				damagePersonalityEffect,
 				detectLifeEffect,
 			},
-		}, {
+		},
+		{
 			"Purgeblood Salts",
 			[]Effect{
 				restoreMagickaEffect,
@@ -651,7 +711,8 @@ var (
 				fortifyMagickaEffect,
 				dispelEffect,
 			},
-		}, {
+		},
+		{
 			"Radish",
 			[]Effect{
 				restoreFatigueEffect,
@@ -659,7 +720,8 @@ var (
 				chameleonEffect,
 				burdenEffect,
 			},
-		}, {
+		},
+		{
 			"Rat Meat",
 			[]Effect{
 				damageFatigueEffect,
@@ -667,7 +729,8 @@ var (
 				damageMagickaEffect,
 				silenceEffect,
 			},
-		}, {
+		},
+		{
 			"Redwort Flower",
 			[]Effect{
 				resistFrostEffect,
@@ -675,7 +738,8 @@ var (
 				damageHealthEffect,
 				invisibilityEffect,
 			},
-		}, {
+		},
+		{
 			"Rice",
 			[]Effect{
 				restoreFatigueEffect,
@@ -683,7 +747,8 @@ var (
 				shockShieldEffect,
 				damageAgilityEffect,
 			},
-		}, {
+		},
+		{
 			"Root Pulp",
 			[]Effect{
 				cureDiseaseEffect,
@@ -691,7 +756,8 @@ var (
 				fortifyStrengthEffect,
 				damageIntelligenceEffect,
 			},
-		}, {
+		},
+		{
 			"Sacred Lotus Seeds",
 			[]Effect{
 				resistFrostEffect,
@@ -699,7 +765,8 @@ var (
 				featherEffect,
 				dispelEffect,
 			},
-		}, {
+		},
+		{
 			"Scales",
 			[]Effect{
 				damageWillpowerEffect,
@@ -707,7 +774,8 @@ var (
 				damageHealthEffect,
 				waterWalkingEffect,
 			},
-		}, {
+		},
+		{
 			"Scamp Skin",
 			[]Effect{
 				damageMagickaEffect,
@@ -715,7 +783,8 @@ var (
 				reflectDamageEffect,
 				damageHealthEffect,
 			},
-		}, {
+		},
+		{
 			"Shepherd's Pie",
 			[]Effect{
 				cureDiseaseEffect,
@@ -723,7 +792,8 @@ var (
 				fortifyAgilityEffect,
 				dispelEffect,
 			},
-		}, {
+		},
+		{
 			"Somnalius Frond",
 			[]Effect{
 				restoreSpeedEffect,
@@ -731,7 +801,8 @@ var (
 				fortifyHealthEffect,
 				featherEffect,
 			},
-		}, {
+		},
+		{
 			"Spiddal Stick",
 			[]Effect{
 				damageHealthEffect,
@@ -739,7 +810,8 @@ var (
 				fireDamageEffect,
 				restoreFatigueEffect,
 			},
-		}, {
+		},
+		{
 			"St. Jahn's Wort Nectar",
 			[]Effect{
 				resistShockEffect,
@@ -747,7 +819,8 @@ var (
 				curePoisonEffect,
 				chameleonEffect,
 			},
-		}, {
+		},
+		{
 			"Steel-Blue Entoloma Cap",
 			[]Effect{
 				restoreMagickaEffect,
@@ -755,7 +828,8 @@ var (
 				resistFrostEffect,
 				burdenEffect,
 			},
-		}, {
+		},
+		{
 			"Stinkhorn Cap",
 			[]Effect{
 				damageHealthEffect,
@@ -763,7 +837,8 @@ var (
 				waterWalkingEffect,
 				invisibilityEffect,
 			},
-		}, {
+		},
+		{
 			"Strawberry",
 			[]Effect{
 				restoreFatigueEffect,
@@ -771,7 +846,8 @@ var (
 				damageHealthEffect,
 				reflectDamageEffect,
 			},
-		}, {
+		},
+		{
 			"Summer Bolete Cap",
 			[]Effect{
 				restoreAgilityEffect,
@@ -779,7 +855,8 @@ var (
 				damagePersonalityEffect,
 				damageEnduranceEffect,
 			},
-		}, {
+		},
+		{
 			"Sweetcake",
 			[]Effect{
 				restoreFatigueEffect,
@@ -787,7 +864,8 @@ var (
 				restoreHealthEffect,
 				burdenEffect,
 			},
-		}, {
+		},
+		{
 			"Sweetroll",
 			[]Effect{
 				restoreFatigueEffect,
@@ -795,7 +873,8 @@ var (
 				damagePersonalityEffect,
 				fortifyHealthEffect,
 			},
-		}, {
+		},
+		{
 			"Taproot",
 			[]Effect{
 				restoreLuckEffect,
@@ -803,7 +882,8 @@ var (
 				resistPoisonEffect,
 				shockShieldEffect,
 			},
-		}, {
+		},
+		{
 			"Tiger Lily Nectar",
 			[]Effect{
 				restoreEnduranceEffect,
@@ -811,7 +891,8 @@ var (
 				waterWalkingEffect,
 				damageWillpowerEffect,
 			},
-		}, {
+		},
+		{
 			"Tinder Polypore Cap",
 			[]Effect{
 				restoreWillpowerEffect,
@@ -819,7 +900,8 @@ var (
 				invisibilityEffect,
 				damageMagickaEffect,
 			},
-		}, {
+		},
+		{
 			"Tobacco",
 			[]Effect{
 				restoreFatigueEffect,
@@ -827,7 +909,8 @@ var (
 				damageMagickaEffect,
 				dispelEffect,
 			},
-		}, {
+		},
+		{
 			"Tomato",
 			[]Effect{
 				restoreFatigueEffect,
@@ -835,7 +918,8 @@ var (
 				burdenEffect,
 				shieldEffect,
 			},
-		}, {
+		},
+		{
 			"Troll Fat",
 			[]Effect{
 				damageAgilityEffect,
@@ -843,7 +927,8 @@ var (
 				damageWillpowerEffect,
 				damageHealthEffect,
 			},
-		}, {
+		},
+		{
 			"Vampire Dust",
 			[]Effect{
 				silenceEffect,
@@ -851,7 +936,8 @@ var (
 				frostDamageEffect,
 				invisibilityEffect,
 			},
-		}, {
+		},
+		{
 			"Venison",
 			[]Effect{
 				restoreHealthEffect,
@@ -859,7 +945,8 @@ var (
 				damageHealthEffect,
 				chameleonEffect,
 			},
-		}, {
+		},
+		{
 			"Viper's Bugloss Leaves",
 			[]Effect{
 				resistParalysisEffect,
@@ -867,7 +954,8 @@ var (
 				burdenEffect,
 				cureParalysisEffect,
 			},
-		}, {
+		},
+		{
 			"Water Hyacinth Nectar",
 			[]Effect{
 				damageLuckEffect,
@@ -875,17 +963,19 @@ var (
 				restoreMagickaEffect,
 				fortifyMagickaEffect,
 			},
-		},/*
+		},
+		/*
+			{
+					"Void Salts",
+					[]Effect{
+						restoreMagickaEffect,
+						damageHealthEffect,
+						fortifyMagickaEffect,
+						dispelEffect,
+					},
+				}
+		*/
 		{
-				"Void Salts",
-				[]Effect{
-					restoreMagickaEffect,
-					damageHealthEffect,
-					fortifyMagickaEffect,
-					dispelEffect,
-				},
-			}
-		*/ {
 			"Watermelon",
 			[]Effect{
 				restoreFatigueEffect,
@@ -893,7 +983,8 @@ var (
 				burdenEffect,
 				damageHealthEffect,
 			},
-		}, {
+		},
+		{
 			"Wheat Grain",
 			[]Effect{
 				restoreFatigueEffect,
@@ -901,7 +992,8 @@ var (
 				fortifyHealthEffect,
 				damagePersonalityEffect,
 			},
-		}, {
+		},
+		{
 			"White Seed Pod",
 			[]Effect{
 				restoreStrengthEffect,
@@ -909,7 +1001,8 @@ var (
 				silenceEffect,
 				lightEffect,
 			},
-		}, {
+		},
+		{
 			"Wisp Stalk Caps",
 			[]Effect{
 				damageHealthEffect,
@@ -917,7 +1010,8 @@ var (
 				damageIntelligenceEffect,
 				fortifySpeedEffect,
 			},
-		}, {
+		},
+		{
 			"Wormwood Leaves",
 			[]Effect{
 				fortifyFatigueEffect,
