@@ -9,6 +9,8 @@ type Drawer interface {
 	isVisible() bool
 	NeedsRedraw() bool
 	Elements() []Drawer
+	Position() Position
+	setPosition(position Position)
 }
 
 type Canvas interface {
@@ -66,6 +68,10 @@ func (canvas *CommonCanvas) Position() Position {
 	return canvas.position
 }
 
+func (canvas *CommonCanvas) setPosition(position Position) {
+	canvas.position = position
+}
+
 func (canvas *CommonCanvas) IsUnderPosition(position Position) bool {
 	return false
 }
@@ -117,7 +123,7 @@ func (canvas *TextCanvas) Draw() {
 		return
 	}
 
-	canvas.drawnOn.DrawText(canvas.text, canvas.position)
+	canvas.drawnOn.drawText(canvas.text, canvas.position)
 	canvas.needsRedraw = false
 }
 

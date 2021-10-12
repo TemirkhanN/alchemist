@@ -10,6 +10,7 @@ import (
 	"golang.org/x/image/font/basicfont"
 )
 
+// Position todo make it mutable from package only.
 type Position struct {
 	X float64
 	Y float64
@@ -20,7 +21,7 @@ type Window struct {
 	window   *pixelgl.Window
 }
 
-func CreateWindow(width float64, height float64) *Window {
+func CreateWindow(width float64, height float64, debugMode ...bool) *Window {
 	cfg := pixelgl.WindowConfig{
 		Title:                  "Alchemist",
 		Icon:                   nil,
@@ -37,23 +38,37 @@ func CreateWindow(width float64, height float64) *Window {
 		Invisible:              false,
 	}
 
-	window, err := pixelgl.NewWindow(cfg)
+	w, err := pixelgl.NewWindow(cfg)
 	if err != nil {
 		panic(err)
 	}
 
-	return &Window{window: window, graphics: NewLayer(0, 0, true)}
+	window := &Window{window: w, graphics: NewLayer(width, height, true)}
+
+	if len(debugMode) != 0 && debugMode[0] {
+		window.graphics.setDebugTool(window)
+	}
+
+	return window
 }
 
-func (w *Window) AddLayer(layer *Layer) {
-	w.graphics.AddElement(layer)
+func (w Window) Width() float64 {
+	return w.graphics.Width()
 }
 
-func (w *Window) CreateSpriteCanvas(sprite *Sprite, position Position) *SpriteCanvas {
+func (w Window) Height() float64 {
+	return w.graphics.Height()
+}
+
+func (w *Window) AddLayer(layer *Layer, position Position) {
+	w.graphics.AddElement(layer, position)
+}
+
+func (w *Window) CreateSpriteCanvas(sprite *Sprite) *SpriteCanvas {
 	return &SpriteCanvas{
 		sprite: sprite,
 		CommonCanvas: CommonCanvas{
-			position:    position,
+			position:    ZeroPosition,
 			visible:     true,
 			drawnOn:     w,
 			needsRedraw: true,
@@ -61,11 +76,11 @@ func (w *Window) CreateSpriteCanvas(sprite *Sprite, position Position) *SpriteCa
 	}
 }
 
-func (w *Window) CreateTextCanvas(text string, position Position) *TextCanvas {
+func (w *Window) CreateTextCanvas(text string) *TextCanvas {
 	return &TextCanvas{
 		text: text,
 		CommonCanvas: CommonCanvas{
-			position:    position,
+			position:    ZeroPosition,
 			visible:     true,
 			needsRedraw: true,
 			drawnOn:     w,
@@ -73,12 +88,12 @@ func (w *Window) CreateTextCanvas(text string, position Position) *TextCanvas {
 	}
 }
 
-func (w *Window) CreateButton(sprite *Sprite, position Position) *Button {
+func (w *Window) CreateButton(sprite *Sprite) *Button {
 	return &Button{
 		SpriteCanvas: SpriteCanvas{
 			sprite: sprite,
 			CommonCanvas: CommonCanvas{
-				position:    position,
+				position:    ZeroPosition,
 				drawnOn:     w,
 				visible:     true,
 				needsRedraw: true,
@@ -111,6 +126,7 @@ func (w *Window) Refresh() {
 		return
 	}
 
+	// only if w.window.MouseInsideWindow()
 	cursorPosition := w.CursorPosition()
 	w.handleMouseOut(w.graphics, cursorPosition)
 	w.handleMouseOver(w.graphics, cursorPosition)
@@ -121,15 +137,6 @@ func (w *Window) Refresh() {
 
 	w.draw()
 	w.window.Update()
-}
-
-func (w *Window) DrawText(textValue string, position Position) {
-	basicAtlas := text.NewAtlas(basicfont.Face7x13, text.ASCII)
-	basicTxt := text.New(pixel.V(position.X, position.Y), basicAtlas)
-
-	fmt.Fprintln(basicTxt, textValue)
-
-	basicTxt.DrawColorMask(w.window, pixel.IM, colornames.Black)
 }
 
 func (w *Window) draw() {
@@ -216,4 +223,15 @@ func (w *Window) drawSprite(sprite *Sprite, position Position) {
 	sprite.draw(w, position)
 }
 
-var ZeroPosition = Position{X: 0, Y: 0}
+func (w *Window) drawText(textValue string, position Position) {
+	basicTxt := text.New(pixel.V(position.X, position.Y), basicAtlas)
+
+	fmt.Fprintln(basicTxt, textValue)
+
+	basicTxt.DrawColorMask(w.window, pixel.IM, colornames.Black)
+}
+
+var (
+	basicAtlas   = text.NewAtlas(basicfont.Face7x13, text.ASCII)
+	ZeroPosition = Position{X: 0, Y: 0}
+)

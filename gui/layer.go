@@ -6,15 +6,19 @@ type Layer struct {
 	needsRedraw bool
 	width       float64
 	height      float64
+	position    Position
+	_debug      *Window
 }
 
 func NewLayer(width float64, height float64, visible bool) *Layer {
 	return &Layer{
+		elements:    nil,
 		visible:     visible,
 		needsRedraw: true,
 		width:       width,
 		height:      height,
-		elements:    nil,
+		position:    ZeroPosition,
+		_debug:      nil,
 	}
 }
 
@@ -37,11 +41,17 @@ func (layer *Layer) Draw() {
 		return
 	}
 
-	renderedHeight := 0.0
+	if layer.isDebugModeOn() {
+		layer.debugDraw()
+	}
+
 	for _, element := range layer.elements {
-		renderedHeight += element.Height()
-		if renderedHeight > layer.Height() {
-			break
+		if !element.isVisible() {
+			continue
+		}
+
+		if !layer.canFullyFit(element) {
+			element.Hide()
 		}
 
 		element.Draw()
@@ -68,8 +78,9 @@ func (layer *Layer) Elements() []Drawer {
 	return layer.elements
 }
 
-func (layer *Layer) AddElement(canvas Drawer) {
-	layer.elements = append(layer.elements, canvas)
+func (layer *Layer) AddElement(drawer Drawer, position Position) {
+	drawer.setPosition(position)
+	layer.elements = append(layer.elements, drawer)
 }
 
 func (layer *Layer) Clear() {
@@ -87,14 +98,36 @@ func (layer *Layer) Width() float64 {
 
 // Height todo fix invalid calculation because of different positioning. Elements on layer are not positioned in rows.
 func (layer *Layer) Height() float64 {
-	if layer.height != 0.0 {
-		return layer.height
+	return layer.height
+}
+
+func (layer *Layer) setPosition(position Position) {
+	layer.position = position
+}
+
+func (layer Layer) Position() Position {
+	return layer.position
+}
+
+func (layer Layer) canFullyFit(element Drawer) bool {
+	// element is placed left from the layer
+	if layer.Position().X > element.Position().X {
+		return false
 	}
 
-	calculatedHeight := 0.0
-	for _, element := range layer.elements {
-		calculatedHeight += element.Height()
+	// element is not fitting on layer width
+	if layer.Position().X+layer.Width() < element.Position().X+element.Width() {
+		return false
 	}
 
-	return calculatedHeight
+	// element is placed below the layer
+	if layer.Position().Y > element.Position().Y {
+		return false
+	}
+
+	if layer.Position().Y+layer.Height() < element.Position().Y+element.Height() {
+		return false
+	}
+
+	return true
 }

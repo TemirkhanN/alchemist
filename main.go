@@ -43,7 +43,6 @@ type BackpackLayout struct {
 	background                       *gui.SpriteCanvas
 	ingredientsBtns                  []*gui.Button
 	closeButton                      *gui.Button
-	ingredientsVerticalOffset        float64
 	ingredientsVerticalDefaultOffset float64
 
 	ingredients []*domain.Ingredient
@@ -66,8 +65,8 @@ func launch(windowWidth float64, windowHeight float64) {
 	mainLayout := NewMainLayout(window, alchemist)
 	backpackLayout := NewBackpackLayout(window, alchemist)
 
-	window.AddLayer(mainLayout.graphics)
-	window.AddLayer(backpackLayout.graphics)
+	window.AddLayer(mainLayout.graphics, gui.ZeroPosition)
+	window.AddLayer(backpackLayout.graphics, gui.ZeroPosition)
 
 	for !window.Closed() {
 		window.Refresh()
@@ -81,38 +80,38 @@ func NewMainLayout(window *gui.Window, alchemist *domain.Alchemist) *PrimaryLayo
 	}
 
 	layout.initialized = true
-	layout.graphics = gui.NewLayer(0, 0, true)
+	layout.graphics = gui.NewLayer(window.Width(), window.Height(), true)
 
 	backgroundSprite := assets.GetSprite("interface.alchemy")
 	addIngredientBtnSprite := assets.GetSprite("btn.add-ingredient")
 	createPotionBtnSprite := assets.GetSprite("btn.create-potion")
 	exitBtnSprite := assets.GetSprite("btn.exit")
 
-	button1 := window.CreateButton(addIngredientBtnSprite, gui.Position{X: 187, Y: 390})
+	button1 := window.CreateButton(addIngredientBtnSprite)
 	button1.SetClickHandler(func() {
 		layout.activeSlot = Slot(First)
 		newAddIngredientButtonClickedEvent(layout.activeSlot)
 	})
 
-	button2 := window.CreateButton(addIngredientBtnSprite, gui.Position{X: 187, Y: 320})
+	button2 := window.CreateButton(addIngredientBtnSprite)
 	button2.SetClickHandler(func() {
 		layout.activeSlot = Slot(Second)
 		newAddIngredientButtonClickedEvent(layout.activeSlot)
 	})
 
-	button3 := window.CreateButton(addIngredientBtnSprite, gui.Position{X: 187, Y: 250})
+	button3 := window.CreateButton(addIngredientBtnSprite)
 	button3.SetClickHandler(func() {
 		layout.activeSlot = Slot(Third)
 		newAddIngredientButtonClickedEvent(layout.activeSlot)
 	})
 
-	button4 := window.CreateButton(addIngredientBtnSprite, gui.Position{X: 187, Y: 180})
+	button4 := window.CreateButton(addIngredientBtnSprite)
 	button4.SetClickHandler(func() {
 		layout.activeSlot = Slot(Fourth)
 		newAddIngredientButtonClickedEvent(layout.activeSlot)
 	})
 
-	layout.background = window.CreateSpriteCanvas(backgroundSprite, gui.ZeroPosition)
+	layout.background = window.CreateSpriteCanvas(backgroundSprite)
 
 	layout.ingredientSlots = map[Slot]gui.Canvas{
 		Slot(First):  button1,
@@ -121,7 +120,7 @@ func NewMainLayout(window *gui.Window, alchemist *domain.Alchemist) *PrimaryLayo
 		Slot(Fourth): button4,
 	}
 
-	layout.createPotionButton = window.CreateButton(createPotionBtnSprite, gui.Position{X: 253, Y: 116})
+	layout.createPotionButton = window.CreateButton(createPotionBtnSprite)
 	layout.createPotionButton.SetClickHandler(func() {
 		if !alchemist.CanStartBrewing() {
 			return
@@ -141,17 +140,16 @@ func NewMainLayout(window *gui.Window, alchemist *domain.Alchemist) *PrimaryLayo
 		layout.render()
 	})
 
-	layout.exitButton = window.CreateButton(exitBtnSprite, gui.Position{X: 646, Y: 115})
+	layout.exitButton = window.CreateButton(exitBtnSprite)
 	layout.exitButton.SetClickHandler(func() { os.Exit(0) })
 
-	layout.textBlock = window.CreateTextCanvas("Description here", gui.Position{X: 555, Y: 430})
+	layout.textBlock = window.CreateTextCanvas("Description here")
 
 	event.On(EventIngredientSelected, event.ListenerFunc(func(e event.Event) error {
 		actualEvent := e.(*IngredientSelected)
 
 		ingredientIcon := GetIngredientSprite(*actualEvent.ingredient)
-		slotPosition := layout.ingredientSlots[layout.activeSlot].Position()
-		layout.ingredientSlots[layout.activeSlot] = window.CreateSpriteCanvas(ingredientIcon, slotPosition)
+		layout.ingredientSlots[layout.activeSlot] = window.CreateSpriteCanvas(ingredientIcon)
 
 		if alchemist.CanUseIngredient(actualEvent.ingredient) {
 			err := alchemist.UseIngredient(actualEvent.ingredient)
@@ -179,15 +177,16 @@ func (layout *PrimaryLayout) render() {
 	}
 
 	layout.graphics.Clear()
-	layout.graphics.AddElement(layout.background)
-	layout.graphics.AddElement(layout.textBlock)
+	layout.graphics.AddElement(layout.background, gui.ZeroPosition)
+	layout.graphics.AddElement(layout.textBlock, gui.Position{X: 555, Y: 430})
 
-	for _, slotCanvas := range layout.ingredientSlots {
-		layout.graphics.AddElement(slotCanvas)
-	}
+	layout.graphics.AddElement(layout.ingredientSlots[First], gui.Position{X: 187, Y: 390})
+	layout.graphics.AddElement(layout.ingredientSlots[Second], gui.Position{X: 187, Y: 320})
+	layout.graphics.AddElement(layout.ingredientSlots[Third], gui.Position{X: 187, Y: 250})
+	layout.graphics.AddElement(layout.ingredientSlots[Fourth], gui.Position{X: 187, Y: 180})
 
-	layout.graphics.AddElement(layout.createPotionButton)
-	layout.graphics.AddElement(layout.exitButton)
+	layout.graphics.AddElement(layout.createPotionButton, gui.Position{X: 253, Y: 116})
+	layout.graphics.AddElement(layout.exitButton, gui.Position{X: 646, Y: 115})
 	layout.graphics.Show()
 }
 
@@ -202,8 +201,7 @@ func NewBackpackLayout(window *gui.Window, alchemist *domain.Alchemist) *Backpac
 	layout.window = window
 	layout.alchemist = alchemist
 	// Allows scrolling ingredient list
-	layout.ingredientsVerticalDefaultOffset = 500
-	layout.ingredientsVerticalOffset = layout.ingredientsVerticalDefaultOffset
+	layout.ingredientsVerticalDefaultOffset = 465
 
 	for _, ingredient := range domain.IngredientsDatabase.All() {
 		deref := ingredient
@@ -213,10 +211,10 @@ func NewBackpackLayout(window *gui.Window, alchemist *domain.Alchemist) *Backpac
 	closeButtonSprite := assets.GetSprite("btn.exit")
 	ingredientsLayoutSprite := assets.GetSprite("interface.ingredients")
 
-	layout.graphics = gui.NewLayer(0, 0, false)
-	layout.background = window.CreateSpriteCanvas(ingredientsLayoutSprite, gui.ZeroPosition)
+	layout.graphics = gui.NewLayer(window.Width(), window.Height(), false)
+	layout.background = window.CreateSpriteCanvas(ingredientsLayoutSprite)
 
-	layout.closeButton = window.CreateButton(closeButtonSprite, gui.Position{X: 410, Y: 65})
+	layout.closeButton = window.CreateButton(closeButtonSprite)
 	layout.closeButton.SetClickHandler(func() { layout.graphics.Hide() })
 
 	event.On(EventAddIngredientButtonClicked, event.ListenerFunc(func(e event.Event) error {
@@ -231,26 +229,22 @@ func NewBackpackLayout(window *gui.Window, alchemist *domain.Alchemist) *Backpac
 
 func (layout *BackpackLayout) render() {
 	layout.graphics.Clear()
-	layout.graphics.AddElement(layout.background)
+	layout.graphics.AddElement(layout.background, gui.ZeroPosition)
 
-	ingredientsLayer := gui.NewLayer(0, 448, true)
-	ingredientEffectsLayer := gui.NewLayer(0, 0, false)
-	ingredientsBgPos := gui.Position{X: 605, Y: 200}
-	ingredientsBgSprite := assets.GetSprite("interface.effects")
-	ingredientsLayerBackground := layout.window.CreateSpriteCanvas(ingredientsBgSprite, ingredientsBgPos)
+	ingredientsLayer := gui.NewLayer(290, layout.ingredientsVerticalDefaultOffset, true)
+	ingredientEffectsLayer := gui.NewLayer(238, 220, false)
+	ingredientsEffectsLayerBackground := layout.window.CreateSpriteCanvas(assets.GetSprite("interface.effects"))
 
 	layout.ingredientsBtns = nil
 	offset := layout.ingredientsVerticalDefaultOffset
+	offset += 115 // absolute margin of parent element from 0 ordinates.
 
 	for _, ingredient := range layout.ingredients {
 		if !layout.alchemist.CanUseIngredient(ingredient) {
 			continue
 		}
 
-		ingredientBtn := layout.window.CreateButton(
-			GetIngredientSprite(*ingredient),
-			gui.Position{X: 50, Y: offset},
-		)
+		ingredientBtn := layout.window.CreateButton(GetIngredientSprite(*ingredient))
 		ingredientBtn.SetClickHandler(func(selected *domain.Ingredient) func() {
 			return func() {
 				// todo potentially vulnerable for mistake on main(mortar) side
@@ -267,11 +261,11 @@ func (layout *BackpackLayout) render() {
 			return func() {
 				lastHoveredIngredient = hovered.Name()
 				ingredientEffectsLayer.Clear()
-				ingredientEffectsLayer.AddElement(ingredientsLayerBackground)
-				initialPosition := gui.Position{X: 610, Y: 370}
+				ingredientEffectsLayer.AddElement(ingredientsEffectsLayerBackground, gui.Position{X: 605, Y: 200})
+				initialPosition := gui.Position{X: 610, Y: 365}
 				for _, effect := range layout.alchemist.DetermineEffects(hovered) {
-					effectPreview := layout.window.CreateSpriteCanvas(assets.GetSprite(effect.Name()), initialPosition)
-					ingredientEffectsLayer.AddElement(effectPreview)
+					effectPreview := layout.window.CreateSpriteCanvas(assets.GetSprite(effect.Name()))
+					ingredientEffectsLayer.AddElement(effectPreview, initialPosition)
 
 					initialPosition.Y -= 55
 				}
@@ -288,18 +282,18 @@ func (layout *BackpackLayout) render() {
 			}
 		}(ingredient))
 
+		layout.ingredientsBtns = append(layout.ingredientsBtns, ingredientBtn)
+
 		offset -= 64
 
-		layout.ingredientsBtns = append(layout.ingredientsBtns, ingredientBtn)
-		ingredientsLayer.AddElement(ingredientBtn)
+		ingredientsLayer.AddElement(ingredientBtn, gui.Position{X: 50, Y: offset})
 	}
 
-	ingredientsLayer.Show()
+	layout.graphics.Show()
 
-	layout.graphics.AddElement(ingredientsLayer)
-	layout.graphics.AddElement(ingredientEffectsLayer)
-
-	layout.graphics.AddElement(layout.closeButton)
+	layout.graphics.AddElement(ingredientsLayer, gui.Position{X: 50, Y: 115})
+	layout.graphics.AddElement(ingredientEffectsLayer, gui.Position{X: 605, Y: 200})
+	layout.graphics.AddElement(layout.closeButton, gui.Position{X: 410, Y: 65})
 }
 
 func GetIngredientSprite(ingredient domain.Ingredient) *gui.Sprite {
