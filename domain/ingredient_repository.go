@@ -62,15 +62,17 @@ var (
 				damageMagickaEffect,
 				invisibilityEffect,
 			},
-		}, {
-			"Ambrosia",
+		},
+		/* {
+			"Apple",
 			[]Effect{
 				restoreFatigueEffect,
 				damageLuckEffect,
 				fortifyWillpowerEffect,
 				damageHealthEffect,
 			},
-		}, {
+		}*/
+		{
 			"Arrowroot",
 			[]Effect{
 				restoreAgilityEffect,
@@ -129,6 +131,14 @@ var (
 		}, {
 			"Bonemeal",
 			[]Effect{
+				damageFatigueEffect,
+				resistFireEffect,
+				fortifyLuckEffect,
+				nightEyeEffect,
+			},
+		}, {
+			"Bread Loaf",
+			[]Effect{
 				restoreFatigueEffect,
 				detectLifeEffect,
 				damageAgilityEffect,
@@ -146,7 +156,7 @@ var (
 			"Carrot",
 			[]Effect{
 				restoreFatigueEffect,
-				resistFireEffect, // todo night eye
+				nightEyeEffect,
 				fortifyIntelligenceEffect,
 				damageEnduranceEffect,
 			},
@@ -225,20 +235,44 @@ var (
 		}, {
 			"Daedra Silk",
 			[]Effect{
-				paralyzeEffect,
-				restoreFatigueEffect,
-				damageHealthEffect,
-				reflectDamageEffect,
+				burdenEffect,
+				nightEyeEffect,
+				chameleonEffect,
+				damageEnduranceEffect,
 			},
-		}, {
+		},
+		/*
+			{
+					"Daedra Venin",
+					[]Effect{
+						paralyzeEffect,
+						restoreFatigueEffect,
+						damageHealthEffect,
+						reflectDamageEffect,
+					},
+				}
+		*/
+		{
 			"Daedroth Teeth",
 			[]Effect{
-				resistFireEffect,
-				damageHealthEffect,
-				restoreHealthEffect,
-				fireShieldEffect,
+				nightEyeEffect,
+				frostShieldEffect,
+				burdenEffect,
+				lightEffect,
 			},
-		}, {
+		},
+		/*
+			{
+				"Dragon's Tongue",
+				[]Effect{
+					resistFireEffect,
+					damageHealthEffect,
+					restoreHealthEffect,
+					fireShieldEffect,
+				},
+			},
+		*/
+		{
 			"Dreugh Wax",
 			[]Effect{
 				damageFatigueEffect,
@@ -425,12 +459,24 @@ var (
 		}, {
 			"Lady's Mantle Leaves",
 			[]Effect{
-				restoreIntelligenceEffect,
-				resistFireEffect,
-				damageFatigueEffect,
-				fortifyHealthEffect,
+				restoreHealthEffect,
+				damageEnduranceEffect,
+				nightEyeEffect,
+				featherEffect,
 			},
-		}, {
+		},
+		/*
+			{
+				"Lady's Smock Leaves",
+				[]Effect{
+					restoreIntelligenceEffect,
+					resistFireEffect,
+					damageFatigueEffect,
+					fortifyHealthEffect,
+				},
+			},
+		*/
+		{
 			"Lavender Sprig",
 			[]Effect{
 				restorePersonalityEffect,
@@ -454,15 +500,22 @@ var (
 				fireShieldEffect,
 				damagePersonalityEffect,
 			},
-		}, {
+		},
+		{
 			"Lichor",
+			[]Effect{
+				restoreMagickaEffect,
+			},
+		},
+		/*{
+			"Mandrake Root",
 			[]Effect{
 				cureDiseaseEffect,
 				resistPoisonEffect,
 				damageAgilityEffect,
 				fortifyWillpowerEffect,
 			},
-		}, {
+		},*/{
 			"Milk Thistle Seeds",
 			[]Effect{
 				lightEffect,
@@ -510,15 +563,15 @@ var (
 				silenceEffect,
 				invisibilityEffect,
 			},
-		}, {
-			"Mugwort Seeds",
+		}, /* {
+			"Mutton",
 			[]Effect{
 				fortifyHealthEffect,
 				damageFatigueEffect,
 				dispelEffect,
 				damageMagickaEffect,
 			},
-		}, {
+		},*/{
 			"Nightshade",
 			[]Effect{
 				damageHealthEffect,
@@ -671,14 +724,6 @@ var (
 				dispelEffect,
 			},
 		}, {
-			"S'jirra's Famous Potato Bread",
-			[]Effect{
-				detectLifeEffect,
-				restoreHealthEffect,
-				damageAgilityEffect,
-				damageStrengthEffect,
-			},
-		}, {
 			"Somnalius Frond",
 			[]Effect{
 				restoreSpeedEffect,
@@ -817,10 +862,10 @@ var (
 		}, {
 			"Viper's Bugloss Leaves",
 			[]Effect{
-				restoreMagickaEffect,
-				damageHealthEffect,
-				fortifyMagickaEffect,
-				dispelEffect,
+				resistParalysisEffect,
+				nightEyeEffect,
+				burdenEffect,
+				cureParalysisEffect,
 			},
 		}, {
 			"Water Hyacinth Nectar",
@@ -830,7 +875,17 @@ var (
 				restoreMagickaEffect,
 				fortifyMagickaEffect,
 			},
-		}, {
+		},/*
+		{
+				"Void Salts",
+				[]Effect{
+					restoreMagickaEffect,
+					damageHealthEffect,
+					fortifyMagickaEffect,
+					dispelEffect,
+				},
+			}
+		*/ {
 			"Watermelon",
 			[]Effect{
 				restoreFatigueEffect,
@@ -869,14 +924,6 @@ var (
 				invisibilityEffect,
 				damageHealthEffect,
 				damageMagickaEffect,
-			},
-		}, {
-			"Ashes of Hindaril",
-			[]Effect{
-				silenceEffect,
-				resistDiseaseEffect,
-				frostDamageEffect,
-				invisibilityEffect,
 			},
 		},
 	}

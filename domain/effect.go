@@ -121,4 +121,5 @@ var (
 	restoreWillpowerEffect    = createEffect("Restore Willpower", typeCommon, true, 38)
 	restoreStrengthEffect     = createEffect("Restore Strength", typeCommon, true, 38)
 	fortifySpeedEffect        = createEffect("Fortify Speed", typeCommon, true, 0.6)
+	nightEyeEffect            = createEffect("Night-Eye", typeDurationOnly, true, 22)
 )
