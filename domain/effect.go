@@ -16,7 +16,7 @@ type Effect struct {
 	baseCost float64
 }
 
-func (e *Effect) Name() string {
+func (e Effect) Name() string {
 	return e.name
 }
 
@@ -33,12 +33,20 @@ func (e Effect) IsUnknown() bool {
 	return e.name == "Unknown Effect"
 }
 
+func (e Effect) IsCommon() bool {
+	return e.eType == typeCommon
+}
+
 func (e Effect) IsDurationOnly() bool {
 	return e.eType == typeDurationOnly
 }
 
 func (e Effect) IsMagnitudeOnly() bool {
 	return e.eType == typeMagnitudeOnly
+}
+
+func (e Effect) IsImmediate() bool {
+	return e.eType == typeImmediate
 }
 
 func createEffect(name string, effectType EffectType, positive bool, baseCost float64) Effect {

@@ -127,11 +127,11 @@ func NewMainLayout(window *gui.Window, alchemist *domain.Alchemist) *PrimaryLayo
 			return
 		}
 
-		_, err := alchemist.BrewPotion("Some hardcoded potion name")
+		potion, err := alchemist.BrewPotion("Some hardcoded potion name")
 		if err != nil {
 			log.Fatal(err)
 		}
-		layout.textBlock.ChangeText("You have created a potion. todo description here")
+		layout.textBlock.ChangeText(potion.Description())
 		layout.ingredientSlots = map[Slot]gui.Canvas{
 			Slot(First):  button1,
 			Slot(Second): button2,
