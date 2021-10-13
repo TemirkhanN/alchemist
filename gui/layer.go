@@ -1,5 +1,11 @@
 package gui
 
+type Scroll struct {
+	currentOffset float64
+	maximumOffset float64
+	isAvailable   bool
+}
+
 type Layer struct {
 	elements    []Drawer
 	visible     bool
@@ -7,10 +13,16 @@ type Layer struct {
 	width       float64
 	height      float64
 	position    Position
+	scroll      Scroll
 	_debug      *Window
 }
 
-func NewLayer(width float64, height float64, visible bool) *Layer {
+func NewLayer(width float64, height float64, visible bool, scrollable ...bool) *Layer {
+	scroll := Scroll{currentOffset: 0, maximumOffset: 0, isAvailable: false}
+	if len(scrollable) == 1 && scrollable[0] {
+		scroll.isAvailable = true
+	}
+
 	return &Layer{
 		elements:    nil,
 		visible:     visible,
@@ -19,6 +31,7 @@ func NewLayer(width float64, height float64, visible bool) *Layer {
 		height:      height,
 		position:    ZeroPosition,
 		_debug:      nil,
+		scroll:      scroll,
 	}
 }
 
@@ -50,11 +63,9 @@ func (layer *Layer) Draw() {
 			continue
 		}
 
-		if !layer.canFullyFit(element) {
-			element.Hide()
+		if layer.canFullyFit(element) {
+			element.Draw()
 		}
-
-		element.Draw()
 	}
 
 	layer.needsRedraw = false
@@ -79,9 +90,7 @@ func (layer *Layer) Elements() []Drawer {
 }
 
 func (layer *Layer) AddElement(drawer Drawer, relativePosition Position) {
-	absPosition := NewPosition(layer.position.X()+relativePosition.X(), layer.position.Y()+relativePosition.Y())
-
-	drawer.setPosition(absPosition)
+	drawer.setPosition(layer.position.absolute(relativePosition))
 	layer.elements = append(layer.elements, drawer)
 }
 
@@ -89,17 +98,21 @@ func (layer *Layer) Clear() {
 	layer.elements = nil
 }
 
-func (layer *Layer) SetSize(width float64, height float64) {
-	layer.width = width
-	layer.height = height
-}
-
-func (layer *Layer) Width() float64 {
+func (layer Layer) Width() float64 {
 	return layer.width
 }
 
-func (layer *Layer) Height() float64 {
+func (layer Layer) Height() float64 {
 	return layer.height
+}
+
+func (layer Layer) actualHeight() float64 {
+	actualHeight := 0.0
+	for _, element := range layer.elements {
+		actualHeight += element.Height()
+	}
+
+	return actualHeight
 }
 
 func (layer *Layer) setPosition(position Position) {
@@ -129,6 +142,65 @@ func (layer Layer) canFullyFit(element Drawer) bool {
 	if layer.Position().Y()+layer.Height() < element.Position().Y()+element.Height() {
 		return false
 	}
+
+	return true
+}
+
+func (layer *Layer) isUnderPosition(position Position) bool {
+	buttonWidth := layer.Width()
+	buttonHeight := layer.Height()
+
+	bottomLeftX := layer.position.X()
+	bottomLeftY := layer.position.Y()
+	topRightX := layer.position.X() + buttonWidth
+	topRightY := layer.position.Y() + buttonHeight
+
+	posX := position.X()
+	posY := position.Y()
+
+	if (posX > bottomLeftX && posX < topRightX) && (posY > bottomLeftY && posY < topRightY) {
+		return true
+	}
+
+	return false
+}
+
+func (layer Layer) isScrollable() bool {
+	return layer.scroll.isAvailable && layer.visible
+}
+
+func (layer *Layer) emitVerticalScroll(vector float64) bool {
+	if !layer.isScrollable() {
+		return false
+	}
+
+	layerMaxHeight := layer.actualHeight()
+	if layerMaxHeight <= layer.Height() {
+		return false
+	}
+
+	// We can scroll but there is no space for that
+	if (layer.scroll.currentOffset == 0 && vector > 0) ||
+		(layer.scroll.currentOffset == layerMaxHeight && vector < 0) {
+		return true
+	}
+
+	layer.scroll.currentOffset -= vector
+
+	if layer.scroll.currentOffset < 0 {
+		layer.scroll.currentOffset = 0
+	}
+
+	if layerMaxHeight < layer.scroll.currentOffset {
+		layer.scroll.currentOffset = layerMaxHeight
+	}
+
+	offset := NewPosition(0, vector)
+	for _, element := range layer.elements {
+		element.setPosition(element.Position().relative(offset))
+	}
+
+	layer.needsRedraw = true
 
 	return true
 }

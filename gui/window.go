@@ -24,21 +24,39 @@ func (p Position) Y() float64 {
 	return p.y
 }
 
+func (p Position) absolute(against Position) Position {
+	return NewPosition(p.X()+against.X(), p.Y()+against.Y())
+}
+
+func (p Position) relative(against Position) Position {
+	return NewPosition(p.X()-against.X(), p.Y()-against.Y())
+}
+
 func NewPosition(x float64, y float64) Position {
 	return Position{x: x, y: y}
 }
 
-type Window struct {
-	graphics *Layer
-	window   *pixelgl.Window
+type WindowConfig struct {
+	Title       string
+	Width       float64
+	Height      float64
+	DebugMode   bool
+	Position    Position
+	ScrollSpeed uint
 }
 
-func NewWindow(width float64, height float64, debugMode ...bool) *Window {
+type Window struct {
+	graphics    *Layer
+	window      *pixelgl.Window
+	scrollSpeed float64
+}
+
+func NewWindow(preset WindowConfig) *Window {
 	cfg := pixelgl.WindowConfig{
-		Title:                  "Alchemist",
+		Title:                  preset.Title,
 		Icon:                   nil,
-		Bounds:                 pixel.R(0, 0, width, height),
-		Position:               pixel.Vec{X: 0, Y: 0},
+		Bounds:                 pixel.R(0, 0, preset.Width, preset.Height),
+		Position:               pixel.Vec{X: preset.Position.X(), Y: preset.Position.Y()},
 		Monitor:                nil,
 		Resizable:              false,
 		Undecorated:            false,
@@ -55,9 +73,23 @@ func NewWindow(width float64, height float64, debugMode ...bool) *Window {
 		panic(err)
 	}
 
-	window := &Window{window: w, graphics: NewLayer(width, height, true)}
+	scrollSpeed := 1.0
 
-	if len(debugMode) != 0 && debugMode[0] {
+	if preset.ScrollSpeed != 0 {
+		if preset.ScrollSpeed > 10 {
+			preset.ScrollSpeed = 10
+		}
+
+		scrollSpeed = float64(preset.ScrollSpeed)
+	}
+
+	window := &Window{
+		window:      w,
+		graphics:    NewLayer(preset.Width, preset.Height, true),
+		scrollSpeed: scrollSpeed,
+	}
+
+	if preset.DebugMode {
 		window.graphics.setDebugTool(window)
 	}
 
@@ -140,6 +172,7 @@ func (w *Window) Refresh() {
 
 	if w.window.MouseInsideWindow() {
 		cursorPosition := w.CursorPosition()
+		w.handleVerticalScroll(w.graphics, cursorPosition, w.window.MouseScroll())
 		w.handleMouseOut(w.graphics, cursorPosition)
 		w.handleMouseOver(w.graphics, cursorPosition)
 
@@ -159,6 +192,34 @@ func (w *Window) draw() {
 
 	w.window.Clear(colornames.White)
 	w.graphics.Draw()
+}
+
+func (w *Window) handleVerticalScroll(layer *Layer, cursorPosition Position, vector pixel.Vec) bool {
+	if vector.Y == 0 {
+		return true
+	}
+
+	if layer.isUnderPosition(cursorPosition) {
+		if layer.emitVerticalScroll(vector.Y * w.scrollSpeed) {
+			return true
+		}
+	}
+
+	for i := len(layer.Elements()) - 1; i >= 0; i-- {
+		element := layer.Elements()[i]
+		if !element.isVisible() {
+			continue
+		}
+
+		childElement, isLayer := element.(*Layer)
+		if isLayer && childElement.isUnderPosition(cursorPosition) {
+			if w.handleVerticalScroll(childElement, cursorPosition, vector) {
+				return true
+			}
+		}
+	}
+
+	return false
 }
 
 func (w *Window) handleLeftClick(graphics Drawer, clickedPosition Position) bool {

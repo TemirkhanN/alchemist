@@ -56,7 +56,14 @@ func main() {
 }
 
 func launch(windowWidth float64, windowHeight float64) {
-	window := gui.NewWindow(windowWidth, windowHeight)
+	window := gui.NewWindow(gui.WindowConfig{
+		Title:       "Alchemist",
+		Width:       windowWidth,
+		Height:      windowHeight,
+		DebugMode:   false,
+		Position:    gui.ZeroPosition,
+		ScrollSpeed: 5,
+	})
 
 	alchemyLevelHardcoded := 26
 	luckLevelHardcoded := 5
@@ -231,7 +238,7 @@ func (layout *BackpackLayout) render() {
 	layout.graphics.Clear()
 	layout.graphics.AddElement(layout.background, gui.ZeroPosition)
 
-	ingredientsLayer := gui.NewLayer(290, layout.ingredientsVerticalDefaultOffset, true)
+	ingredientsLayer := gui.NewLayer(290, layout.ingredientsVerticalDefaultOffset, true, true)
 	ingredientEffectsLayer := gui.NewLayer(238, 220, false)
 	ingredientsEffectsLayerBackground := layout.window.CreateSpriteCanvas(assets.GetSprite("interface.effects"))
 
