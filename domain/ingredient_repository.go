@@ -9,12 +9,6 @@ type IngredientRepository struct {
 	ingredients []Ingredient
 }
 
-type IngredientFinder interface {
-	FindByName(name string) (Ingredient, error)
-	FindByNames(names []string) ([]Ingredient, error)
-	All() []Ingredient
-}
-
 func (r IngredientRepository) FindByName(name string) (Ingredient, error) {
 	for _, ingredient := range r.ingredients {
 		if strings.EqualFold(ingredient.name, name) {
