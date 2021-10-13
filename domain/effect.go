@@ -3,7 +3,8 @@ package domain
 type EffectType int
 
 const (
-	typeCommon EffectType = iota
+	_ EffectType = iota
+	typeCommon
 	typeMagnitudeOnly
 	typeDurationOnly
 	typeImmediate
