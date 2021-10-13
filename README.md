@@ -1,4 +1,5 @@
 # alchemist
+![Code Quality Check](https://github.com/TemirkhanN/alchemist/workflows/code-quality-check/badge.svg)
 [![Go Report Card](https://goreportcard.com/badge/github.com/TemirkhanN/alchemist)](https://goreportcard.com/report/github.com/TemirkhanN/alchemist)
 
 This is an implementation of an alchemy system from The Elder Scrolls IV: Oblivion.
