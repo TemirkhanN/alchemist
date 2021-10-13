@@ -37,13 +37,12 @@ type PrimaryLayout struct {
 }
 
 type BackpackLayout struct {
-	initialized                      bool
-	graphics                         *gui.Layer
-	window                           *gui.Window
-	background                       *gui.SpriteCanvas
-	ingredientsBtns                  []*gui.Button
-	closeButton                      *gui.Button
-	ingredientsVerticalDefaultOffset float64
+	initialized     bool
+	graphics        *gui.Layer
+	window          *gui.Window
+	background      *gui.SpriteCanvas
+	ingredientsBtns []*gui.Button
+	closeButton     *gui.Button
 
 	ingredients []*domain.Ingredient
 	alchemist   *domain.Alchemist
@@ -62,7 +61,7 @@ func launch(windowWidth float64, windowHeight float64) {
 		Height:      windowHeight,
 		DebugMode:   false,
 		Position:    gui.ZeroPosition,
-		ScrollSpeed: 5,
+		ScrollSpeed: 8,
 	})
 
 	alchemyLevelHardcoded := 26
@@ -207,8 +206,6 @@ func NewBackpackLayout(window *gui.Window, alchemist *domain.Alchemist) *Backpac
 	layout.initialized = true
 	layout.window = window
 	layout.alchemist = alchemist
-	// Allows scrolling ingredient list
-	layout.ingredientsVerticalDefaultOffset = 465
 
 	for _, ingredient := range domain.IngredientsDatabase.All() {
 		deref := ingredient
@@ -238,13 +235,12 @@ func (layout *BackpackLayout) render() {
 	layout.graphics.Clear()
 	layout.graphics.AddElement(layout.background, gui.ZeroPosition)
 
-	ingredientsLayer := gui.NewLayer(480, layout.ingredientsVerticalDefaultOffset, true, true)
+	ingredientsLayer := gui.NewLayer(480, 465, true, true)
 	ingredientEffectsLayer := gui.NewLayer(238, 220, false)
 	ingredientsEffectsLayerBackground := layout.window.CreateSpriteCanvas(assets.GetSprite("interface.effects"))
 
 	layout.ingredientsBtns = nil
-	offset := layout.ingredientsVerticalDefaultOffset
-	offset += 115 // absolute margin of parent element from 0 ordinates.
+	offset := ingredientsLayer.Height()
 
 	for _, ingredient := range layout.ingredients {
 		if !layout.alchemist.CanUseIngredient(ingredient) {
@@ -292,7 +288,7 @@ func (layout *BackpackLayout) render() {
 
 		offset -= 64
 
-		ingredientsLayer.AddElement(ingredientBtn, gui.NewPosition(50, offset))
+		ingredientsLayer.AddElement(ingredientBtn, gui.NewPosition(0, offset))
 	}
 
 	layout.graphics.Show()

@@ -1,9 +1,9 @@
 package gui
 
 type Scroll struct {
-	currentOffset float64
-	maximumOffset float64
-	isAvailable   bool
+	currentOffsetFromTop float64
+	maximumOffsetFromTop float64
+	isAvailable          bool
 }
 
 type Layer struct {
@@ -18,7 +18,7 @@ type Layer struct {
 }
 
 func NewLayer(width float64, height float64, visible bool, scrollable ...bool) *Layer {
-	scroll := Scroll{currentOffset: 0, maximumOffset: 0, isAvailable: false}
+	scroll := Scroll{currentOffsetFromTop: 0, maximumOffsetFromTop: 0, isAvailable: false}
 	if len(scrollable) == 1 && scrollable[0] {
 		scroll.isAvailable = true
 	}
@@ -90,6 +90,13 @@ func (layer *Layer) Elements() []Drawer {
 }
 
 func (layer *Layer) AddElement(drawer Drawer, relativePosition Position) {
+	if layer.scroll.isAvailable && relativePosition.Y() < 0 {
+		offset := -1 * relativePosition.Y()
+		if offset > layer.scroll.maximumOffsetFromTop {
+			layer.scroll.maximumOffsetFromTop = offset
+		}
+	}
+
 	drawer.setPosition(layer.position.absolute(relativePosition))
 	layer.elements = append(layer.elements, drawer)
 }
@@ -106,17 +113,15 @@ func (layer Layer) Height() float64 {
 	return layer.height
 }
 
-func (layer Layer) actualHeight() float64 {
-	actualHeight := 0.0
+func (layer *Layer) setPosition(position Position) {
+	previousPosition := layer.position
+	layer.position = position
+
 	for _, element := range layer.elements {
-		actualHeight += element.Height()
+		element.setPosition(element.Position().relative(previousPosition).absolute(layer.position))
 	}
 
-	return actualHeight
-}
-
-func (layer *Layer) setPosition(position Position) {
-	layer.position = position
+	layer.needsRedraw = true
 }
 
 func (layer Layer) Position() Position {
@@ -166,7 +171,11 @@ func (layer *Layer) isUnderPosition(position Position) bool {
 }
 
 func (layer Layer) isScrollable() bool {
-	return layer.scroll.isAvailable && layer.visible
+	if !layer.visible || !layer.scroll.isAvailable {
+		return false
+	}
+
+	return true
 }
 
 func (layer *Layer) emitVerticalScroll(vector float64) bool {
@@ -174,25 +183,23 @@ func (layer *Layer) emitVerticalScroll(vector float64) bool {
 		return false
 	}
 
-	layerMaxHeight := layer.actualHeight()
-	if layerMaxHeight <= layer.Height() {
-		return false
-	}
-
 	// We can scroll but there is no space for that
-	if (layer.scroll.currentOffset == 0 && vector > 0) ||
-		(layer.scroll.currentOffset == layerMaxHeight && vector < 0) {
+	if layer.scroll.maximumOffsetFromTop < layer.Height() ||
+		(layer.scroll.currentOffsetFromTop <= 0 && vector > 0) ||
+		(layer.scroll.currentOffsetFromTop >= layer.scroll.maximumOffsetFromTop && vector < 0) {
 		return true
 	}
 
-	layer.scroll.currentOffset -= vector
+	layer.scroll.currentOffsetFromTop -= vector
 
-	if layer.scroll.currentOffset < 0 {
-		layer.scroll.currentOffset = 0
+	if layer.scroll.currentOffsetFromTop < 0 {
+		vector = layer.scroll.currentOffsetFromTop
+		layer.scroll.currentOffsetFromTop = 0
 	}
 
-	if layerMaxHeight < layer.scroll.currentOffset {
-		layer.scroll.currentOffset = layerMaxHeight
+	if layer.scroll.maximumOffsetFromTop < layer.scroll.currentOffsetFromTop {
+		vector = layer.scroll.maximumOffsetFromTop - layer.scroll.currentOffsetFromTop
+		layer.scroll.currentOffsetFromTop = layer.scroll.maximumOffsetFromTop
 	}
 
 	offset := NewPosition(0, vector)
