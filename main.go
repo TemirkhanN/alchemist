@@ -238,7 +238,7 @@ func (layout *BackpackLayout) render() {
 	layout.graphics.Clear()
 	layout.graphics.AddElement(layout.background, gui.ZeroPosition)
 
-	ingredientsLayer := gui.NewLayer(290, layout.ingredientsVerticalDefaultOffset, true, true)
+	ingredientsLayer := gui.NewLayer(480, layout.ingredientsVerticalDefaultOffset, true, true)
 	ingredientEffectsLayer := gui.NewLayer(238, 220, false)
 	ingredientsEffectsLayerBackground := layout.window.CreateSpriteCanvas(assets.GetSprite("interface.effects"))
 
