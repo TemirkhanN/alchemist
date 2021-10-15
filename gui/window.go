@@ -7,7 +7,6 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/faiface/pixel/text"
 	"golang.org/x/image/colornames"
-	"golang.org/x/image/font/basicfont"
 )
 
 // Position todo make it mutable from package only.
@@ -302,10 +301,10 @@ func (w *Window) drawText(textValue string, position Position) {
 
 	fmt.Fprintln(basicTxt, textValue)
 
-	basicTxt.DrawColorMask(w.window, pixel.IM, colornames.Black)
+	basicTxt.DrawColorMask(w.window, pixel.IM, colornames.Sienna)
 }
 
 var (
-	basicAtlas   = text.NewAtlas(basicfont.Face7x13, text.ASCII)
+	basicAtlas   = createAtlas("TESOblivionFont", "assets/font/Kingthings Petrock.ttf")
 	ZeroPosition = Position{x: 0, y: 0}
 )

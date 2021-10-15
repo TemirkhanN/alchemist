@@ -2,30 +2,40 @@ package gui
 
 import (
 	"flag"
-	"image"
 	"io/ioutil"
+	"path/filepath"
 
+	"github.com/faiface/pixel/text"
 	"github.com/golang/freetype"
-	"golang.org/x/image/colornames"
+	"github.com/golang/freetype/truetype"
 )
 
-// todo figure out how to use it instead of basicfont.Face7x13.
-func RegisterFont(name string, ttfPath string, dpi float64, fontSize float64) *freetype.Context {
-	fontFile := flag.String(name, ttfPath, "Lorem ipsum dolor")
-	fontBytes, _ := ioutil.ReadFile(*fontFile)
-	convertFontSize := flag.Float64("size", fontSize, "font size in points")
-	convertedDpi := flag.Float64("dpi", dpi, "screen resolution in Dots Per Inch")
-
-	f, err := freetype.ParseFont(fontBytes)
+func createAtlas(fontName string, ttfPath string) *text.Atlas {
+	ttfPath, err := filepath.Abs(ttfPath)
 	if err != nil {
 		panic(err)
 	}
 
-	c := freetype.NewContext()
-	c.SetDPI(*convertedDpi)
-	c.SetFont(f)
-	c.SetFontSize(*convertFontSize)
-	c.SetSrc(image.NewUniform(colornames.Sienna))
+	fontFile := flag.String(fontName, ttfPath, "Lorem ipsum dolor")
 
-	return c
+	fontBytes, err := ioutil.ReadFile(*fontFile)
+	if err != nil {
+		panic(err)
+	}
+
+	oblivionFontOpts := &truetype.Options{
+		Size:              28,
+		DPI:               72,
+		Hinting:           0,
+		GlyphCacheEntries: 0,
+		SubPixelsX:        0,
+		SubPixelsY:        0,
+	}
+
+	oblivionFont, err := freetype.ParseFont(fontBytes)
+	if err != nil {
+		panic(err)
+	}
+
+	return text.NewAtlas(truetype.NewFace(oblivionFont, oblivionFontOpts), text.ASCII)
 }
