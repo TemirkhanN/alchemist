@@ -223,6 +223,7 @@ func (a *Alchemist) Refine(effect Effect) PotionEffect {
 			positive: effect.positive,
 			eType:    effect.eType,
 			baseCost: effect.baseCost,
+			measure:  effect.measure,
 		},
 	}
 }

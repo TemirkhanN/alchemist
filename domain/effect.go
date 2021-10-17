@@ -1,5 +1,13 @@
 package domain
 
+type EffectMeasure struct {
+	value string
+}
+
+func (em EffectMeasure) String() string {
+	return em.value
+}
+
 type EffectType struct {
 	value int
 }
@@ -9,6 +17,7 @@ type Effect struct {
 	positive bool
 	eType    EffectType
 	baseCost float64
+	measure  EffectMeasure
 }
 
 func (e Effect) Name() string {
@@ -21,6 +30,7 @@ func (e Effect) HideEffectDetails() Effect {
 		positive: e.positive,
 		eType:    e.eType,
 		baseCost: e.baseCost,
+		measure:  e.measure,
 	}
 }
 
@@ -44,12 +54,18 @@ func (e Effect) IsImmediate() bool {
 	return e.eType == typeImmediate
 }
 
-func createEffect(name string, effectType EffectType, positive bool, baseCost float64) Effect {
+func createEffect(name string, eType EffectType, positive bool, baseCost float64, measure ...EffectMeasure) Effect {
+	effectMeasure := plainMeasure
+	if len(measure) == 1 {
+		effectMeasure = measure[0]
+	}
+
 	return Effect{
 		name:     name,
 		positive: positive,
-		eType:    effectType,
+		eType:    eType,
 		baseCost: baseCost,
+		measure:  effectMeasure,
 	}
 }
 
@@ -58,10 +74,13 @@ var (
 	typeMagnitudeOnly = EffectType{value: 1}
 	typeDurationOnly  = EffectType{value: 2}
 	typeImmediate     = EffectType{value: 3}
+	percentMeasure    = EffectMeasure{value: "%"}
+	plainMeasure      = EffectMeasure{value: "points"}
+	distanceMeasure   = EffectMeasure{value: "feet"}
 
 	restoreIntelligenceEffect = createEffect("Restore Intelligence", typeCommon, true, 38)
-	resistPoisonEffect        = createEffect("Resist Poison", typeCommon, true, 0.5)
-	lightEffect               = createEffect("Light", typeCommon, true, 0.051)
+	resistPoisonEffect        = createEffect("Resist Poison", typeCommon, true, 0.5, percentMeasure)
+	lightEffect               = createEffect("Light", typeCommon, true, 0.051, distanceMeasure)
 	damageFatigueEffect       = createEffect("Damage Fatigue", typeCommon, false, 4.4)
 	restoreFatigueEffect      = createEffect("Restore Fatigue", typeCommon, true, 2)
 	restoreHealthEffect       = createEffect("Restore Health", typeCommon, true, 10)
@@ -73,16 +92,16 @@ var (
 	restoreAgilityEffect      = createEffect("Restore Agility", typeCommon, true, 38)
 	fortifyStrengthEffect     = createEffect("Fortify Strength", typeCommon, true, 0.6)
 	burdenEffect              = createEffect("Burden", typeCommon, false, 0.21)
-	shieldEffect              = createEffect("Shield", typeCommon, true, 0.45)
+	shieldEffect              = createEffect("Shield", typeCommon, true, 0.45, percentMeasure)
 	fortifyAgilityEffect      = createEffect("Fortify Agility", typeCommon, true, 0.6)
 	dispelEffect              = createEffect("Dispel", typeMagnitudeOnly, true, 3.6)
-	resistDiseaseEffect       = createEffect("Resist Disease", typeCommon, true, 0.5)
+	resistDiseaseEffect       = createEffect("Resist Disease", typeCommon, true, 0.5, percentMeasure)
 	silenceEffect             = createEffect("Silence", typeDurationOnly, false, 60)
-	resistShockEffect         = createEffect("Resist Shock", typeCommon, true, 0.5)
+	resistShockEffect         = createEffect("Resist Shock", typeCommon, true, 0.5, percentMeasure)
 	fortifyEnduranceEffect    = createEffect("Fortify Endurance", typeCommon, true, 0.6)
 	restoreMagickaEffect      = createEffect("Restore Magicka", typeCommon, true, 2.5)
-	chameleonEffect           = createEffect("Chameleon", typeCommon, true, 0.63)
-	resistParalysisEffect     = createEffect("Resist Paralysis", typeCommon, true, 0.75)
+	chameleonEffect           = createEffect("Chameleon", typeCommon, true, 0.63, percentMeasure)
+	resistParalysisEffect     = createEffect("Resist Paralysis", typeCommon, true, 0.75, percentMeasure)
 	fortifyHealthEffect       = createEffect("Fortify Health", typeCommon, true, 0.14)
 	damageSpeedEffect         = createEffect("Damage Speed", typeCommon, false, 100)
 	damagePersonalityEffect   = createEffect("Damage Personality", typeCommon, false, 100)
@@ -95,15 +114,15 @@ var (
 	resistFireEffect          = createEffect("Resist Fire", typeCommon, true, 0.5)
 	fireShieldEffect          = createEffect("Fire Shield", typeCommon, true, 0.95)
 	restoreEnduranceEffect    = createEffect("Restore Endurance", typeCommon, true, 38)
-	reflectSpellEffect        = createEffect("Reflect Spell", typeCommon, true, 0)
+	reflectSpellEffect        = createEffect("Reflect Spell", typeCommon, true, 0, percentMeasure)
 	cureDiseaseEffect         = createEffect("Cure Disease", typeImmediate, true, 1400)
 	paralyzeEffect            = createEffect("Paralyze", typeDurationOnly, false, 475)
 	fortifyIntelligenceEffect = createEffect("Fortify Intelligence", typeCommon, true, 0.6)
 	restorePersonalityEffect  = createEffect("Restore Personality", typeCommon, true, 38)
-	resistFrostEffect         = createEffect("Resist Frost", typeCommon, true, 0.5)
+	resistFrostEffect         = createEffect("Resist Frost", typeCommon, true, 0.5, percentMeasure)
 	fortifyMagickaEffect      = createEffect("Fortify Magicka", typeCommon, true, 0.15)
-	shockShieldEffect         = createEffect("Shock Shield", typeCommon, true, 0.95)
-	reflectDamageEffect       = createEffect("Reflect Damage", typeCommon, true, 2.5)
+	shockShieldEffect         = createEffect("Shock Shield", typeCommon, true, 0.95, percentMeasure)
+	reflectDamageEffect       = createEffect("Reflect Damage", typeCommon, true, 2.5, percentMeasure)
 	waterBreathingEffect      = createEffect("Water Breathing", typeDurationOnly, true, 14.5)
 	restoreLuckEffect         = createEffect("Restore Luck", typeCommon, true, 38)
 	frostDamageEffect         = createEffect("Frost Damage", typeCommon, false, 7.4)
@@ -111,7 +130,7 @@ var (
 	fireDamageEffect          = createEffect("Fire Damage", typeCommon, false, 7.5)
 	featherEffect             = createEffect("Feather", typeCommon, true, 0.01)
 	fortifyFatigueEffect      = createEffect("Fortify Fatigue", typeCommon, true, 0.04)
-	frostShieldEffect         = createEffect("Frost Shield", typeCommon, true, 0.95)
+	frostShieldEffect         = createEffect("Frost Shield", typeCommon, true, 0.95, percentMeasure)
 	restoreSpeedEffect        = createEffect("Restore Speed", typeCommon, true, 38)
 	curePoisonEffect          = createEffect("Cure Poison", typeImmediate, true, 600)
 	waterWalkingEffect        = createEffect("Water Walking", typeCommon, true, 13)
