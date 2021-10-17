@@ -1,14 +1,8 @@
 package domain
 
-type EffectType int
-
-const (
-	_ EffectType = iota
-	typeCommon
-	typeMagnitudeOnly
-	typeDurationOnly
-	typeImmediate
-)
+type EffectType struct {
+	value int
+}
 
 type Effect struct {
 	name     string
@@ -60,6 +54,11 @@ func createEffect(name string, effectType EffectType, positive bool, baseCost fl
 }
 
 var (
+	typeCommon        = EffectType{value: 0}
+	typeMagnitudeOnly = EffectType{value: 1}
+	typeDurationOnly  = EffectType{value: 2}
+	typeImmediate     = EffectType{value: 3}
+
 	restoreIntelligenceEffect = createEffect("Restore Intelligence", typeCommon, true, 38)
 	resistPoisonEffect        = createEffect("Resist Poison", typeCommon, true, 0.5)
 	lightEffect               = createEffect("Light", typeCommon, true, 0.051)
