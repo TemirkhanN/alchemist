@@ -14,7 +14,7 @@ type IngredientSelected struct {
 }
 
 type AddIngredientButtonClicked struct {
-	slot Slot
+	slot domain.Slot
 	event.BasicEvent
 }
 
@@ -31,7 +31,7 @@ const (
 	EventAddIngredientButtonClicked = "addIngredientButtonClicked"
 )
 
-func newAddIngredientButtonClickedEvent(inSlot Slot) {
+func newAddIngredientButtonClickedEvent(inSlot domain.Slot) {
 	err := event.TriggerEvent(&AddIngredientButtonClicked{slot: inSlot, BasicEvent: event.BasicEvent{}})
 	if err != nil {
 		log.Fatal(err.Error())

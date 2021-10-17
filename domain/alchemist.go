@@ -5,6 +5,10 @@ import (
 	"math"
 )
 
+type Slot struct {
+	value uint8
+}
+
 type Alchemist struct {
 	luckLevel    int
 	alchemyLevel int
@@ -260,3 +264,11 @@ func (a *Alchemist) calculateDuration(effect Effect) float64 {
 
 	return 4 * a.calculateMagnitude(effect)
 }
+
+var (
+	EmptySlot  = Slot{value: 0}
+	FirstSlot  = Slot{value: 1}
+	SecondSlot = Slot{value: 2}
+	ThirdSlot  = Slot{value: 3}
+	FourthSlot = Slot{value: 4}
+)

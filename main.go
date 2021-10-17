@@ -14,24 +14,14 @@ import (
 	"github.com/TemirkhanN/alchemist/gui"
 )
 
-type Slot uint8
-
-const (
-	None Slot = iota
-	First
-	Second
-	Third
-	Fourth
-)
-
 type PrimaryLayout struct {
 	initialized bool
-	activeSlot  Slot
+	activeSlot  domain.Slot
 	graphics    *gui.Layer
 
 	background         *gui.SpriteCanvas
 	textBlock          *gui.TextCanvas
-	ingredientSlots    map[Slot]gui.Canvas
+	ingredientSlots    map[domain.Slot]gui.Canvas
 	createPotionButton *gui.Button
 	exitButton         *gui.Button
 }
@@ -95,35 +85,35 @@ func NewMainLayout(window *gui.Window, alchemist *domain.Alchemist) *PrimaryLayo
 
 	button1 := window.CreateButton(addIngredientBtnSprite)
 	button1.SetClickHandler(func() {
-		layout.activeSlot = Slot(First)
+		layout.activeSlot = domain.FirstSlot
 		newAddIngredientButtonClickedEvent(layout.activeSlot)
 	})
 
 	button2 := window.CreateButton(addIngredientBtnSprite)
 	button2.SetClickHandler(func() {
-		layout.activeSlot = Slot(Second)
+		layout.activeSlot = domain.SecondSlot
 		newAddIngredientButtonClickedEvent(layout.activeSlot)
 	})
 
 	button3 := window.CreateButton(addIngredientBtnSprite)
 	button3.SetClickHandler(func() {
-		layout.activeSlot = Slot(Third)
+		layout.activeSlot = domain.ThirdSlot
 		newAddIngredientButtonClickedEvent(layout.activeSlot)
 	})
 
 	button4 := window.CreateButton(addIngredientBtnSprite)
 	button4.SetClickHandler(func() {
-		layout.activeSlot = Slot(Fourth)
+		layout.activeSlot = domain.FourthSlot
 		newAddIngredientButtonClickedEvent(layout.activeSlot)
 	})
 
 	layout.background = window.CreateSpriteCanvas(backgroundSprite)
 
-	layout.ingredientSlots = map[Slot]gui.Canvas{
-		Slot(First):  button1,
-		Slot(Second): button2,
-		Slot(Third):  button3,
-		Slot(Fourth): button4,
+	layout.ingredientSlots = map[domain.Slot]gui.Canvas{
+		domain.FirstSlot:  button1,
+		domain.SecondSlot: button2,
+		domain.ThirdSlot:  button3,
+		domain.FourthSlot: button4,
 	}
 
 	layout.createPotionButton = window.CreateButton(createPotionBtnSprite)
@@ -137,11 +127,11 @@ func NewMainLayout(window *gui.Window, alchemist *domain.Alchemist) *PrimaryLayo
 			log.Fatal(err)
 		}
 		layout.textBlock.ChangeText(potion.Description())
-		layout.ingredientSlots = map[Slot]gui.Canvas{
-			Slot(First):  button1,
-			Slot(Second): button2,
-			Slot(Third):  button3,
-			Slot(Fourth): button4,
+		layout.ingredientSlots = map[domain.Slot]gui.Canvas{
+			domain.FirstSlot:  button1,
+			domain.SecondSlot: button2,
+			domain.ThirdSlot:  button3,
+			domain.FourthSlot: button4,
 		}
 		layout.render()
 	})
@@ -164,7 +154,7 @@ func NewMainLayout(window *gui.Window, alchemist *domain.Alchemist) *PrimaryLayo
 			}
 		}
 
-		layout.activeSlot = Slot(None)
+		layout.activeSlot = domain.EmptySlot
 
 		layout.render()
 
@@ -186,10 +176,10 @@ func (layout *PrimaryLayout) render() {
 	layout.graphics.AddElement(layout.background, gui.ZeroPosition)
 	layout.graphics.AddElement(layout.textBlock, gui.NewPosition(555, 430))
 
-	layout.graphics.AddElement(layout.ingredientSlots[First], gui.NewPosition(187, 390))
-	layout.graphics.AddElement(layout.ingredientSlots[Second], gui.NewPosition(187, 320))
-	layout.graphics.AddElement(layout.ingredientSlots[Third], gui.NewPosition(187, 250))
-	layout.graphics.AddElement(layout.ingredientSlots[Fourth], gui.NewPosition(187, 180))
+	layout.graphics.AddElement(layout.ingredientSlots[domain.FirstSlot], gui.NewPosition(187, 390))
+	layout.graphics.AddElement(layout.ingredientSlots[domain.SecondSlot], gui.NewPosition(187, 320))
+	layout.graphics.AddElement(layout.ingredientSlots[domain.ThirdSlot], gui.NewPosition(187, 250))
+	layout.graphics.AddElement(layout.ingredientSlots[domain.FourthSlot], gui.NewPosition(187, 180))
 
 	layout.graphics.AddElement(layout.createPotionButton, gui.NewPosition(253, 116))
 	layout.graphics.AddElement(layout.exitButton, gui.NewPosition(646, 115))
