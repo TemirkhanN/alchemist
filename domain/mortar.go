@@ -1,21 +1,15 @@
 package domain
 
-type EquipmentLevel int
-
-const (
-	EquipmentNovice EquipmentLevel = iota
-	EquipmentApprentice
-	EquipmentJourneyman
-	EquipmentExpert
-	EquipmentMaster
-)
+type EquipmentLevel struct {
+	value uint8
+}
 
 type Mortar struct {
 	level EquipmentLevel
 }
 
-func NewNoviceMortar() *Mortar {
-	return &Mortar{level: EquipmentNovice}
+func NewMortar(level EquipmentLevel) *Mortar {
+	return &Mortar{level: level}
 }
 
 func (m *Mortar) Strength() float64 {
@@ -38,3 +32,11 @@ func (m *Mortar) getEquipmentStrength() float64 {
 		panic("Unknown equipment level")
 	}
 }
+
+var (
+	EquipmentNovice     = EquipmentLevel{value: 0}
+	EquipmentApprentice = EquipmentLevel{value: 1}
+	EquipmentJourneyman = EquipmentLevel{value: 2}
+	EquipmentExpert     = EquipmentLevel{value: 3}
+	EquipmentMaster     = EquipmentLevel{value: 4}
+)

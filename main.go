@@ -56,7 +56,8 @@ func launch(windowWidth float64, windowHeight float64) {
 
 	alchemyLevelHardcoded := 26
 	luckLevelHardcoded := 5
-	alchemist := domain.NewAlchemist(alchemyLevelHardcoded, luckLevelHardcoded, domain.NewNoviceMortar())
+	mortar := domain.NewMortar(domain.EquipmentNovice)
+	alchemist := domain.NewAlchemist(alchemyLevelHardcoded, luckLevelHardcoded, mortar)
 
 	mainLayout := NewMainLayout(window, alchemist)
 	backpackLayout := NewBackpackLayout(window, alchemist)
