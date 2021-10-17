@@ -106,7 +106,7 @@ var (
 	damageSpeedEffect         = createEffect("Damage Speed", typeCommon, false, 100)
 	damagePersonalityEffect   = createEffect("Damage Personality", typeCommon, false, 100)
 	damageEnduranceEffect     = createEffect("Damage Endurance", typeCommon, false, 100)
-	detectLifeEffect          = createEffect("Detect Life", typeCommon, true, 0.08)
+	detectLifeEffect          = createEffect("Detect Life", typeCommon, true, 0.08, distanceMeasure)
 	damageAgilityEffect       = createEffect("Damage Agility", typeCommon, false, 100)
 	damageStrengthEffect      = createEffect("Damage Strength", typeCommon, false, 100)
 	damageIntelligenceEffect  = createEffect("Damage Intelligence", typeCommon, false, 100)
