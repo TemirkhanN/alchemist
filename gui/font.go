@@ -10,7 +10,7 @@ import (
 	"github.com/golang/freetype/truetype"
 )
 
-func createAtlas(fontName string, ttfPath string) *text.Atlas {
+func createAtlas(fontName string, ttfPath string, fontSize int) *text.Atlas {
 	ttfPath, err := filepath.Abs(ttfPath)
 	if err != nil {
 		panic(err)
@@ -24,7 +24,7 @@ func createAtlas(fontName string, ttfPath string) *text.Atlas {
 	}
 
 	oblivionFontOpts := &truetype.Options{
-		Size:              28,
+		Size:              float64(fontSize),
 		DPI:               72,
 		Hinting:           0,
 		GlyphCacheEntries: 0,

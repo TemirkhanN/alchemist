@@ -19,8 +19,6 @@ type PotionEffect struct {
 func (p *Potion) Description() string {
 	descriptionBuilder := strings.Builder{}
 
-	descriptionBuilder.WriteString(fmt.Sprintf("Name: %s\n", p.name))
-
 	for _, effect := range p.effects {
 		descriptionBuilder.WriteString(effect.Description())
 		descriptionBuilder.WriteString("\n")

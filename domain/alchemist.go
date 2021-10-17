@@ -124,14 +124,29 @@ func (a *Alchemist) BrewPotion(potionName string) (Potion, error) {
 		return Potion{}, errors.New("there are not enough ingredients to create a potion")
 	}
 
-	defer a.DiscardIngredients()
+	potion, err := a.PredictPotion()
+	if err != nil {
+		return potion, err
+	}
+
+	a.DiscardIngredients()
+
+	potion.name = potionName
+
+	return potion, nil
+}
+
+func (a Alchemist) PredictPotion() (Potion, error) {
+	if !a.CanStartBrewing() {
+		return Potion{}, errors.New("there are not enough ingredients to create a potion")
+	}
 
 	usedIngredientsAmount := len(a.UsedIngredients())
 	if usedIngredientsAmount == 1 && a.IsMaster() {
 		theOnlyEffect := a.currentlyUsedIngredients[0].Effects()[0]
 
 		return Potion{
-			name:    potionName,
+			name:    "",
 			effects: []PotionEffect{a.Refine(theOnlyEffect)},
 		}, nil
 	}
@@ -162,7 +177,7 @@ func (a *Alchemist) BrewPotion(potionName string) (Potion, error) {
 	}
 
 	return Potion{
-		name:    potionName,
+		name:    "",
 		effects: effects,
 	}, nil
 }

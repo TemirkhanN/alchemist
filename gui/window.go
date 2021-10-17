@@ -305,6 +305,6 @@ func (w *Window) drawText(textValue string, position Position) {
 }
 
 var (
-	basicAtlas   = createAtlas("TESOblivionFont", "assets/font/Kingthings Petrock.ttf")
+	basicAtlas   = createAtlas("TESOblivionFont", "assets/font/Kingthings Petrock.ttf", 22)
 	ZeroPosition = Position{x: 0, y: 0}
 )

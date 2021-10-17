@@ -110,12 +110,15 @@ func NewMainLayout(window *gui.Window, alchemist *domain.Alchemist) *PrimaryLayo
 
 	layout.background = window.CreateSpriteCanvas(backgroundSprite)
 
-	layout.ingredientSlots = map[domain.Slot]gui.Canvas{
-		domain.FirstSlot:  button1,
-		domain.SecondSlot: button2,
-		domain.ThirdSlot:  button3,
-		domain.FourthSlot: button4,
+	defaultSlots := func() map[domain.Slot]gui.Canvas {
+		return map[domain.Slot]gui.Canvas{
+			domain.FirstSlot:  button1,
+			domain.SecondSlot: button2,
+			domain.ThirdSlot:  button3,
+			domain.FourthSlot: button4,
+		}
 	}
+	layout.ingredientSlots = defaultSlots()
 
 	layout.createPotionButton = window.CreateButton(createPotionBtnSprite)
 	layout.createPotionButton.SetClickHandler(func() {
@@ -123,17 +126,12 @@ func NewMainLayout(window *gui.Window, alchemist *domain.Alchemist) *PrimaryLayo
 			return
 		}
 
-		potion, err := alchemist.BrewPotion("Some hardcoded potion name")
+		_, err := alchemist.BrewPotion("Some hardcoded potion name")
 		if err != nil {
 			log.Fatal(err)
 		}
-		layout.textBlock.ChangeText(potion.Description())
-		layout.ingredientSlots = map[domain.Slot]gui.Canvas{
-			domain.FirstSlot:  button1,
-			domain.SecondSlot: button2,
-			domain.ThirdSlot:  button3,
-			domain.FourthSlot: button4,
-		}
+		layout.textBlock.ChangeText("You have created a potion!")
+		layout.ingredientSlots = defaultSlots()
 		layout.render()
 	})
 
@@ -153,6 +151,14 @@ func NewMainLayout(window *gui.Window, alchemist *domain.Alchemist) *PrimaryLayo
 			if err != nil {
 				layout.textBlock.ChangeText(err.Error())
 			}
+		}
+
+		if alchemist.CanStartBrewing() {
+			potion, err := alchemist.PredictPotion()
+			if err != nil {
+				log.Fatal(err)
+			}
+			layout.textBlock.ChangeText(potion.Description())
 		}
 
 		layout.activeSlot = domain.EmptySlot
