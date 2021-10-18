@@ -8,10 +8,10 @@ on:
 name: code-quality-check
 jobs:
   linter:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Install dependencies
-        run: sudo apt install -yq libgl1-mesa-dev xorg-dev
+        run: sudo apt update -yq && apt install -yq libgl1-mesa-dev xorg-dev
       - name: Clone repo
         uses: actions/checkout@v2
       - name: golangci-lint
