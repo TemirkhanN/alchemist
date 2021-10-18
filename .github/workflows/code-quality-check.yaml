@@ -8,7 +8,7 @@ on:
 name: code-quality-check
 jobs:
   linter:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - name: Install dependencies
         run: sudo apt install -yq libgl1-mesa-dev xorg-dev
