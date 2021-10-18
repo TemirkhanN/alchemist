@@ -89,7 +89,6 @@ func (canvas CommonCanvas) Elements() []Drawer {
 }
 
 func (canvas *SpriteCanvas) Draw() {
-	// todo needs redraw check
 	if !canvas.visible {
 		return
 	}

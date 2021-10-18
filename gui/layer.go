@@ -7,14 +7,29 @@ type Scroll struct {
 }
 
 type Layer struct {
-	elements    []Drawer
-	visible     bool
-	needsRedraw bool
-	width       float64
-	height      float64
-	position    Position
-	scroll      Scroll
-	drawnOn     *Window
+	elements      []Drawer
+	visible       bool
+	needsRedraw   bool
+	width         float64
+	height        float64
+	position      Position
+	scroll        Scroll
+	drawnOn       *Window
+	graphicsCache elementsCache
+}
+
+type elementsCache struct {
+	elements []int
+}
+
+func (ec *elementsCache) equals(cache []int) bool {
+	for pos, state := range ec.elements {
+		if cache[pos] != state {
+			return false
+		}
+	}
+
+	return true
 }
 
 func NewLayer(drawOn *Window, width float64, height float64, visible bool, scrollable ...bool) *Layer {
@@ -24,14 +39,15 @@ func NewLayer(drawOn *Window, width float64, height float64, visible bool, scrol
 	}
 
 	return &Layer{
-		elements:    nil,
-		visible:     visible,
-		needsRedraw: true,
-		width:       width,
-		height:      height,
-		position:    ZeroPosition,
-		scroll:      scroll,
-		drawnOn:     drawOn,
+		elements:      nil,
+		visible:       visible,
+		needsRedraw:   true,
+		width:         width,
+		height:        height,
+		position:      ZeroPosition,
+		scroll:        scroll,
+		drawnOn:       drawOn,
+		graphicsCache: elementsCache{elements: []int{}},
 	}
 }
 
@@ -51,6 +67,8 @@ func (layer *Layer) isVisible() bool {
 
 func (layer *Layer) Draw() {
 	if !layer.visible {
+		layer.needsRedraw = false
+
 		return
 	}
 
@@ -58,31 +76,53 @@ func (layer *Layer) Draw() {
 		highlightElement(layer, layer.drawnOn)
 	}
 
-	for _, element := range layer.elements {
+	drawnCache := make([]int, len(layer.elements))
+	for index, element := range layer.elements {
+		drawnCache[index] = 0
+
 		if !element.isVisible() {
 			continue
 		}
 
 		if layer.canFullyFit(element) {
 			element.Draw()
+
+			drawnCache[index] = 1
 		}
 	}
+
+	layer.graphicsCache.elements = drawnCache
 
 	layer.needsRedraw = false
 }
 
 func (layer *Layer) NeedsRedraw() bool {
+	if !layer.visible {
+		return false
+	}
+
 	if layer.needsRedraw {
 		return true
 	}
 
-	for _, element := range layer.elements {
-		if element.NeedsRedraw() {
-			return true
+	graphicsCache := make([]int, len(layer.elements))
+	for index, element := range layer.elements {
+		graphicsCache[index] = 0
+
+		if !element.isVisible() {
+			continue
+		}
+
+		if layer.canFullyFit(element) {
+			graphicsCache[index] = 1
+
+			if element.NeedsRedraw() {
+				return true
+			}
 		}
 	}
 
-	return false
+	return !layer.graphicsCache.equals(graphicsCache)
 }
 
 func (layer *Layer) Elements() []Drawer {

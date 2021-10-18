@@ -245,7 +245,6 @@ func NewBackpackLayout(window *gui.Window, alchemist *domain.Alchemist) *Backpac
 	layout.closeButton.SetClickHandler(func() { layout.graphics.Hide() })
 
 	event.On(EventAddIngredientButtonClicked, event.ListenerFunc(func(e event.Event) error {
-		layout.graphics.Show()
 		layout.render()
 
 		return nil
@@ -314,11 +313,11 @@ func (layout *BackpackLayout) render() {
 		ingredientsLayer.AddElement(ingredientBtn, gui.NewPosition(0, offset))
 	}
 
-	layout.graphics.Show()
-
 	layout.graphics.AddElement(ingredientsLayer, gui.NewPosition(50, 115))
 	layout.graphics.AddElement(ingredientEffectsLayer, gui.NewPosition(605, 200))
 	layout.graphics.AddElement(layout.closeButton, gui.NewPosition(410, 65))
+
+	layout.graphics.Show()
 }
 
 func GetIngredientSprite(ingredient domain.Ingredient) *gui.Sprite {
