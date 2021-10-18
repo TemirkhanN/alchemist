@@ -14,10 +14,10 @@ type Layer struct {
 	height      float64
 	position    Position
 	scroll      Scroll
-	_debug      *Window
+	drawnOn     *Window
 }
 
-func NewLayer(width float64, height float64, visible bool, scrollable ...bool) *Layer {
+func NewLayer(drawOn *Window, width float64, height float64, visible bool, scrollable ...bool) *Layer {
 	scroll := Scroll{currentOffsetFromTop: 0, maximumOffsetFromTop: 0, isAvailable: false}
 	if len(scrollable) == 1 && scrollable[0] {
 		scroll.isAvailable = true
@@ -30,8 +30,8 @@ func NewLayer(width float64, height float64, visible bool, scrollable ...bool) *
 		width:       width,
 		height:      height,
 		position:    ZeroPosition,
-		_debug:      nil,
 		scroll:      scroll,
+		drawnOn:     drawOn,
 	}
 }
 
@@ -54,8 +54,8 @@ func (layer *Layer) Draw() {
 		return
 	}
 
-	if layer.isDebugModeOn() {
-		layer.debugDraw()
+	if layer.drawnOn.debugMode {
+		highlightElement(layer, layer.drawnOn)
 	}
 
 	for _, element := range layer.elements {

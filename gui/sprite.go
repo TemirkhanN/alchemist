@@ -8,19 +8,42 @@ type Sprite struct {
 	src *pixel.Sprite
 }
 
+type FrameSize struct {
+	LeftBottom Position
+	RightTop   Position
+}
+
+func (f FrameSize) toRectangle() pixel.Rect {
+	rectangle := pixel.R(f.LeftBottom.X(), f.LeftBottom.Y(), f.RightTop.X(), f.RightTop.Y())
+
+	return rectangle.Norm()
+}
+
+func (f FrameSize) Width() float64 {
+	return f.RightTop.X() - f.LeftBottom.X()
+}
+
+func (f FrameSize) Height() float64 {
+	return f.RightTop.Y() - f.LeftBottom.Y()
+}
+
 func (s *Sprite) Width() float64 {
-	return s.src.Picture().Bounds().W()
+	return s.src.Frame().W()
 }
 
 func (s *Sprite) Height() float64 {
-	return s.src.Picture().Bounds().H()
+	return s.src.Frame().H()
 }
 
 func (s *Sprite) draw(window *Window, position Position) {
 	fromLeftBottomCorner := pixel.Vec{
-		X: s.src.Picture().Bounds().Center().X + position.X(),
-		Y: s.src.Picture().Bounds().Center().Y + position.Y(),
+		X: s.src.Frame().W()/2 + position.X(),
+		Y: s.src.Frame().H()/2 + position.Y(),
 	}
 
 	s.src.Draw(window.window, pixel.IM.Moved(fromLeftBottomCorner))
+}
+
+func (s Sprite) Frame(frame FrameSize) *Sprite {
+	return &Sprite{src: pixel.NewSprite(s.src.Picture(), frame.toRectangle())}
 }

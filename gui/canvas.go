@@ -58,11 +58,19 @@ func (canvas *CommonCanvas) Hide() {
 	canvas.visible = false
 }
 
+func (canvas *CommonCanvas) Draw() {}
+
 func (canvas *CommonCanvas) isVisible() bool {
 	return canvas.visible
 }
 
-func (canvas *CommonCanvas) Draw() {}
+func (canvas CommonCanvas) Width() float64 {
+	return 0
+}
+
+func (canvas CommonCanvas) Height() float64 {
+	return 0
+}
 
 func (canvas *CommonCanvas) Position() Position {
 	return canvas.position
@@ -72,20 +80,26 @@ func (canvas *CommonCanvas) setPosition(position Position) {
 	canvas.position = position
 }
 
-func (canvas *CommonCanvas) IsUnderPosition(Position) bool {
+func (canvas CommonCanvas) IsUnderPosition(Position) bool {
 	return false
 }
 
-func (canvas *CommonCanvas) Elements() []Drawer {
+func (canvas CommonCanvas) Elements() []Drawer {
 	return nil
 }
 
 func (canvas *SpriteCanvas) Draw() {
+	// todo needs redraw check
 	if !canvas.visible {
 		return
 	}
 
-	canvas.drawnOn.drawSprite(canvas.sprite, canvas.position)
+	canvas.sprite.draw(canvas.drawnOn, canvas.position)
+
+	if canvas.drawnOn.debugMode {
+		highlightElement(canvas, canvas.drawnOn)
+	}
+
 	canvas.needsRedraw = false
 }
 
@@ -108,11 +122,11 @@ func (canvas *SpriteCanvas) IsUnderPosition(position Position) bool {
 	return false
 }
 
-func (canvas *SpriteCanvas) Width() float64 {
+func (canvas SpriteCanvas) Width() float64 {
 	return canvas.sprite.Width()
 }
 
-func (canvas *SpriteCanvas) Height() float64 {
+func (canvas SpriteCanvas) Height() float64 {
 	return canvas.sprite.Height()
 }
 
@@ -130,12 +144,12 @@ func (canvas *TextCanvas) Draw() {
 	canvas.needsRedraw = false
 }
 
-func (canvas *TextCanvas) Width() float64 {
+func (canvas TextCanvas) Width() float64 {
 	// todo
 	return 0
 }
 
-func (canvas *TextCanvas) Height() float64 {
+func (canvas TextCanvas) Height() float64 {
 	// todo
 	return 0
 }

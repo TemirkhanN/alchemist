@@ -16,7 +16,11 @@ type PotionEffect struct {
 	Effect
 }
 
-func (p *Potion) Description() string {
+func (p Potion) Effects() []PotionEffect {
+	return p.effects
+}
+
+func (p Potion) Description() string {
 	descriptionBuilder := strings.Builder{}
 
 	for _, effect := range p.effects {

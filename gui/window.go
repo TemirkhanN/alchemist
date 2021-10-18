@@ -47,6 +47,7 @@ type Window struct {
 	graphics    *Layer
 	window      *pixelgl.Window
 	scrollSpeed float64
+	debugMode   bool
 }
 
 func NewWindow(preset WindowConfig) *Window {
@@ -83,13 +84,12 @@ func NewWindow(preset WindowConfig) *Window {
 
 	window := &Window{
 		window:      w,
-		graphics:    NewLayer(preset.Width, preset.Height, true),
+		graphics:    nil,
 		scrollSpeed: scrollSpeed,
+		debugMode:   preset.DebugMode,
 	}
 
-	if preset.DebugMode {
-		window.graphics.setDebugTool(window)
-	}
+	window.graphics = NewLayer(window, preset.Width, preset.Height, true)
 
 	return window
 }
@@ -103,6 +103,7 @@ func (w Window) Height() float64 {
 }
 
 func (w *Window) AddLayer(layer *Layer, position Position) {
+	layer.drawnOn = w
 	w.graphics.AddElement(layer, position)
 }
 
@@ -291,10 +292,6 @@ func (w *Window) handleMouseOut(graphics Drawer, lastCursorPosition Position) {
 	}
 }
 
-func (w *Window) drawSprite(sprite *Sprite, position Position) {
-	sprite.draw(w, position)
-}
-
 func (w *Window) drawText(textValue string, position Position) {
 	basicTxt := text.New(pixel.V(position.X(), position.Y()), basicAtlas)
 
@@ -304,6 +301,6 @@ func (w *Window) drawText(textValue string, position Position) {
 }
 
 var (
-	basicAtlas   = createAtlas("TESOblivionFont", "assets/font/Kingthings Petrock.ttf", 22)
+	basicAtlas   = createAtlas("TESOblivionFont", "assets/font/Kingthings Petrock.ttf", 24)
 	ZeroPosition = Position{x: 0, y: 0}
 )
