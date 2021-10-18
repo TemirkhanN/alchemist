@@ -33,12 +33,12 @@ func (pe PotionEffect) Description() string {
 	}
 
 	if pe.IsDurationOnly() {
-		return fmt.Sprintf("%s for %d seconds", pe.Name(), int(pe.duration))
+		return fmt.Sprintf("%s for %d %s", pe.Name(), int(pe.duration), timeMeasure)
 	}
 
 	if pe.IsMagnitudeOnly() {
 		return fmt.Sprintf("%s %d %s", pe.Name(), int(pe.magnitude), pe.measure)
 	}
 
-	return fmt.Sprintf("%s %d %s for %d seconds", pe.Name(), int(pe.magnitude), pe.measure, int(pe.duration))
+	return fmt.Sprintf("%s %d %s for %d %s", pe.Name(), int(pe.magnitude), pe.measure, int(pe.duration), timeMeasure)
 }

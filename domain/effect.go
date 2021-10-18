@@ -75,7 +75,8 @@ var (
 	typeDurationOnly  = EffectType{value: 2}
 	typeImmediate     = EffectType{value: 3}
 	percentMeasure    = EffectMeasure{value: "%"}
-	plainMeasure      = EffectMeasure{value: "points"}
+	timeMeasure       = EffectMeasure{value: "secs"}
+	plainMeasure      = EffectMeasure{value: "pts"}
 	distanceMeasure   = EffectMeasure{value: "feet"}
 
 	restoreIntelligenceEffect = createEffect("Restore Intelligence", typeCommon, true, 38)
