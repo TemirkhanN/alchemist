@@ -10,8 +10,10 @@ jobs:
   linter:
     runs-on: ubuntu-latest
     steps:
+      - name: Update packages
+        run: sudo apt update -yq
       - name: Install dependencies
-        run: sudo apt update -yq && apt install -yq libgl1-mesa-dev xorg-dev
+        run: sudo apt install -yq libgl1-mesa-dev xorg-dev
       - name: Clone repo
         uses: actions/checkout@v2
       - name: golangci-lint
