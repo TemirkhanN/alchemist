@@ -9,7 +9,6 @@ import (
 	"golang.org/x/image/colornames"
 )
 
-// Position todo make it mutable from package only.
 type Position struct {
 	x float64
 	y float64
