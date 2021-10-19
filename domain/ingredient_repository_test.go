@@ -1,6 +1,7 @@
 package domain_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -427,19 +428,83 @@ var ingredients = []struct {
 func TestIngredientRepository_FindByName(t *testing.T) {
 	for i := 0; i < len(ingredients); i++ {
 		ingredientDetails := ingredients[i]
-		t.Run(
-			ingredientDetails.name, func(t *testing.T) {
-				assert := assert.New(t)
-				ingredient, err := domain.IngredientsDatabase.FindByName(ingredientDetails.name)
+		t.Run(ingredientDetails.name, func(sub *testing.T) {
+			sub.Parallel()
+			assert := assert.New(sub)
+			ingredient, err := domain.IngredientsDatabase.FindByName(ingredientDetails.name)
 
-				assert.NoError(err)
+			assert.NoError(err)
+			assert.Equal(ingredientDetails.name, ingredient.Name())
+
+			assert.Len(ingredient.Effects(), len(ingredientDetails.effects))
+			for effectPosition, effectName := range ingredientDetails.effects {
+				assert.Equal(effectName, ingredient.Effects()[effectPosition].Name())
+			}
+		},
+		)
+	}
+}
+
+func TestIngredientRepository_FindByNames(t *testing.T) {
+	chunkSize := 10
+	totalAmountOfIngredients := len(ingredients)
+	from := 0
+	to := chunkSize
+
+	for {
+		chunk := ingredients[from:to]
+
+		t.Run(fmt.Sprintf("Testing ingredients between %d %d", from, to), func(sub *testing.T) {
+			sub.Parallel()
+			assert := assert.New(sub)
+			names := make([]string, len(chunk))
+			for key, ingredientDetails := range chunk {
+				names[key] = ingredientDetails.name
+			}
+			result, err := domain.IngredientsDatabase.FindByNames(names)
+			assert.NoError(err)
+			assert.Len(result, len(names))
+
+			for key, ingredient := range result {
+				ingredientDetails := chunk[key]
 				assert.Equal(ingredientDetails.name, ingredient.Name())
 
 				assert.Len(ingredient.Effects(), len(ingredientDetails.effects))
 				for effectPosition, effectName := range ingredientDetails.effects {
 					assert.Equal(effectName, ingredient.Effects()[effectPosition].Name())
 				}
-			},
-		)
+			}
+		})
+
+		from = to
+
+		to += chunkSize
+		if to >= totalAmountOfIngredients {
+			to = totalAmountOfIngredients
+		}
+
+		if from >= totalAmountOfIngredients {
+			break
+		}
+	}
+}
+
+func TestIngredientRepository_All(t *testing.T) {
+	assert := assert.New(t)
+
+	all := domain.IngredientsDatabase.All()
+
+	assert.Len(all, len(ingredients))
+
+	for key, ingredient := range all {
+		ingredientDetails := ingredients[key]
+
+		assert.Equal(ingredientDetails.name, ingredient.Name())
+
+		assert.Len(ingredient.Effects(), len(ingredientDetails.effects))
+
+		for effectPosition, effectName := range ingredientDetails.effects {
+			assert.Equal(effectName, ingredient.Effects()[effectPosition].Name())
+		}
 	}
 }
