@@ -24,7 +24,7 @@ func (e Effect) Name() string {
 	return e.name
 }
 
-func (e Effect) HideEffectDetails() Effect {
+func (e Effect) hideEffectDetails() Effect {
 	return Effect{
 		name:     "Unknown Effect",
 		positive: e.positive,
@@ -34,23 +34,19 @@ func (e Effect) HideEffectDetails() Effect {
 	}
 }
 
-func (e Effect) IsUnknown() bool {
+func (e Effect) isUnknown() bool {
 	return e.name == "Unknown Effect"
 }
 
-func (e Effect) IsCommon() bool {
-	return e.eType == typeCommon
-}
-
-func (e Effect) IsDurationOnly() bool {
+func (e Effect) isDurationOnly() bool {
 	return e.eType == typeDurationOnly
 }
 
-func (e Effect) IsMagnitudeOnly() bool {
+func (e Effect) isMagnitudeOnly() bool {
 	return e.eType == typeMagnitudeOnly
 }
 
-func (e Effect) IsImmediate() bool {
+func (e Effect) isImmediate() bool {
 	return e.eType == typeImmediate
 }
 

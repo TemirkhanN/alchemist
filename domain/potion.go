@@ -32,15 +32,15 @@ func (p Potion) Description() string {
 }
 
 func (pe PotionEffect) Description() string {
-	if pe.IsImmediate() {
+	if pe.isImmediate() {
 		return pe.Name()
 	}
 
-	if pe.IsDurationOnly() {
+	if pe.isDurationOnly() {
 		return fmt.Sprintf("%s for %d %s", pe.Name(), int(pe.duration), timeMeasure)
 	}
 
-	if pe.IsMagnitudeOnly() {
+	if pe.isMagnitudeOnly() {
 		return fmt.Sprintf("%s %d %s", pe.Name(), int(pe.magnitude), pe.measure)
 	}
 

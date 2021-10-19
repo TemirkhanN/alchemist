@@ -5,10 +5,10 @@ type Ingredient struct {
 	effects []Effect
 }
 
-func (i *Ingredient) Name() string {
+func (i Ingredient) Name() string {
 	return i.name
 }
 
-func (i *Ingredient) Effects() []Effect {
+func (i Ingredient) Effects() []Effect {
 	return i.effects
 }

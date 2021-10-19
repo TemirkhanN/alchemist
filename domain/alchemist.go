@@ -67,12 +67,12 @@ func (a *Alchemist) UsedIngredients() []*Ingredient {
 
 func (a *Alchemist) CanCombineIngredients(ingredient1 *Ingredient, ingredient2 *Ingredient) bool {
 	for _, effect1 := range a.DetermineEffects(ingredient1) {
-		if effect1.IsUnknown() {
+		if effect1.isUnknown() {
 			continue
 		}
 
 		for _, effect2 := range a.DetermineEffects(ingredient2) {
-			if effect2.IsUnknown() {
+			if effect2.isUnknown() {
 				continue
 			}
 
@@ -93,7 +93,7 @@ func (a *Alchemist) DetermineEffects(ingredient *Ingredient) []Effect {
 	for i := 0; i < 4 && ingredientEffectsAmount > i; i++ {
 		effect := ingredient.effects[i]
 		if i+1 > identifiableAmountOfEffects {
-			effect = effect.HideEffectDetails()
+			effect = effect.hideEffectDetails()
 		}
 
 		effects = append(effects, effect)
@@ -156,7 +156,7 @@ func (a Alchemist) PredictPotion() (Potion, error) {
 
 	for _, ingredient := range a.currentlyUsedIngredients {
 		for _, effect := range a.DetermineEffects(ingredient) {
-			if effect.IsUnknown() {
+			if effect.isUnknown() {
 				continue
 			}
 
@@ -257,12 +257,12 @@ func (a *Alchemist) effectiveAlchemyLevel() float64 {
 }
 
 func (a *Alchemist) calculateMagnitude(effect Effect) float64 {
-	if effect.IsDurationOnly() {
+	if effect.isDurationOnly() {
 		return 1.0
 	}
 
 	delta := 4.0
-	if effect.IsMagnitudeOnly() {
+	if effect.isMagnitudeOnly() {
 		delta = 1.0
 	}
 
@@ -270,11 +270,11 @@ func (a *Alchemist) calculateMagnitude(effect Effect) float64 {
 }
 
 func (a *Alchemist) calculateDuration(effect Effect) float64 {
-	if effect.IsMagnitudeOnly() {
+	if effect.isMagnitudeOnly() {
 		return 1.0
 	}
 
-	if effect.IsDurationOnly() {
+	if effect.isDurationOnly() {
 		return (a.effectiveAlchemyLevel() + a.mortar.Strength()) / (effect.baseCost / 10)
 	}
 
