@@ -1,28 +1,27 @@
-package main
+package game
 
 import (
-	"embed"
-	_ "image/png"
 	"log"
 	"os"
 	"strings"
 
-	"github.com/faiface/pixel/pixelgl"
 	"github.com/gookit/event"
 
-	"github.com/TemirkhanN/alchemist/domain"
-	"github.com/TemirkhanN/alchemist/gui"
+	"github.com/TemirkhanN/alchemist/assets"
+	"github.com/TemirkhanN/alchemist/pkg/alchemy/alchemist"
+	"github.com/TemirkhanN/alchemist/pkg/alchemy/ingredient"
+	"github.com/TemirkhanN/alchemist/pkg/gui"
 )
 
 type PrimaryLayout struct {
 	initialized bool
-	activeSlot  domain.Slot
+	activeSlot  alchemist.Slot
 	graphics    *gui.Layer
 
 	background         *gui.SpriteCanvas
 	effectsPreview     *gui.Layer
 	statusText         *gui.TextCanvas
-	ingredientSlots    map[domain.Slot]gui.Canvas
+	ingredientSlots    map[alchemist.Slot]gui.Canvas
 	createPotionButton *gui.Button
 	exitButton         *gui.Button
 }
@@ -35,17 +34,11 @@ type BackpackLayout struct {
 	ingredientsBtns []*gui.Button
 	closeButton     *gui.Button
 
-	ingredients []*domain.Ingredient
-	alchemist   *domain.Alchemist
+	ingredients []*ingredient.Ingredient
+	alchemist   *alchemist.Alchemist
 }
 
-func main() {
-	pixelgl.Run(func() {
-		launch(1024, 768)
-	})
-}
-
-func launch(windowWidth float64, windowHeight float64) {
+func Launch(windowWidth float64, windowHeight float64) {
 	window := gui.NewWindow(gui.WindowConfig{
 		Title:       "Alchemist",
 		Width:       windowWidth,
@@ -57,11 +50,11 @@ func launch(windowWidth float64, windowHeight float64) {
 
 	alchemyLevelHardcoded := 26
 	luckLevelHardcoded := 5
-	mortar := domain.NewMortar(domain.EquipmentNovice)
-	alchemist := domain.NewAlchemist(alchemyLevelHardcoded, luckLevelHardcoded, mortar)
+	mortar := alchemist.NewMortar(alchemist.EquipmentNovice)
+	player := alchemist.NewAlchemist(alchemyLevelHardcoded, luckLevelHardcoded, mortar)
 
-	mainLayout := NewMainLayout(window, alchemist)
-	backpackLayout := NewBackpackLayout(window, alchemist)
+	mainLayout := NewMainLayout(window, player)
+	backpackLayout := NewBackpackLayout(window, player)
 
 	window.AddLayer(mainLayout.graphics, gui.ZeroPosition)
 	window.AddLayer(backpackLayout.graphics, gui.ZeroPosition)
@@ -71,7 +64,7 @@ func launch(windowWidth float64, windowHeight float64) {
 	}
 }
 
-func NewMainLayout(window *gui.Window, alchemist *domain.Alchemist) *PrimaryLayout {
+func NewMainLayout(window *gui.Window, player *alchemist.Alchemist) *PrimaryLayout {
 	layout := new(PrimaryLayout)
 	if layout.initialized {
 		log.Fatal("can not initialize layout more than one time")
@@ -80,54 +73,54 @@ func NewMainLayout(window *gui.Window, alchemist *domain.Alchemist) *PrimaryLayo
 	layout.initialized = true
 	layout.graphics = window.CreateLayer(window.Width(), window.Height(), true)
 
-	backgroundSprite := assets.GetSprite("interface.alchemy")
-	addIngredientBtnSprite := assets.GetSprite("btn.add-ingredient")
-	createPotionBtnSprite := assets.GetSprite("btn.create-potion")
-	exitBtnSprite := assets.GetSprite("btn.exit")
+	backgroundSprite := assets.TESAssets.GetSprite("interface.alchemy")
+	addIngredientBtnSprite := assets.TESAssets.GetSprite("btn.add-ingredient")
+	createPotionBtnSprite := assets.TESAssets.GetSprite("btn.create-potion")
+	exitBtnSprite := assets.TESAssets.GetSprite("btn.exit")
 
 	button1 := window.CreateButton(addIngredientBtnSprite)
 	button1.SetClickHandler(func() {
-		layout.activeSlot = domain.FirstSlot
+		layout.activeSlot = alchemist.FirstSlot
 		newAddIngredientButtonClickedEvent(layout.activeSlot)
 	})
 
 	button2 := window.CreateButton(addIngredientBtnSprite)
 	button2.SetClickHandler(func() {
-		layout.activeSlot = domain.SecondSlot
+		layout.activeSlot = alchemist.SecondSlot
 		newAddIngredientButtonClickedEvent(layout.activeSlot)
 	})
 
 	button3 := window.CreateButton(addIngredientBtnSprite)
 	button3.SetClickHandler(func() {
-		layout.activeSlot = domain.ThirdSlot
+		layout.activeSlot = alchemist.ThirdSlot
 		newAddIngredientButtonClickedEvent(layout.activeSlot)
 	})
 
 	button4 := window.CreateButton(addIngredientBtnSprite)
 	button4.SetClickHandler(func() {
-		layout.activeSlot = domain.FourthSlot
+		layout.activeSlot = alchemist.FourthSlot
 		newAddIngredientButtonClickedEvent(layout.activeSlot)
 	})
 
 	layout.background = window.CreateSpriteCanvas(backgroundSprite)
 
-	defaultSlots := func() map[domain.Slot]gui.Canvas {
-		return map[domain.Slot]gui.Canvas{
-			domain.FirstSlot:  button1,
-			domain.SecondSlot: button2,
-			domain.ThirdSlot:  button3,
-			domain.FourthSlot: button4,
+	defaultSlots := func() map[alchemist.Slot]gui.Canvas {
+		return map[alchemist.Slot]gui.Canvas{
+			alchemist.FirstSlot:  button1,
+			alchemist.SecondSlot: button2,
+			alchemist.ThirdSlot:  button3,
+			alchemist.FourthSlot: button4,
 		}
 	}
 	layout.ingredientSlots = defaultSlots()
 
 	layout.createPotionButton = window.CreateButton(createPotionBtnSprite)
 	layout.createPotionButton.SetClickHandler(func() {
-		if !alchemist.CanStartBrewing() {
+		if !player.CanStartBrewing() {
 			return
 		}
 
-		_, err := alchemist.BrewPotion("Some hardcoded potion name")
+		_, err := player.BrewPotion("Some hardcoded potion name")
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -143,29 +136,29 @@ func NewMainLayout(window *gui.Window, alchemist *domain.Alchemist) *PrimaryLayo
 	layout.effectsPreview = window.CreateLayer(300, 270, true)
 	layout.statusText = window.CreateTextCanvas("", tesOblivion24Font, 200)
 
-	layout.registerEventHandlers(alchemist, window)
+	layout.registerEventHandlers(player, window)
 
 	layout.render()
 
 	return layout
 }
 
-func (layout *PrimaryLayout) registerEventHandlers(alchemist *domain.Alchemist, window *gui.Window) {
+func (layout *PrimaryLayout) registerEventHandlers(player *alchemist.Alchemist, window *gui.Window) {
 	event.On(EventIngredientSelected, event.ListenerFunc(func(e event.Event) error {
 		actualEvent := e.(*IngredientSelected)
 
 		ingredientIcon := GetIngredientSprite(*actualEvent.ingredient)
 		layout.ingredientSlots[layout.activeSlot] = window.CreateSpriteCanvas(ingredientIcon)
 
-		if alchemist.CanUseIngredient(actualEvent.ingredient) {
-			err := alchemist.UseIngredient(actualEvent.ingredient)
+		if player.CanUseIngredient(actualEvent.ingredient) {
+			err := player.UseIngredient(actualEvent.ingredient)
 			if err != nil {
 				layout.statusText.ChangeText(err.Error())
 			}
 		}
 
-		if alchemist.CanStartBrewing() {
-			potion, err := alchemist.PredictPotion()
+		if player.CanStartBrewing() {
+			potion, err := player.PredictPotion()
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -175,7 +168,7 @@ func (layout *PrimaryLayout) registerEventHandlers(alchemist *domain.Alchemist, 
 			for order, effect := range potion.Effects() {
 				effectPreviewLayout := window.CreateLayer(260, 50, true)
 
-				effectCanvas := window.CreateSpriteCanvas(assets.GetSprite(effect.Name()).Frame(potionEffectFrameSize))
+				effectCanvas := window.CreateSpriteCanvas(assets.TESAssets.GetSprite(effect.Name()).Frame(potionEffectFrameSize))
 				effectPreviewLayout.AddElement(
 					effectCanvas,
 					gui.NewPosition(0, (effectPreviewLayout.Height()-effectCanvas.Height())/2),
@@ -200,7 +193,7 @@ func (layout *PrimaryLayout) registerEventHandlers(alchemist *domain.Alchemist, 
 			}
 		}
 
-		layout.activeSlot = domain.EmptySlot
+		layout.activeSlot = alchemist.EmptySlot
 
 		layout.render()
 
@@ -219,10 +212,10 @@ func (layout *PrimaryLayout) render() {
 	layout.graphics.AddElement(layout.effectsPreview, gui.NewPosition(550, 180))
 	layout.graphics.AddElement(layout.statusText, gui.NewPosition(180, 600))
 
-	layout.graphics.AddElement(layout.ingredientSlots[domain.FirstSlot], gui.NewPosition(187, 390))
-	layout.graphics.AddElement(layout.ingredientSlots[domain.SecondSlot], gui.NewPosition(187, 320))
-	layout.graphics.AddElement(layout.ingredientSlots[domain.ThirdSlot], gui.NewPosition(187, 250))
-	layout.graphics.AddElement(layout.ingredientSlots[domain.FourthSlot], gui.NewPosition(187, 180))
+	layout.graphics.AddElement(layout.ingredientSlots[alchemist.FirstSlot], gui.NewPosition(187, 390))
+	layout.graphics.AddElement(layout.ingredientSlots[alchemist.SecondSlot], gui.NewPosition(187, 320))
+	layout.graphics.AddElement(layout.ingredientSlots[alchemist.ThirdSlot], gui.NewPosition(187, 250))
+	layout.graphics.AddElement(layout.ingredientSlots[alchemist.FourthSlot], gui.NewPosition(187, 180))
 
 	layout.graphics.AddElement(layout.createPotionButton, gui.NewPosition(253, 116))
 	layout.graphics.AddElement(layout.exitButton, gui.NewPosition(646, 115))
@@ -230,7 +223,7 @@ func (layout *PrimaryLayout) render() {
 }
 
 // NewBackpackLayout todo rename repo to backpack.
-func NewBackpackLayout(window *gui.Window, alchemist *domain.Alchemist) *BackpackLayout {
+func NewBackpackLayout(window *gui.Window, player *alchemist.Alchemist) *BackpackLayout {
 	layout := new(BackpackLayout)
 	if layout.initialized {
 		log.Fatal("can not initialize layout more than one time")
@@ -238,15 +231,15 @@ func NewBackpackLayout(window *gui.Window, alchemist *domain.Alchemist) *Backpac
 
 	layout.initialized = true
 	layout.window = window
-	layout.alchemist = alchemist
+	layout.alchemist = player
 
-	for _, ingredient := range domain.IngredientsDatabase.All() {
-		deref := ingredient
+	for _, ingr := range ingredient.IngredientsDatabase.All() {
+		deref := ingr
 		layout.ingredients = append(layout.ingredients, &deref)
 	}
 
-	closeButtonSprite := assets.GetSprite("btn.exit")
-	ingredientsLayoutSprite := assets.GetSprite("interface.ingredients")
+	closeButtonSprite := assets.TESAssets.GetSprite("btn.exit")
+	ingredientsLayoutSprite := assets.TESAssets.GetSprite("interface.ingredients")
 
 	layout.graphics = window.CreateLayer(window.Width(), window.Height(), false)
 	layout.background = window.CreateSpriteCanvas(ingredientsLayoutSprite)
@@ -269,18 +262,18 @@ func (layout *BackpackLayout) render() {
 
 	ingredientsLayer := layout.window.CreateLayer(480, 465, true, true)
 	ingredientEffectsLayer := layout.window.CreateLayer(238, 220, false)
-	ingredientsEffectsLayerBackground := layout.window.CreateSpriteCanvas(assets.GetSprite("interface.effects"))
+	ingredientsEffectsLayerBackground := layout.window.CreateSpriteCanvas(assets.TESAssets.GetSprite("interface.effects"))
 
 	layout.ingredientsBtns = nil
 	offset := ingredientsLayer.Height()
 
-	for _, ingredient := range layout.ingredients {
-		if !layout.alchemist.CanUseIngredient(ingredient) {
+	for _, ingr := range layout.ingredients {
+		if !layout.alchemist.CanUseIngredient(ingr) {
 			continue
 		}
 
-		ingredientBtn := layout.window.CreateButton(GetIngredientSprite(*ingredient))
-		ingredientBtn.SetClickHandler(func(selected *domain.Ingredient) func() {
+		ingredientBtn := layout.window.CreateButton(GetIngredientSprite(*ingr))
+		ingredientBtn.SetClickHandler(func(selected *ingredient.Ingredient) func() {
 			return func() {
 				// todo potentially vulnerable for mistake on main(mortar) side
 				layout.graphics.Hide()
@@ -289,10 +282,10 @@ func (layout *BackpackLayout) render() {
 					log.Fatal(err)
 				}
 			}
-		}(ingredient))
+		}(ingr))
 
 		var lastHoveredIngredient string
-		ingredientBtn.SetMouseOverHandler(func(hovered *domain.Ingredient) func() {
+		ingredientBtn.SetMouseOverHandler(func(hovered *ingredient.Ingredient) func() {
 			return func() {
 				lastHoveredIngredient = hovered.Name()
 				ingredientEffectsLayer.Clear()
@@ -300,13 +293,13 @@ func (layout *BackpackLayout) render() {
 				posY := ingredientEffectsLayer.Height()
 				for _, effect := range layout.alchemist.DetermineEffects(hovered) {
 					posY -= 55
-					effectPreview := layout.window.CreateSpriteCanvas(assets.GetSprite(effect.Name()))
+					effectPreview := layout.window.CreateSpriteCanvas(assets.TESAssets.GetSprite(effect.Name()))
 					ingredientEffectsLayer.AddElement(effectPreview, gui.NewPosition(0, posY))
 				}
 				ingredientEffectsLayer.Show()
 			}
-		}(ingredient))
-		ingredientBtn.SetMouseOutHandler(func(hovered *domain.Ingredient) func() {
+		}(ingr))
+		ingredientBtn.SetMouseOutHandler(func(hovered *ingredient.Ingredient) func() {
 			return func() {
 				// If mouse is out, and it is not different ingredient hovered, then hide effect layer
 				if lastHoveredIngredient == hovered.Name() {
@@ -314,7 +307,7 @@ func (layout *BackpackLayout) render() {
 					ingredientEffectsLayer.Hide()
 				}
 			}
-		}(ingredient))
+		}(ingr))
 
 		layout.ingredientsBtns = append(layout.ingredientsBtns, ingredientBtn)
 
@@ -330,25 +323,11 @@ func (layout *BackpackLayout) render() {
 	layout.graphics.Show()
 }
 
-func GetIngredientSprite(ingredient domain.Ingredient) *gui.Sprite {
-	spriteName := "ingr." + strings.ReplaceAll(strings.ToLower(ingredient.Name()), "'", "")
+func GetIngredientSprite(ingr ingredient.Ingredient) *gui.Sprite {
+	spriteName := "ingr." + strings.ReplaceAll(strings.ToLower(ingr.Name()), "'", "")
 
-	return assets.GetSprite(spriteName)
+	return assets.TESAssets.GetSprite(spriteName)
 }
-
-//go:embed assets/sprites
-var spritesFs embed.FS
-
-var assets = func() *gui.Assets {
-	loadedAssets := new(gui.Assets)
-	// todo shall filesystem be passed by reference or not?
-	err := loadedAssets.RegisterAssets("assets", &spritesFs)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return loadedAssets
-}()
 
 var potionEffectFrameSize = gui.FrameSize{
 	LeftBottom: gui.NewPosition(10, 15),

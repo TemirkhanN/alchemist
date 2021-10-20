@@ -1,4 +1,4 @@
-package domain
+package ingredient
 
 type EffectMeasure struct {
 	value string
@@ -24,7 +24,15 @@ func (e Effect) Name() string {
 	return e.name
 }
 
-func (e Effect) hideEffectDetails() Effect {
+func (e Effect) Measure() EffectMeasure {
+	return e.measure
+}
+
+func (e Effect) BaseCost() float64 {
+	return e.baseCost
+}
+
+func (e Effect) HideEffectDetails() Effect {
 	return Effect{
 		name:     "Unknown Effect",
 		positive: e.positive,
@@ -34,19 +42,19 @@ func (e Effect) hideEffectDetails() Effect {
 	}
 }
 
-func (e Effect) isUnknown() bool {
+func (e Effect) IsUnknown() bool {
 	return e.name == "Unknown Effect"
 }
 
-func (e Effect) isDurationOnly() bool {
+func (e Effect) IsDurationOnly() bool {
 	return e.eType == typeDurationOnly
 }
 
-func (e Effect) isMagnitudeOnly() bool {
+func (e Effect) IsMagnitudeOnly() bool {
 	return e.eType == typeMagnitudeOnly
 }
 
-func (e Effect) isImmediate() bool {
+func (e Effect) IsImmediate() bool {
 	return e.eType == typeImmediate
 }
 
@@ -71,7 +79,6 @@ var (
 	typeDurationOnly  = EffectType{value: 2}
 	typeImmediate     = EffectType{value: 3}
 	percentMeasure    = EffectMeasure{value: "%"}
-	timeMeasure       = EffectMeasure{value: "secs"}
 	plainMeasure      = EffectMeasure{value: "pts"}
 	distanceMeasure   = EffectMeasure{value: "feet"}
 

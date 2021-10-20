@@ -1,4 +1,4 @@
-package domain_test
+package ingredient_test
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/TemirkhanN/alchemist/domain"
+	"github.com/TemirkhanN/alchemist/pkg/alchemy/ingredient"
 )
 
 var ingredients = []struct {
@@ -431,14 +431,14 @@ func TestIngredientRepository_FindByName(t *testing.T) {
 		t.Run(ingredientDetails.name, func(sub *testing.T) {
 			sub.Parallel()
 			assert := assert.New(sub)
-			ingredient, err := domain.IngredientsDatabase.FindByName(ingredientDetails.name)
+			ingr, err := ingredient.IngredientsDatabase.FindByName(ingredientDetails.name)
 
 			assert.NoError(err)
-			assert.Equal(ingredientDetails.name, ingredient.Name())
+			assert.Equal(ingredientDetails.name, ingr.Name())
 
-			assert.Len(ingredient.Effects(), len(ingredientDetails.effects))
+			assert.Len(ingr.Effects(), len(ingredientDetails.effects))
 			for effectPosition, effectName := range ingredientDetails.effects {
-				assert.Equal(effectName, ingredient.Effects()[effectPosition].Name())
+				assert.Equal(effectName, ingr.Effects()[effectPosition].Name())
 			}
 		},
 		)
@@ -461,7 +461,7 @@ func TestIngredientRepository_FindByNames(t *testing.T) {
 			for key, ingredientDetails := range chunk {
 				names[key] = ingredientDetails.name
 			}
-			result, err := domain.IngredientsDatabase.FindByNames(names)
+			result, err := ingredient.IngredientsDatabase.FindByNames(names)
 			assert.NoError(err)
 			assert.Len(result, len(names))
 
@@ -492,19 +492,19 @@ func TestIngredientRepository_FindByNames(t *testing.T) {
 func TestIngredientRepository_All(t *testing.T) {
 	assert := assert.New(t)
 
-	all := domain.IngredientsDatabase.All()
+	all := ingredient.IngredientsDatabase.All()
 
 	assert.Len(all, len(ingredients))
 
-	for key, ingredient := range all {
+	for key, ingr := range all {
 		ingredientDetails := ingredients[key]
 
-		assert.Equal(ingredientDetails.name, ingredient.Name())
+		assert.Equal(ingredientDetails.name, ingr.Name())
 
-		assert.Len(ingredient.Effects(), len(ingredientDetails.effects))
+		assert.Len(ingr.Effects(), len(ingredientDetails.effects))
 
 		for effectPosition, effectName := range ingredientDetails.effects {
-			assert.Equal(effectName, ingredient.Effects()[effectPosition].Name())
+			assert.Equal(effectName, ingr.Effects()[effectPosition].Name())
 		}
 	}
 }
