@@ -78,7 +78,7 @@ func NewMainLayout(window *gui.Window, alchemist *domain.Alchemist) *PrimaryLayo
 	}
 
 	layout.initialized = true
-	layout.graphics = gui.NewLayer(window, window.Width(), window.Height(), true)
+	layout.graphics = window.CreateLayer(window.Width(), window.Height(), true)
 
 	backgroundSprite := assets.GetSprite("interface.alchemy")
 	addIngredientBtnSprite := assets.GetSprite("btn.add-ingredient")
@@ -140,7 +140,7 @@ func NewMainLayout(window *gui.Window, alchemist *domain.Alchemist) *PrimaryLayo
 	layout.exitButton = window.CreateButton(exitBtnSprite)
 	layout.exitButton.SetClickHandler(func() { os.Exit(0) })
 
-	layout.effectsPreview = gui.NewLayer(window, 300, 270, true)
+	layout.effectsPreview = window.CreateLayer(300, 270, true)
 	layout.statusText = window.CreateTextCanvas("", tesOblivion24Font, 200)
 
 	layout.registerEventHandlers(alchemist, window)
@@ -173,7 +173,7 @@ func (layout *PrimaryLayout) registerEventHandlers(alchemist *domain.Alchemist, 
 
 			maximumAvailableAmountOfEffects := 4
 			for order, effect := range potion.Effects() {
-				effectPreviewLayout := gui.NewLayer(window, 260, 50, true)
+				effectPreviewLayout := window.CreateLayer(260, 50, true)
 
 				effectCanvas := window.CreateSpriteCanvas(assets.GetSprite(effect.Name()).Frame(potionEffectFrameSize))
 				effectPreviewLayout.AddElement(
@@ -248,7 +248,7 @@ func NewBackpackLayout(window *gui.Window, alchemist *domain.Alchemist) *Backpac
 	closeButtonSprite := assets.GetSprite("btn.exit")
 	ingredientsLayoutSprite := assets.GetSprite("interface.ingredients")
 
-	layout.graphics = gui.NewLayer(window, window.Width(), window.Height(), false)
+	layout.graphics = window.CreateLayer(window.Width(), window.Height(), false)
 	layout.background = window.CreateSpriteCanvas(ingredientsLayoutSprite)
 
 	layout.closeButton = window.CreateButton(closeButtonSprite)
@@ -267,8 +267,8 @@ func (layout *BackpackLayout) render() {
 	layout.graphics.Clear()
 	layout.graphics.AddElement(layout.background, gui.ZeroPosition)
 
-	ingredientsLayer := gui.NewLayer(layout.window, 480, 465, true, true)
-	ingredientEffectsLayer := gui.NewLayer(layout.window, 238, 220, false)
+	ingredientsLayer := layout.window.CreateLayer(480, 465, true, true)
+	ingredientEffectsLayer := layout.window.CreateLayer(238, 220, false)
 	ingredientsEffectsLayerBackground := layout.window.CreateSpriteCanvas(assets.GetSprite("interface.effects"))
 
 	layout.ingredientsBtns = nil

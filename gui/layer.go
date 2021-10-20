@@ -32,25 +32,6 @@ func (ec *elementsCache) equals(cache []int) bool {
 	return true
 }
 
-func NewLayer(drawOn *Window, width float64, height float64, visible bool, scrollable ...bool) *Layer {
-	scroll := Scroll{currentOffsetFromTop: 0, maximumOffsetFromTop: 0, isAvailable: false}
-	if len(scrollable) == 1 && scrollable[0] {
-		scroll.isAvailable = true
-	}
-
-	return &Layer{
-		elements:      nil,
-		visible:       visible,
-		needsRedraw:   true,
-		width:         width,
-		height:        height,
-		position:      ZeroPosition,
-		scroll:        scroll,
-		drawnOn:       drawOn,
-		graphicsCache: elementsCache{elements: []int{}},
-	}
-}
-
 func (layer *Layer) Show() {
 	layer.visible = true
 	layer.needsRedraw = true

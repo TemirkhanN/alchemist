@@ -89,7 +89,7 @@ func NewWindow(preset WindowConfig) *Window {
 		debugMode:   preset.DebugMode,
 	}
 
-	window.graphics = NewLayer(window, preset.Width, preset.Height, true)
+	window.graphics = window.CreateLayer(preset.Width, preset.Height, true)
 
 	return window
 }
@@ -105,6 +105,25 @@ func (w Window) Height() float64 {
 func (w *Window) AddLayer(layer *Layer, position Position) {
 	layer.drawnOn = w
 	w.graphics.AddElement(layer, position)
+}
+
+func (w *Window) CreateLayer(width float64, height float64, visible bool, scrollable ...bool) *Layer {
+	scroll := Scroll{currentOffsetFromTop: 0, maximumOffsetFromTop: 0, isAvailable: false}
+	if len(scrollable) == 1 && scrollable[0] {
+		scroll.isAvailable = true
+	}
+
+	return &Layer{
+		elements:      nil,
+		visible:       visible,
+		needsRedraw:   true,
+		width:         width,
+		height:        height,
+		position:      ZeroPosition,
+		scroll:        scroll,
+		drawnOn:       w,
+		graphicsCache: elementsCache{elements: []int{}},
+	}
 }
 
 func (w *Window) CreateSpriteCanvas(sprite *Sprite) *SpriteCanvas {
