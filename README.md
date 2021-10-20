@@ -11,8 +11,8 @@ https://github.com/faiface/pixel#requirements
 ## Launch
 
 1. Meet [requirements](#requirements)
-2.`git clone`
-2. `go run cmd/alchemy/main.go`
+2. `git clone`
+3. `go run cmd/alchemy/main.go`
 
 
 ## Domain
