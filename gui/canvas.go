@@ -1,5 +1,9 @@
 package gui
 
+import (
+	"strings"
+)
+
 type Drawer interface {
 	Show()
 	Hide()
@@ -37,8 +41,9 @@ type CommonCanvas struct {
 }
 
 type TextCanvas struct {
-	text string
-	font Font
+	text     string
+	font     Font
+	maxWidth float64
 	CommonCanvas
 }
 
@@ -140,21 +145,50 @@ func (canvas *TextCanvas) Draw() {
 		return
 	}
 
-	canvas.drawnOn.drawText(canvas.text, canvas.position, canvas.font)
+	if canvas.drawnOn.debugMode {
+		// debug draws canvas frame. Not text frame itself.
+		highlightElement(canvas, canvas.drawnOn)
+	}
+
+	textPosition := canvas.position.absolute(NewPosition(0, canvas.Height()-canvas.font.atlas.LineHeight()))
+	canvas.drawnOn.drawText(canvas.text, textPosition, canvas.font)
 	canvas.needsRedraw = false
 }
 
 func (canvas TextCanvas) Width() float64 {
-	// todo
-	return 0
+	return canvas.maxWidth
 }
 
 func (canvas TextCanvas) Height() float64 {
-	// todo
-	return 0
+	lineBreaks := 1 + strings.Count(canvas.text, "\n")
+
+	return canvas.font.atlas.LineHeight() * float64(lineBreaks)
 }
 
 func (canvas *TextCanvas) ChangeText(text string) {
 	canvas.text = text
+	canvas.AddLineBreaks()
 	canvas.needsRedraw = true
+}
+
+func (canvas *TextCanvas) AddLineBreaks() {
+	parts := strings.Split(canvas.text, " ")
+
+	lineLength := 0.0
+
+	for i, part := range parts {
+		wordLength := canvas.font.calculateWidthInPixels(part)
+		if lineLength+wordLength <= canvas.maxWidth || i == 0 {
+			lineLength += wordLength
+
+			continue
+		}
+
+		// we add line breaks only after at least first word
+		parts[i-1] += "\n"
+		lineLength = wordLength
+		canvas.position.y += canvas.font.atlas.LineHeight()
+	}
+
+	canvas.text = strings.Join(parts, " ")
 }

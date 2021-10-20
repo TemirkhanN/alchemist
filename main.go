@@ -141,7 +141,7 @@ func NewMainLayout(window *gui.Window, alchemist *domain.Alchemist) *PrimaryLayo
 	layout.exitButton.SetClickHandler(func() { os.Exit(0) })
 
 	layout.effectsPreview = gui.NewLayer(window, 300, 270, true)
-	layout.statusText = window.CreateTextCanvas("", tesOblivion24Font)
+	layout.statusText = window.CreateTextCanvas("", tesOblivion24Font, 200)
 
 	layout.registerEventHandlers(alchemist, window)
 
@@ -171,20 +171,30 @@ func (layout *PrimaryLayout) registerEventHandlers(alchemist *domain.Alchemist, 
 			}
 			layout.effectsPreview.Clear()
 
+			maximumAvailableAmountOfEffects := 4
 			for order, effect := range potion.Effects() {
-				effectPosition := gui.NewPosition(
-					10+gui.ZeroPosition.X(),
-					-10+layout.effectsPreview.Height()-(potionEffectFrameSize.Height()*float64(order+1)),
+				effectPreviewLayout := gui.NewLayer(window, 260, 50, true)
+
+				effectCanvas := window.CreateSpriteCanvas(assets.GetSprite(effect.Name()).Frame(potionEffectFrameSize))
+				effectPreviewLayout.AddElement(
+					effectCanvas,
+					gui.NewPosition(0, (effectPreviewLayout.Height()-effectCanvas.Height())/2),
 				)
-				layout.effectsPreview.AddElement(
-					window.CreateSpriteCanvas(assets.GetSprite(effect.Name()).Frame(potionEffectFrameSize)),
-					effectPosition,
-				)
-				layout.effectsPreview.AddElement(
-					window.CreateTextCanvas(effect.Description(), tesOblivion24Font),
+
+				descriptionCanvas := window.CreateTextCanvas(effect.Description(), tesOblivion24Font, 225)
+				effectPreviewLayout.AddElement(
+					descriptionCanvas,
 					gui.NewPosition(
-						effectPosition.X()+potionEffectFrameSize.Width()+5,
-						effectPosition.Y(),
+						potionEffectFrameSize.Width()+5,
+						(effectPreviewLayout.Height()-descriptionCanvas.Height())/2,
+					),
+				)
+
+				layout.effectsPreview.AddElement(
+					effectPreviewLayout,
+					gui.NewPosition(
+						10+gui.ZeroPosition.X(),
+						effectPreviewLayout.Height()*float64(maximumAvailableAmountOfEffects-order),
 					),
 				)
 			}

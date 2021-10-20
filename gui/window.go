@@ -119,10 +119,11 @@ func (w *Window) CreateSpriteCanvas(sprite *Sprite) *SpriteCanvas {
 	}
 }
 
-func (w *Window) CreateTextCanvas(text string, font Font) *TextCanvas {
-	return &TextCanvas{
-		text: text,
-		font: font,
+func (w *Window) CreateTextCanvas(text string, font Font, maxWidth float64) *TextCanvas {
+	canvas := &TextCanvas{
+		text:     text,
+		font:     font,
+		maxWidth: maxWidth,
 		CommonCanvas: CommonCanvas{
 			position:    ZeroPosition,
 			visible:     true,
@@ -130,6 +131,9 @@ func (w *Window) CreateTextCanvas(text string, font Font) *TextCanvas {
 			drawnOn:     w,
 		},
 	}
+	canvas.AddLineBreaks()
+
+	return canvas
 }
 
 func (w *Window) CreateButton(sprite *Sprite) *Button {
