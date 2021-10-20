@@ -119,9 +119,10 @@ func (w *Window) CreateSpriteCanvas(sprite *Sprite) *SpriteCanvas {
 	}
 }
 
-func (w *Window) CreateTextCanvas(text string) *TextCanvas {
+func (w *Window) CreateTextCanvas(text string, font Font) *TextCanvas {
 	return &TextCanvas{
 		text: text,
+		font: font,
 		CommonCanvas: CommonCanvas{
 			position:    ZeroPosition,
 			visible:     true,
@@ -292,15 +293,12 @@ func (w *Window) handleMouseOut(graphics Drawer, lastCursorPosition Position) {
 	}
 }
 
-func (w *Window) drawText(textValue string, position Position) {
-	basicTxt := text.New(pixel.V(position.X(), position.Y()), basicAtlas)
+func (w *Window) drawText(textValue string, position Position, font Font) {
+	basicTxt := text.New(pixel.V(position.X(), position.Y()), font.atlas)
 
 	fmt.Fprintln(basicTxt, textValue)
 
 	basicTxt.DrawColorMask(w.window, pixel.IM, colornames.Sienna)
 }
 
-var (
-	basicAtlas   = createAtlas("TESOblivionFont", "assets/font/Kingthings Petrock.ttf", 24)
-	ZeroPosition = Position{x: 0, y: 0}
-)
+var ZeroPosition = Position{x: 0, y: 0}

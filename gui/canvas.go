@@ -38,6 +38,7 @@ type CommonCanvas struct {
 
 type TextCanvas struct {
 	text string
+	font Font
 	CommonCanvas
 }
 
@@ -139,7 +140,7 @@ func (canvas *TextCanvas) Draw() {
 		return
 	}
 
-	canvas.drawnOn.drawText(canvas.text, canvas.position)
+	canvas.drawnOn.drawText(canvas.text, canvas.position, canvas.font)
 	canvas.needsRedraw = false
 }
 

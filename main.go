@@ -141,7 +141,7 @@ func NewMainLayout(window *gui.Window, alchemist *domain.Alchemist) *PrimaryLayo
 	layout.exitButton.SetClickHandler(func() { os.Exit(0) })
 
 	layout.effectsPreview = gui.NewLayer(window, 300, 270, true)
-	layout.statusText = window.CreateTextCanvas("")
+	layout.statusText = window.CreateTextCanvas("", tesOblivion24Font)
 
 	layout.registerEventHandlers(alchemist, window)
 
@@ -181,7 +181,7 @@ func (layout *PrimaryLayout) registerEventHandlers(alchemist *domain.Alchemist, 
 					effectPosition,
 				)
 				layout.effectsPreview.AddElement(
-					window.CreateTextCanvas(effect.Description()),
+					window.CreateTextCanvas(effect.Description(), tesOblivion24Font),
 					gui.NewPosition(
 						effectPosition.X()+potionEffectFrameSize.Width()+5,
 						effectPosition.Y(),
@@ -344,3 +344,5 @@ var potionEffectFrameSize = gui.FrameSize{
 	LeftBottom: gui.NewPosition(10, 15),
 	RightTop:   gui.NewPosition(35, 40),
 }
+
+var tesOblivion24Font = gui.LoadFont("TESOblivionFont", "assets/font/Kingthings Petrock.ttf", 24)

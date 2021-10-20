@@ -10,7 +10,11 @@ import (
 	"github.com/golang/freetype/truetype"
 )
 
-func createAtlas(fontName string, ttfPath string, fontSize int) *text.Atlas {
+type Font struct {
+	atlas *text.Atlas
+}
+
+func LoadFont(fontName string, ttfPath string, fontSize int) Font {
 	ttfPath, err := filepath.Abs(ttfPath)
 	if err != nil {
 		panic(err)
@@ -23,7 +27,7 @@ func createAtlas(fontName string, ttfPath string, fontSize int) *text.Atlas {
 		panic(err)
 	}
 
-	oblivionFontOpts := &truetype.Options{
+	fontOpts := &truetype.Options{
 		Size:              float64(fontSize),
 		DPI:               72,
 		Hinting:           0,
@@ -32,10 +36,10 @@ func createAtlas(fontName string, ttfPath string, fontSize int) *text.Atlas {
 		SubPixelsY:        0,
 	}
 
-	oblivionFont, err := freetype.ParseFont(fontBytes)
+	font, err := freetype.ParseFont(fontBytes)
 	if err != nil {
 		panic(err)
 	}
 
-	return text.NewAtlas(truetype.NewFace(oblivionFont, oblivionFontOpts), text.ASCII)
+	return Font{atlas: text.NewAtlas(truetype.NewFace(font, fontOpts), text.ASCII)}
 }
