@@ -36,14 +36,14 @@ func getIngredientSprite(ingr ingredient.Ingredient) *gui.Sprite {
 	return gameAssets.GetSprite(spriteName)
 }
 
-func Launch(windowWidth float64, windowHeight float64) {
+func Launch(windowWidth float64, windowHeight float64, scrollSpeed uint8, debugMode bool) {
 	window := gui.NewWindow(gui.WindowConfig{
 		Title:       "Alchemist",
 		Width:       windowWidth,
 		Height:      windowHeight,
-		DebugMode:   false,
+		DebugMode:   debugMode,
 		Position:    gui.ZeroPosition,
-		ScrollSpeed: 8,
+		ScrollSpeed: scrollSpeed,
 	})
 
 	alchemyLevelHardcoded := 26

@@ -10,6 +10,6 @@ import (
 
 func main() {
 	pixelgl.Run(func() {
-		game.Launch(1024, 768)
+		game.Launch(1024, 768, 8, false)
 	})
 }
