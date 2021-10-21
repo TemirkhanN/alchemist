@@ -36,7 +36,25 @@ func getIngredientSprite(ingr ingredient.Ingredient) *gui.Sprite {
 	return gameAssets.GetSprite(spriteName)
 }
 
-func Launch(windowWidth float64, windowHeight float64, scrollSpeed uint8, debugMode bool) {
+type Game struct {
+	alchemistLevel int
+	alchemistLuck  int
+	mortarLevel    alchemist.EquipmentLevel
+}
+
+func NewGame(alchemistLevel int, alchemistLuck int, mortarLevel alchemist.EquipmentLevel) *Game {
+	if alchemistLevel < 1 || alchemistLevel > 100 || alchemistLuck < 1 || alchemistLuck > 100 {
+		log.Fatal("alchemist level/luck is invalid")
+	}
+
+	return &Game{
+		alchemistLevel: alchemistLevel,
+		alchemistLuck:  alchemistLuck,
+		mortarLevel:    mortarLevel,
+	}
+}
+
+func (g *Game) Launch(windowWidth float64, windowHeight float64, scrollSpeed uint8, debugMode bool) {
 	window := gui.NewWindow(gui.WindowConfig{
 		Title:       "Alchemist",
 		Width:       windowWidth,
@@ -46,10 +64,8 @@ func Launch(windowWidth float64, windowHeight float64, scrollSpeed uint8, debugM
 		ScrollSpeed: scrollSpeed,
 	})
 
-	alchemyLevelHardcoded := 26
-	luckLevelHardcoded := 5
-	mortar := alchemist.NewMortar(alchemist.EquipmentNovice)
-	player := alchemist.NewAlchemist(alchemyLevelHardcoded, luckLevelHardcoded, mortar)
+	mortar := alchemist.NewMortar(g.mortarLevel)
+	player := alchemist.NewAlchemist(g.alchemistLevel, g.alchemistLuck, mortar)
 
 	primaryScreen := newPrimaryLayout(window, player)
 	backpackScreen := newBackpackLayout(window, player)
