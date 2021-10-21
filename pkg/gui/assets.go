@@ -12,13 +12,15 @@ import (
 )
 
 type Assets struct {
-	filesystem *embed.FS
-	sprites    map[string]string
-	cache      map[string]*Sprite
+	filesystem  embed.FS
+	sprites     map[string]string
+	cache       map[string]*Sprite
+	initialized bool
 }
 
-func (assets *Assets) RegisterAssets(directory string, fs *embed.FS) error {
-	if assets.filesystem == nil {
+func (assets *Assets) RegisterAssets(directory string, fs embed.FS) error {
+	if !assets.initialized {
+		assets.initialized = true
 		assets.filesystem = fs
 		assets.sprites = make(map[string]string)
 		assets.cache = make(map[string]*Sprite)

@@ -6,12 +6,11 @@ import (
 
 	"github.com/gookit/event"
 
-	"github.com/TemirkhanN/alchemist/assets"
 	"github.com/TemirkhanN/alchemist/pkg/alchemy/alchemist"
 	"github.com/TemirkhanN/alchemist/pkg/gui"
 )
 
-type PrimaryLayout struct {
+type primaryLayout struct {
 	initialized bool
 	activeSlot  alchemist.Slot
 	graphics    *gui.Layer
@@ -24,8 +23,8 @@ type PrimaryLayout struct {
 	exitButton         *gui.Button
 }
 
-func newPrimaryLayout(window *gui.Window, player *alchemist.Alchemist) *PrimaryLayout {
-	layout := new(PrimaryLayout)
+func newPrimaryLayout(window *gui.Window, player *alchemist.Alchemist) *primaryLayout {
+	layout := new(primaryLayout)
 	if layout.initialized {
 		log.Fatal("can not initialize layout more than one time")
 	}
@@ -33,10 +32,10 @@ func newPrimaryLayout(window *gui.Window, player *alchemist.Alchemist) *PrimaryL
 	layout.initialized = true
 	layout.graphics = window.CreateLayer(window.Width(), window.Height(), true)
 
-	backgroundSprite := assets.TESAssets.GetSprite("interface.alchemy")
-	addIngredientBtnSprite := assets.TESAssets.GetSprite("btn.add-ingredient")
-	createPotionBtnSprite := assets.TESAssets.GetSprite("btn.create-potion")
-	exitBtnSprite := assets.TESAssets.GetSprite("btn.exit")
+	backgroundSprite := gameAssets.GetSprite("interface.alchemy")
+	addIngredientBtnSprite := gameAssets.GetSprite("btn.add-ingredient")
+	createPotionBtnSprite := gameAssets.GetSprite("btn.create-potion")
+	exitBtnSprite := gameAssets.GetSprite("btn.exit")
 
 	button1 := window.CreateButton(addIngredientBtnSprite)
 	button1.SetClickHandler(func() {
@@ -103,7 +102,7 @@ func newPrimaryLayout(window *gui.Window, player *alchemist.Alchemist) *PrimaryL
 	return layout
 }
 
-func (layout *PrimaryLayout) registerEventHandlers(player *alchemist.Alchemist, window *gui.Window) {
+func (layout *primaryLayout) registerEventHandlers(player *alchemist.Alchemist, window *gui.Window) {
 	event.On(EventIngredientSelected, event.ListenerFunc(func(e event.Event) error {
 		actualEvent := e.(*IngredientSelected)
 
@@ -128,7 +127,7 @@ func (layout *PrimaryLayout) registerEventHandlers(player *alchemist.Alchemist, 
 			for order, effect := range potion.Effects() {
 				effectPreviewLayout := window.CreateLayer(260, 50, true)
 
-				effectCanvas := window.CreateSpriteCanvas(assets.TESAssets.GetSprite(effect.Name()).Frame(potionEffectFrameSize))
+				effectCanvas := window.CreateSpriteCanvas(gameAssets.GetSprite(effect.Name()).Frame(potionEffectFrameSize))
 				effectPreviewLayout.AddElement(
 					effectCanvas,
 					gui.NewPosition(0, (effectPreviewLayout.Height()-effectCanvas.Height())/2),
@@ -161,7 +160,7 @@ func (layout *PrimaryLayout) registerEventHandlers(player *alchemist.Alchemist, 
 	}))
 }
 
-func (layout *PrimaryLayout) render() {
+func (layout *primaryLayout) render() {
 	// if it is not initialized, then it is an empty layout. nothing to show
 	if !layout.initialized {
 		return

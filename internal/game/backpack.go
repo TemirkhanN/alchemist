@@ -5,13 +5,12 @@ import (
 
 	"github.com/gookit/event"
 
-	"github.com/TemirkhanN/alchemist/assets"
 	"github.com/TemirkhanN/alchemist/pkg/alchemy/alchemist"
 	"github.com/TemirkhanN/alchemist/pkg/alchemy/ingredient"
 	"github.com/TemirkhanN/alchemist/pkg/gui"
 )
 
-type BackpackLayout struct {
+type backpackLayout struct {
 	initialized     bool
 	graphics        *gui.Layer
 	window          *gui.Window
@@ -24,8 +23,8 @@ type BackpackLayout struct {
 }
 
 // newBackpackLayout todo rename repo to backpack.
-func newBackpackLayout(window *gui.Window, player *alchemist.Alchemist) *BackpackLayout {
-	layout := new(BackpackLayout)
+func newBackpackLayout(window *gui.Window, player *alchemist.Alchemist) *backpackLayout {
+	layout := new(backpackLayout)
 	if layout.initialized {
 		log.Fatal("can not initialize layout more than one time")
 	}
@@ -39,8 +38,8 @@ func newBackpackLayout(window *gui.Window, player *alchemist.Alchemist) *Backpac
 		layout.ingredients = append(layout.ingredients, &deref)
 	}
 
-	closeButtonSprite := assets.TESAssets.GetSprite("btn.exit")
-	ingredientsLayoutSprite := assets.TESAssets.GetSprite("interface.ingredients")
+	closeButtonSprite := gameAssets.GetSprite("btn.exit")
+	ingredientsLayoutSprite := gameAssets.GetSprite("interface.ingredients")
 
 	layout.graphics = window.CreateLayer(window.Width(), window.Height(), false)
 	layout.background = window.CreateSpriteCanvas(ingredientsLayoutSprite)
@@ -57,13 +56,13 @@ func newBackpackLayout(window *gui.Window, player *alchemist.Alchemist) *Backpac
 	return layout
 }
 
-func (layout *BackpackLayout) render() {
+func (layout *backpackLayout) render() {
 	layout.graphics.Clear()
 	layout.graphics.AddElement(layout.background, gui.ZeroPosition)
 
 	ingredientsLayer := layout.window.CreateLayer(480, 465, true, true)
 	ingredientEffectsLayer := layout.window.CreateLayer(238, 220, false)
-	ingredientsEffectsLayerBackground := layout.window.CreateSpriteCanvas(assets.TESAssets.GetSprite("interface.effects"))
+	ingredientsEffectsLayerBackground := layout.window.CreateSpriteCanvas(gameAssets.GetSprite("interface.effects"))
 
 	layout.ingredientsBtns = nil
 	offset := ingredientsLayer.Height()
@@ -94,7 +93,7 @@ func (layout *BackpackLayout) render() {
 				posY := ingredientEffectsLayer.Height()
 				for _, effect := range layout.alchemist.DetermineEffects(hovered) {
 					posY -= 55
-					effectPreview := layout.window.CreateSpriteCanvas(assets.TESAssets.GetSprite(effect.Name()))
+					effectPreview := layout.window.CreateSpriteCanvas(gameAssets.GetSprite(effect.Name()))
 					ingredientEffectsLayer.AddElement(effectPreview, gui.NewPosition(0, posY))
 				}
 				ingredientEffectsLayer.Show()
