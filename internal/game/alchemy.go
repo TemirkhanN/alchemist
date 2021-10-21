@@ -7,6 +7,7 @@ import (
 	"github.com/gookit/event"
 
 	"github.com/TemirkhanN/alchemist/pkg/alchemy/alchemist"
+	"github.com/TemirkhanN/alchemist/pkg/alchemy/ingredient"
 	"github.com/TemirkhanN/alchemist/pkg/gui"
 )
 
@@ -19,6 +20,7 @@ type primaryLayout struct {
 	effectsPreview     *gui.Layer
 	statusText         *gui.TextCanvas
 	ingredientSlots    map[alchemist.Slot]gui.Canvas
+	ingredients        map[alchemist.Slot]*ingredient.Ingredient
 	createPotionButton *gui.Button
 	exitButton         *gui.Button
 }
@@ -72,6 +74,7 @@ func newPrimaryLayout(window *gui.Window, player *alchemist.Alchemist) *primaryL
 		}
 	}
 	layout.ingredientSlots = defaultSlots()
+	layout.ingredients = make(map[alchemist.Slot]*ingredient.Ingredient, 4)
 
 	layout.createPotionButton = window.CreateButton(createPotionBtnSprite)
 	layout.createPotionButton.SetClickHandler(func() {
@@ -85,6 +88,7 @@ func newPrimaryLayout(window *gui.Window, player *alchemist.Alchemist) *primaryL
 		}
 		layout.statusText.ChangeText("You have created a potion!")
 		layout.ingredientSlots = defaultSlots()
+		layout.ingredients = make(map[alchemist.Slot]*ingredient.Ingredient, 4)
 		layout.effectsPreview.Clear()
 		layout.render()
 	})
@@ -103,16 +107,39 @@ func newPrimaryLayout(window *gui.Window, player *alchemist.Alchemist) *primaryL
 }
 
 func (layout *primaryLayout) registerEventHandlers(player *alchemist.Alchemist, window *gui.Window) {
-	event.On(EventIngredientSelected, event.ListenerFunc(func(e event.Event) error {
-		actualEvent := e.(*IngredientSelected)
+	event.On(eventIngredientSelected, event.ListenerFunc(func(e event.Event) error {
+		actualEvent := e.(*ingredientSelected)
+		layout.ingredients[layout.activeSlot] = actualEvent.ingredient
 
-		ingredientIcon := getIngredientSprite(*actualEvent.ingredient)
-		layout.ingredientSlots[layout.activeSlot] = window.CreateSpriteCanvas(ingredientIcon)
+		selectedIngredientButton := window.CreateButton(getIngredientSprite(*actualEvent.ingredient))
+		selectedSlot := layout.activeSlot
+		selectedIngredientButton.SetClickHandler(func() {
+			layout.activeSlot = selectedSlot
 
-		if player.CanUseIngredient(actualEvent.ingredient) {
-			err := player.UseIngredient(actualEvent.ingredient)
-			if err != nil {
-				layout.statusText.ChangeText(err.Error())
+			player.DiscardIngredients()
+
+			for slot, usedIngredient := range layout.ingredients {
+				if slot == selectedSlot {
+					continue
+				}
+				err := player.UseIngredient(usedIngredient)
+				if err != nil {
+					// This shall be unreachable statement
+					layout.statusText.ChangeText(err.Error())
+				}
+			}
+			newAddIngredientButtonClickedEvent(layout.activeSlot)
+		})
+
+		layout.ingredientSlots[layout.activeSlot] = selectedIngredientButton
+
+		player.DiscardIngredients()
+		for _, usedIngredient := range layout.ingredients {
+			if player.CanUseIngredient(usedIngredient) {
+				err := player.UseIngredient(usedIngredient)
+				if err != nil {
+					layout.statusText.ChangeText(err.Error())
+				}
 			}
 		}
 
@@ -179,4 +206,11 @@ func (layout *primaryLayout) render() {
 	layout.graphics.AddElement(layout.createPotionButton, gui.NewPosition(253, 116))
 	layout.graphics.AddElement(layout.exitButton, gui.NewPosition(646, 115))
 	layout.graphics.Show()
+}
+
+func newAddIngredientButtonClickedEvent(inSlot alchemist.Slot) {
+	err := event.TriggerEvent(&addIngredientButtonClicked{slot: inSlot, BasicEvent: event.BasicEvent{}})
+	if err != nil {
+		log.Fatal(err.Error())
+	}
 }
