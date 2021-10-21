@@ -1,15 +1,15 @@
-package domain
+package ingredient
 
 import (
 	"errors"
 	"strings"
 )
 
-type IngredientRepository struct {
+type Repository struct {
 	ingredients []Ingredient
 }
 
-func (r IngredientRepository) FindByName(name string) (Ingredient, error) {
+func (r Repository) FindByName(name string) (Ingredient, error) {
 	for _, ingredient := range r.ingredients {
 		if strings.EqualFold(ingredient.name, name) {
 			return ingredient, nil
@@ -19,7 +19,7 @@ func (r IngredientRepository) FindByName(name string) (Ingredient, error) {
 	return Ingredient{}, errors.New("ingredient \"" + name + "\" not found")
 }
 
-func (r IngredientRepository) FindByNames(names []string) ([]Ingredient, error) {
+func (r Repository) FindByNames(names []string) ([]Ingredient, error) {
 	ingredients := make([]Ingredient, len(names))
 
 	for key, name := range names {
@@ -34,7 +34,7 @@ func (r IngredientRepository) FindByNames(names []string) ([]Ingredient, error) 
 	return ingredients, nil
 }
 
-func (r IngredientRepository) All() []Ingredient {
+func (r Repository) All() []Ingredient {
 	return r.ingredients
 }
 
@@ -1016,5 +1016,5 @@ var (
 		},
 	}
 
-	IngredientsDatabase = IngredientRepository{ingredients: allKnownIngredients}
+	IngredientsDatabase = Repository{ingredients: allKnownIngredients}
 )

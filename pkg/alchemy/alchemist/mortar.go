@@ -1,4 +1,4 @@
-package domain
+package alchemist
 
 type EquipmentLevel struct {
 	value uint8

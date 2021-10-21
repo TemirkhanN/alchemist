@@ -1,20 +1,21 @@
-package main
+package game
 
 import (
 	"log"
 
 	"github.com/gookit/event"
 
-	"github.com/TemirkhanN/alchemist/domain"
+	"github.com/TemirkhanN/alchemist/pkg/alchemy/alchemist"
+	"github.com/TemirkhanN/alchemist/pkg/alchemy/ingredient"
 )
 
 type IngredientSelected struct {
-	ingredient *domain.Ingredient
+	ingredient *ingredient.Ingredient
 	event.BasicEvent
 }
 
 type AddIngredientButtonClicked struct {
-	slot domain.Slot
+	slot alchemist.Slot
 	event.BasicEvent
 }
 
@@ -31,7 +32,7 @@ const (
 	EventAddIngredientButtonClicked = "addIngredientButtonClicked"
 )
 
-func newAddIngredientButtonClickedEvent(inSlot domain.Slot) {
+func newAddIngredientButtonClickedEvent(inSlot alchemist.Slot) {
 	err := event.TriggerEvent(&AddIngredientButtonClicked{slot: inSlot, BasicEvent: event.BasicEvent{}})
 	if err != nil {
 		log.Fatal(err.Error())

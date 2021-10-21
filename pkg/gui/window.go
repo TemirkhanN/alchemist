@@ -40,7 +40,7 @@ type WindowConfig struct {
 	Height      float64
 	DebugMode   bool
 	Position    Position
-	ScrollSpeed uint
+	ScrollSpeed uint8
 }
 
 type Window struct {

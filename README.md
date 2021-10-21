@@ -8,6 +8,12 @@ It uses https://github.com/faiface/pixel as OpenGL adapter to create windows and
 ## Requirements
 https://github.com/faiface/pixel#requirements
 
+## Launch
+
+1. Meet [requirements](#requirements)
+2. `git clone`
+3. `go run cmd/alchemy/main.go`
+
 
 ## Domain
 

@@ -1,8 +1,10 @@
-package domain
+package alchemist
 
 import (
 	"errors"
 	"math"
+
+	"github.com/TemirkhanN/alchemist/pkg/alchemy/ingredient"
 )
 
 type Slot struct {
@@ -14,7 +16,7 @@ type Alchemist struct {
 	alchemyLevel int
 
 	mortar                   *Mortar
-	currentlyUsedIngredients []*Ingredient
+	currentlyUsedIngredients []*ingredient.Ingredient
 }
 
 func NewAlchemist(level int, luckLevel int, mortar *Mortar) *Alchemist {
@@ -22,11 +24,11 @@ func NewAlchemist(level int, luckLevel int, mortar *Mortar) *Alchemist {
 		alchemyLevel:             level,
 		luckLevel:                luckLevel,
 		mortar:                   mortar,
-		currentlyUsedIngredients: []*Ingredient{},
+		currentlyUsedIngredients: []*ingredient.Ingredient{},
 	}
 }
 
-func (a *Alchemist) CanUseIngredient(ingredient *Ingredient) bool {
+func (a *Alchemist) CanUseIngredient(ingredient *ingredient.Ingredient) bool {
 	if len(a.currentlyUsedIngredients) == 0 {
 		return true
 	}
@@ -51,7 +53,7 @@ func (a *Alchemist) CanUseIngredient(ingredient *Ingredient) bool {
 	return canUse
 }
 
-func (a *Alchemist) UseIngredient(newIngredient *Ingredient) error {
+func (a *Alchemist) UseIngredient(newIngredient *ingredient.Ingredient) error {
 	if len(a.currentlyUsedIngredients) == 0 || a.CanUseIngredient(newIngredient) {
 		a.currentlyUsedIngredients = append(a.currentlyUsedIngredients, newIngredient)
 
@@ -61,22 +63,22 @@ func (a *Alchemist) UseIngredient(newIngredient *Ingredient) error {
 	return errors.New("ingredients must have similar effects to be combined")
 }
 
-func (a *Alchemist) UsedIngredients() []*Ingredient {
+func (a *Alchemist) UsedIngredients() []*ingredient.Ingredient {
 	return a.currentlyUsedIngredients
 }
 
-func (a *Alchemist) CanCombineIngredients(ingredient1 *Ingredient, ingredient2 *Ingredient) bool {
+func (a *Alchemist) CanCombineIngredients(ingredient1 *ingredient.Ingredient, ingredient2 *ingredient.Ingredient) bool {
 	for _, effect1 := range a.DetermineEffects(ingredient1) {
-		if effect1.isUnknown() {
+		if effect1.IsUnknown() {
 			continue
 		}
 
 		for _, effect2 := range a.DetermineEffects(ingredient2) {
-			if effect2.isUnknown() {
+			if effect2.IsUnknown() {
 				continue
 			}
 
-			if effect1.name == effect2.name {
+			if effect1.Name() == effect2.Name() {
 				return true
 			}
 		}
@@ -85,15 +87,16 @@ func (a *Alchemist) CanCombineIngredients(ingredient1 *Ingredient, ingredient2 *
 	return false
 }
 
-func (a *Alchemist) DetermineEffects(ingredient *Ingredient) []Effect {
+func (a *Alchemist) DetermineEffects(ofIngredient *ingredient.Ingredient) []ingredient.Effect {
 	identifiableAmountOfEffects := a.IdentifiableAmountOfEffects()
-	ingredientEffectsAmount := len(ingredient.effects)
+	ingredientEffectsAmount := len(ofIngredient.Effects())
 
-	var effects []Effect
+	var effects []ingredient.Effect
+
 	for i := 0; i < 4 && ingredientEffectsAmount > i; i++ {
-		effect := ingredient.effects[i]
+		effect := ofIngredient.Effects()[i]
 		if i+1 > identifiableAmountOfEffects {
-			effect = effect.hideEffectDetails()
+			effect = effect.HideEffectDetails()
 		}
 
 		effects = append(effects, effect)
@@ -152,11 +155,11 @@ func (a Alchemist) PredictPotion() (Potion, error) {
 	}
 
 	potionEffects := make(map[string]PotionEffect)
-	allEffects := make(map[string]Effect)
+	allEffects := make(map[string]ingredient.Effect)
 
-	for _, ingredient := range a.currentlyUsedIngredients {
-		for _, effect := range a.DetermineEffects(ingredient) {
-			if effect.isUnknown() {
+	for _, usedIngredient := range a.currentlyUsedIngredients {
+		for _, effect := range a.DetermineEffects(usedIngredient) {
+			if effect.IsUnknown() {
 				continue
 			}
 
@@ -219,7 +222,7 @@ func (a *Alchemist) IdentifiableAmountOfEffects() int {
 	}
 }
 
-func (a *Alchemist) Refine(effect Effect) PotionEffect {
+func (a *Alchemist) Refine(effect ingredient.Effect) PotionEffect {
 	magnitude := math.Round(a.calculateMagnitude(effect))
 	if magnitude < 1 {
 		magnitude = 1
@@ -233,13 +236,7 @@ func (a *Alchemist) Refine(effect Effect) PotionEffect {
 	return PotionEffect{
 		magnitude: magnitude,
 		duration:  duration,
-		Effect: Effect{
-			name:     effect.Name(),
-			positive: effect.positive,
-			eType:    effect.eType,
-			baseCost: effect.baseCost,
-			measure:  effect.measure,
-		},
+		effect:    effect,
 	}
 }
 
@@ -256,26 +253,26 @@ func (a *Alchemist) effectiveAlchemyLevel() float64 {
 	return effectiveLevel
 }
 
-func (a *Alchemist) calculateMagnitude(effect Effect) float64 {
-	if effect.isDurationOnly() {
+func (a *Alchemist) calculateMagnitude(effect ingredient.Effect) float64 {
+	if effect.IsDurationOnly() {
 		return 1.0
 	}
 
 	delta := 4.0
-	if effect.isMagnitudeOnly() {
+	if effect.IsMagnitudeOnly() {
 		delta = 1.0
 	}
 
-	return math.Pow((a.effectiveAlchemyLevel()+a.mortar.Strength())/(effect.baseCost/10*delta), 1/2.28)
+	return math.Pow((a.effectiveAlchemyLevel()+a.mortar.Strength())/(effect.BaseCost()/10*delta), 1/2.28)
 }
 
-func (a *Alchemist) calculateDuration(effect Effect) float64 {
-	if effect.isMagnitudeOnly() {
+func (a *Alchemist) calculateDuration(effect ingredient.Effect) float64 {
+	if effect.IsMagnitudeOnly() {
 		return 1.0
 	}
 
-	if effect.isDurationOnly() {
-		return (a.effectiveAlchemyLevel() + a.mortar.Strength()) / (effect.baseCost / 10)
+	if effect.IsDurationOnly() {
+		return (a.effectiveAlchemyLevel() + a.mortar.Strength()) / (effect.BaseCost() / 10)
 	}
 
 	return 4 * a.calculateMagnitude(effect)
