@@ -47,7 +47,7 @@ func newBackpackLayout(window *gui.Window, player *alchemist.Alchemist) *backpac
 	layout.closeButton = window.CreateButton(closeButtonSprite)
 	layout.closeButton.SetClickHandler(func() { layout.graphics.Hide() })
 
-	event.On(EventAddIngredientButtonClicked, event.ListenerFunc(func(e event.Event) error {
+	event.On(eventAddIngredientButtonClicked, event.ListenerFunc(func(e event.Event) error {
 		layout.render()
 
 		return nil
@@ -77,7 +77,7 @@ func (layout *backpackLayout) render() {
 			return func() {
 				// todo potentially vulnerable for mistake on main(mortar) side
 				layout.graphics.Hide()
-				err := event.FireEvent(&IngredientSelected{ingredient: selected, BasicEvent: event.BasicEvent{}})
+				err := event.TriggerEvent(&ingredientSelected{ingredient: selected, BasicEvent: event.BasicEvent{}})
 				if err != nil {
 					log.Fatal(err)
 				}

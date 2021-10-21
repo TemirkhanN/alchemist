@@ -103,8 +103,8 @@ func newPrimaryLayout(window *gui.Window, player *alchemist.Alchemist) *primaryL
 }
 
 func (layout *primaryLayout) registerEventHandlers(player *alchemist.Alchemist, window *gui.Window) {
-	event.On(EventIngredientSelected, event.ListenerFunc(func(e event.Event) error {
-		actualEvent := e.(*IngredientSelected)
+	event.On(eventIngredientSelected, event.ListenerFunc(func(e event.Event) error {
+		actualEvent := e.(*ingredientSelected)
 
 		ingredientIcon := getIngredientSprite(*actualEvent.ingredient)
 		layout.ingredientSlots[layout.activeSlot] = window.CreateSpriteCanvas(ingredientIcon)
@@ -179,4 +179,11 @@ func (layout *primaryLayout) render() {
 	layout.graphics.AddElement(layout.createPotionButton, gui.NewPosition(253, 116))
 	layout.graphics.AddElement(layout.exitButton, gui.NewPosition(646, 115))
 	layout.graphics.Show()
+}
+
+func newAddIngredientButtonClickedEvent(inSlot alchemist.Slot) {
+	err := event.TriggerEvent(&addIngredientButtonClicked{slot: inSlot, BasicEvent: event.BasicEvent{}})
+	if err != nil {
+		log.Fatal(err.Error())
+	}
 }
