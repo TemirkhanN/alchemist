@@ -20,7 +20,6 @@ https://github.com/faiface/pixel#requirements
 Currently, only mortar is implemented.
 Retort, Calcinator and Alembic are in backlog.
 Some ingredients sprites are missing. They are commented in ingredient_repository.
-Ingredient replacement needs to be implemented yet.
 
 
 ## GUI
