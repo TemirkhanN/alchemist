@@ -1,4 +1,6 @@
-package gui
+package graphics
+
+import "github.com/TemirkhanN/alchemist/pkg/gui/geometry"
 
 type Scroll struct {
 	currentOffsetFromTop float64
@@ -12,11 +14,28 @@ type Layer struct {
 	needsRedraw bool
 	width       float64
 	height      float64
-	position    Position
+	position    geometry.Position
 	scroll      Scroll
 }
 
-func (layer *Layer) IsUnderPosition(position Position) bool {
+func NewLayer(width float64, height float64, visible bool, scrollable ...bool) *Layer {
+	scroll := Scroll{currentOffsetFromTop: 0, maximumOffsetFromTop: 0, isAvailable: false}
+	if len(scrollable) == 1 && scrollable[0] {
+		scroll.isAvailable = true
+	}
+
+	return &Layer{
+		elements:    nil,
+		visible:     visible,
+		needsRedraw: true,
+		width:       width,
+		height:      height,
+		position:    geometry.ZeroPosition,
+		scroll:      scroll,
+	}
+}
+
+func (layer *Layer) IsUnderPosition(position geometry.Position) bool {
 	buttonWidth := layer.Width()
 	buttonHeight := layer.Height()
 
@@ -45,7 +64,7 @@ func (layer *Layer) Hide() {
 	layer.needsRedraw = true
 }
 
-func (layer *Layer) isVisible() bool {
+func (layer *Layer) IsVisible() bool {
 	return layer.visible
 }
 
@@ -59,7 +78,7 @@ func (layer *Layer) NeedsRedraw() bool {
 	}
 
 	for _, element := range layer.elements {
-		if !element.isVisible() || !layer.canFullyFit(element) {
+		if !element.IsVisible() || !layer.CanFullyFit(element) {
 			continue
 		}
 
@@ -75,7 +94,7 @@ func (layer *Layer) Elements() []Canvas {
 	return layer.elements
 }
 
-func (layer *Layer) AddElement(drawer Canvas, relativePosition Position) {
+func (layer *Layer) AddElement(drawer Canvas, relativePosition geometry.Position) {
 	if layer.scroll.isAvailable && relativePosition.Y() < 0 {
 		offset := -1 * relativePosition.Y()
 		if offset > layer.scroll.maximumOffsetFromTop {
@@ -83,7 +102,7 @@ func (layer *Layer) AddElement(drawer Canvas, relativePosition Position) {
 		}
 	}
 
-	drawer.setPosition(layer.position.absolute(relativePosition))
+	drawer.setPosition(layer.position.Add(relativePosition))
 	layer.elements = append(layer.elements, drawer)
 }
 
@@ -99,22 +118,22 @@ func (layer Layer) Height() float64 {
 	return layer.height
 }
 
-func (layer *Layer) setPosition(position Position) {
+func (layer *Layer) setPosition(position geometry.Position) {
 	previousPosition := layer.position
 	layer.position = position
 
 	for _, element := range layer.elements {
-		element.setPosition(element.Position().relative(previousPosition).absolute(layer.position))
+		element.setPosition(element.Position().Subtract(previousPosition).Add(layer.position))
 	}
 
 	layer.needsRedraw = true
 }
 
-func (layer Layer) Position() Position {
+func (layer Layer) Position() geometry.Position {
 	return layer.position
 }
 
-func (layer Layer) canFullyFit(element Canvas) bool {
+func (layer Layer) CanFullyFit(element Canvas) bool {
 	// element is placed left from the layer
 	if layer.Position().X() > element.Position().X() {
 		return false
@@ -137,25 +156,6 @@ func (layer Layer) canFullyFit(element Canvas) bool {
 	return true
 }
 
-func (layer *Layer) isUnderPosition(position Position) bool {
-	buttonWidth := layer.Width()
-	buttonHeight := layer.Height()
-
-	bottomLeftX := layer.position.X()
-	bottomLeftY := layer.position.Y()
-	topRightX := layer.position.X() + buttonWidth
-	topRightY := layer.position.Y() + buttonHeight
-
-	posX := position.X()
-	posY := position.Y()
-
-	if (posX > bottomLeftX && posX < topRightX) && (posY > bottomLeftY && posY < topRightY) {
-		return true
-	}
-
-	return false
-}
-
 func (layer Layer) isScrollable() bool {
 	if !layer.visible || !layer.scroll.isAvailable {
 		return false
@@ -164,7 +164,8 @@ func (layer Layer) isScrollable() bool {
 	return true
 }
 
-func (layer *Layer) emitVerticalScroll(vector float64) bool {
+// EmitVerticalScroll todo delegate to another system.
+func (layer *Layer) EmitVerticalScroll(vector float64) bool {
 	if !layer.isScrollable() {
 		return false
 	}
@@ -188,9 +189,9 @@ func (layer *Layer) emitVerticalScroll(vector float64) bool {
 		layer.scroll.currentOffsetFromTop = layer.scroll.maximumOffsetFromTop
 	}
 
-	offset := NewPosition(0, vector)
+	offset := geometry.NewPosition(0, vector)
 	for _, element := range layer.elements {
-		element.setPosition(element.Position().relative(offset))
+		element.setPosition(element.Position().Subtract(offset))
 	}
 
 	layer.needsRedraw = true

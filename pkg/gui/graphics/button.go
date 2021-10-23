@@ -1,4 +1,18 @@
-package gui
+package graphics
+
+import (
+	"github.com/TemirkhanN/alchemist/pkg/gui/geometry"
+)
+
+type InteractiveCanvas interface {
+	EmitClick()
+	SetClickHandler(func())
+	EmitMouseOver()
+	SetMouseOverHandler(func())
+	EmitMouseOut()
+	SetMouseOutHandler(func())
+	Canvas
+}
 
 type Button struct {
 	SpriteCanvas
@@ -6,6 +20,23 @@ type Button struct {
 	onmouseoverFn func()
 	onmouseoutFn  func()
 	hovered       bool
+}
+
+func NewButton(sprite *Sprite) *Button {
+	return &Button{
+		SpriteCanvas: SpriteCanvas{
+			sprite: sprite,
+			CommonCanvas: CommonCanvas{
+				position:    geometry.ZeroPosition,
+				visible:     true,
+				needsRedraw: true,
+			},
+		},
+		onclickFn:     nil,
+		onmouseoverFn: nil,
+		onmouseoutFn:  nil,
+		hovered:       false,
+	}
 }
 
 func (b *Button) SetClickHandler(handler func()) {

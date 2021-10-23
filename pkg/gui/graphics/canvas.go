@@ -1,7 +1,14 @@
-package gui
+package graphics
 
 import (
+	"fmt"
 	"strings"
+
+	"github.com/faiface/pixel"
+	"github.com/faiface/pixel/text"
+	"golang.org/x/image/colornames"
+
+	"github.com/TemirkhanN/alchemist/pkg/gui/geometry"
 )
 
 type Canvas interface {
@@ -9,40 +16,18 @@ type Canvas interface {
 	Hide()
 	Width() float64
 	Height() float64
-	isVisible() bool
+	IsVisible() bool
 	NeedsRedraw() bool
 	Elements() []Canvas
-	Position() Position
-	IsUnderPosition(position Position) bool
-	setPosition(position Position)
-}
-
-type InteractiveCanvas interface {
-	EmitClick()
-	SetClickHandler(func())
-	EmitMouseOver()
-	SetMouseOverHandler(func())
-	EmitMouseOut()
-	SetMouseOutHandler(func())
-	Canvas
+	Position() geometry.Position
+	IsUnderPosition(position geometry.Position) bool
+	setPosition(position geometry.Position)
 }
 
 type CommonCanvas struct {
-	position    Position
+	position    geometry.Position
 	visible     bool
 	needsRedraw bool
-}
-
-type TextCanvas struct {
-	CommonCanvas
-	text     string
-	font     Font
-	maxWidth float64
-}
-
-type SpriteCanvas struct {
-	CommonCanvas
-	sprite *Sprite
 }
 
 func (canvas CommonCanvas) NeedsRedraw() bool {
@@ -57,7 +42,7 @@ func (canvas *CommonCanvas) Hide() {
 	canvas.visible = false
 }
 
-func (canvas CommonCanvas) isVisible() bool {
+func (canvas CommonCanvas) IsVisible() bool {
 	return canvas.visible
 }
 
@@ -69,15 +54,15 @@ func (canvas CommonCanvas) Height() float64 {
 	return 0
 }
 
-func (canvas CommonCanvas) Position() Position {
+func (canvas CommonCanvas) Position() geometry.Position {
 	return canvas.position
 }
 
-func (canvas *CommonCanvas) setPosition(position Position) {
+func (canvas *CommonCanvas) setPosition(position geometry.Position) {
 	canvas.position = position
 }
 
-func (canvas CommonCanvas) IsUnderPosition(Position) bool {
+func (canvas CommonCanvas) IsUnderPosition(geometry.Position) bool {
 	return false
 }
 
@@ -85,7 +70,27 @@ func (canvas CommonCanvas) Elements() []Canvas {
 	return nil
 }
 
-func (canvas SpriteCanvas) IsUnderPosition(position Position) bool {
+type SpriteCanvas struct {
+	CommonCanvas
+	sprite *Sprite
+}
+
+func NewSpriteCanvas(sprite *Sprite) *SpriteCanvas {
+	return &SpriteCanvas{
+		sprite: sprite,
+		CommonCanvas: CommonCanvas{
+			position:    geometry.ZeroPosition,
+			visible:     true,
+			needsRedraw: true,
+		},
+	}
+}
+
+func (canvas SpriteCanvas) Sprite() *Sprite {
+	return canvas.sprite
+}
+
+func (canvas SpriteCanvas) IsUnderPosition(position geometry.Position) bool {
 	buttonWidth := canvas.sprite.Width()
 	buttonHeight := canvas.sprite.Height()
 
@@ -117,6 +122,33 @@ func (canvas *SpriteCanvas) ChangeSprite(withSprite *Sprite) {
 	canvas.needsRedraw = true
 }
 
+type TextCanvas struct {
+	CommonCanvas
+	text     string
+	font     Font
+	maxWidth float64
+}
+
+func NewTextCanvas(text string, font Font, maxWidth float64) *TextCanvas {
+	canvas := &TextCanvas{
+		text:     text,
+		font:     font,
+		maxWidth: maxWidth,
+		CommonCanvas: CommonCanvas{
+			position:    geometry.ZeroPosition,
+			visible:     true,
+			needsRedraw: true,
+		},
+	}
+	canvas.AddLineBreaks()
+
+	return canvas
+}
+
+func (canvas TextCanvas) Text() string {
+	return canvas.text
+}
+
 func (canvas TextCanvas) Width() float64 {
 	return canvas.maxWidth
 }
@@ -137,6 +169,7 @@ func (canvas *TextCanvas) AddLineBreaks() {
 	parts := strings.Split(canvas.text, " ")
 
 	lineLength := 0.0
+	offset := canvas.position.Y()
 
 	for i, part := range parts {
 		wordLength := canvas.font.calculateWidthInPixels(part)
@@ -149,8 +182,18 @@ func (canvas *TextCanvas) AddLineBreaks() {
 		// we add line breaks only after at least first word
 		parts[i-1] += "\n"
 		lineLength = wordLength
-		canvas.position.y += canvas.font.atlas.LineHeight()
+		offset += canvas.font.atlas.LineHeight()
 	}
 
+	canvas.position = geometry.NewPosition(canvas.position.X(), offset)
+
 	canvas.text = strings.Join(parts, " ")
+}
+
+func (canvas TextCanvas) Draw(in *Window, position geometry.Position) {
+	basicTxt := text.New(pixel.V(position.X(), position.Y()), canvas.font.atlas)
+
+	fmt.Fprintln(basicTxt, canvas.Text())
+
+	basicTxt.DrawColorMask(in.window, pixel.IM, colornames.Sienna)
 }

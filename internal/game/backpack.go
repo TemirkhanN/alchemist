@@ -7,21 +7,22 @@ import (
 
 	"github.com/TemirkhanN/alchemist/pkg/alchemy/alchemist"
 	"github.com/TemirkhanN/alchemist/pkg/alchemy/ingredient"
-	"github.com/TemirkhanN/alchemist/pkg/gui"
+	"github.com/TemirkhanN/alchemist/pkg/gui/geometry"
+	"github.com/TemirkhanN/alchemist/pkg/gui/graphics"
 )
 
 type backpackLayout struct {
 	initialized     bool
-	graphics        *gui.Layer
-	background      *gui.SpriteCanvas
-	ingredientsBtns []*gui.Button
-	closeButton     *gui.Button
+	graphics        *graphics.Layer
+	background      *graphics.SpriteCanvas
+	ingredientsBtns []*graphics.Button
+	closeButton     *graphics.Button
 
 	ingredients []*ingredient.Ingredient
 	alchemist   *alchemist.Alchemist
 }
 
-func newBackpackLayout(window *gui.Window, player *alchemist.Alchemist) *backpackLayout {
+func newBackpackLayout(window *graphics.Window, player *alchemist.Alchemist) *backpackLayout {
 	layout := new(backpackLayout)
 	if layout.initialized {
 		log.Fatal("can not initialize layout more than one time")
@@ -38,10 +39,10 @@ func newBackpackLayout(window *gui.Window, player *alchemist.Alchemist) *backpac
 	closeButtonSprite := gameAssets.GetSprite("btn.exit")
 	ingredientsLayoutSprite := gameAssets.GetSprite("interface.ingredients")
 
-	layout.graphics = gui.CreateLayer(window.Width(), window.Height(), false)
-	layout.background = gui.CreateSpriteCanvas(ingredientsLayoutSprite)
+	layout.graphics = graphics.NewLayer(window.Width(), window.Height(), false)
+	layout.background = graphics.NewSpriteCanvas(ingredientsLayoutSprite)
 
-	layout.closeButton = gui.CreateButton(closeButtonSprite)
+	layout.closeButton = graphics.NewButton(closeButtonSprite)
 	layout.closeButton.SetClickHandler(func() { layout.graphics.Hide() })
 
 	event.On(eventAddIngredientButtonClicked, event.ListenerFunc(func(e event.Event) error {
@@ -55,11 +56,11 @@ func newBackpackLayout(window *gui.Window, player *alchemist.Alchemist) *backpac
 
 func (layout *backpackLayout) render() {
 	layout.graphics.Clear()
-	layout.graphics.AddElement(layout.background, gui.ZeroPosition)
+	layout.graphics.AddElement(layout.background, geometry.ZeroPosition)
 
-	ingredientsLayer := gui.CreateLayer(480, 465, true, true)
-	ingredientEffectsLayer := gui.CreateLayer(238, 220, false)
-	ingredientsEffectsLayerBackground := gui.CreateSpriteCanvas(gameAssets.GetSprite("interface.effects"))
+	ingredientsLayer := graphics.NewLayer(480, 465, true, true)
+	ingredientEffectsLayer := graphics.NewLayer(238, 220, false)
+	ingredientsEffectsLayerBackground := graphics.NewSpriteCanvas(gameAssets.GetSprite("interface.effects"))
 
 	layout.ingredientsBtns = nil
 	offset := ingredientsLayer.Height()
@@ -69,7 +70,7 @@ func (layout *backpackLayout) render() {
 			continue
 		}
 
-		ingredientBtn := gui.CreateButton(getIngredientSprite(*ingr))
+		ingredientBtn := graphics.NewButton(getIngredientSprite(*ingr))
 		ingredientBtn.SetClickHandler(func(selected *ingredient.Ingredient) func() {
 			return func() {
 				// todo potentially vulnerable for mistake on main(mortar) side
@@ -86,12 +87,12 @@ func (layout *backpackLayout) render() {
 			return func() {
 				lastHoveredIngredient = hovered.Name()
 				ingredientEffectsLayer.Clear()
-				ingredientEffectsLayer.AddElement(ingredientsEffectsLayerBackground, gui.ZeroPosition)
+				ingredientEffectsLayer.AddElement(ingredientsEffectsLayerBackground, geometry.ZeroPosition)
 				posY := ingredientEffectsLayer.Height()
 				for _, effect := range layout.alchemist.DetermineEffects(hovered) {
 					posY -= 55
-					effectPreview := gui.CreateSpriteCanvas(gameAssets.GetSprite(effect.Name()))
-					ingredientEffectsLayer.AddElement(effectPreview, gui.NewPosition(0, posY))
+					effectPreview := graphics.NewSpriteCanvas(gameAssets.GetSprite(effect.Name()))
+					ingredientEffectsLayer.AddElement(effectPreview, geometry.NewPosition(0, posY))
 				}
 				ingredientEffectsLayer.Show()
 			}
@@ -110,12 +111,12 @@ func (layout *backpackLayout) render() {
 
 		offset -= 64
 
-		ingredientsLayer.AddElement(ingredientBtn, gui.NewPosition(0, offset))
+		ingredientsLayer.AddElement(ingredientBtn, geometry.NewPosition(0, offset))
 	}
 
-	layout.graphics.AddElement(ingredientsLayer, gui.NewPosition(50, 115))
-	layout.graphics.AddElement(ingredientEffectsLayer, gui.NewPosition(605, 200))
-	layout.graphics.AddElement(layout.closeButton, gui.NewPosition(410, 65))
+	layout.graphics.AddElement(ingredientsLayer, geometry.NewPosition(50, 115))
+	layout.graphics.AddElement(ingredientEffectsLayer, geometry.NewPosition(605, 200))
+	layout.graphics.AddElement(layout.closeButton, geometry.NewPosition(410, 65))
 
 	layout.graphics.Show()
 }

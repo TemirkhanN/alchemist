@@ -1,41 +1,20 @@
-package gui
+package graphics
 
 import (
+	"image/color"
+
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
+
+	"github.com/TemirkhanN/alchemist/pkg/gui/geometry"
 )
-
-type Position struct {
-	x float64
-	y float64
-}
-
-func (p Position) X() float64 {
-	return p.x
-}
-
-func (p Position) Y() float64 {
-	return p.y
-}
-
-func (p Position) absolute(against Position) Position {
-	return NewPosition(p.X()+against.X(), p.Y()+against.Y())
-}
-
-func (p Position) relative(against Position) Position {
-	return NewPosition(p.X()-against.X(), p.Y()-against.Y())
-}
-
-func NewPosition(x float64, y float64) Position {
-	return Position{x: x, y: y}
-}
 
 type WindowConfig struct {
 	Title       string
 	Width       float64
 	Height      float64
 	DebugMode   bool
-	Position    Position
+	Position    geometry.Position
 	ScrollSpeed uint8
 }
 
@@ -80,12 +59,24 @@ func NewWindow(preset WindowConfig) *Window {
 
 	window := &Window{
 		window:      w,
-		graphics:    CreateLayer(preset.Width, preset.Height, true),
+		graphics:    NewLayer(preset.Width, preset.Height, true),
 		scrollSpeed: scrollSpeed,
 		debugMode:   preset.DebugMode,
 	}
 
 	return window
+}
+
+func (w Window) Graphics() Canvas {
+	return w.graphics
+}
+
+func (w Window) NeedsRedraw() bool {
+	return w.graphics.NeedsRedraw()
+}
+
+func (w Window) FillWithColor(color color.RGBA) {
+	w.window.Clear(color)
 }
 
 func (w Window) Width() float64 {
@@ -96,7 +87,7 @@ func (w Window) Height() float64 {
 	return w.graphics.Height()
 }
 
-func (w *Window) AddLayer(layer *Layer, position Position) {
+func (w *Window) AddLayer(layer *Layer, position geometry.Position) {
 	w.graphics.AddElement(layer, position)
 }
 
@@ -104,11 +95,8 @@ func (w *Window) LeftButtonClicked() bool {
 	return w.window.JustPressed(pixelgl.MouseButtonLeft) && w.window.MouseInsideWindow()
 }
 
-func (w Window) CursorPosition() Position {
-	return Position{
-		x: w.window.MousePosition().X,
-		y: w.window.MousePosition().Y,
-	}
+func (w Window) CursorPosition() geometry.Position {
+	return geometry.NewPosition(w.window.MousePosition().X, w.window.MousePosition().Y)
 }
 
 func (w Window) Closed() bool {
@@ -121,7 +109,11 @@ func (w *Window) Close() {
 	}
 }
 
-func (w *Window) handleEvents() {
+func (w Window) EndFrame() {
+	w.window.Update()
+}
+
+func (w *Window) StartFrame() {
 	if w.Closed() {
 		return
 	}
@@ -138,25 +130,25 @@ func (w *Window) handleEvents() {
 	}
 }
 
-func (w *Window) handleVerticalScroll(layer *Layer, cursorPosition Position, vector pixel.Vec) bool {
+func (w *Window) handleVerticalScroll(layer *Layer, cursorPosition geometry.Position, vector pixel.Vec) bool {
 	if vector.Y == 0 {
 		return true
 	}
 
-	if layer.isUnderPosition(cursorPosition) {
-		if layer.emitVerticalScroll(vector.Y * w.scrollSpeed) {
+	if layer.IsUnderPosition(cursorPosition) {
+		if layer.EmitVerticalScroll(vector.Y * w.scrollSpeed) {
 			return true
 		}
 	}
 
 	for i := len(layer.Elements()) - 1; i >= 0; i-- {
 		element := layer.Elements()[i]
-		if !element.isVisible() {
+		if !element.IsVisible() {
 			continue
 		}
 
 		childElement, isLayer := element.(*Layer)
-		if isLayer && childElement.isUnderPosition(cursorPosition) {
+		if isLayer && childElement.IsUnderPosition(cursorPosition) {
 			if w.handleVerticalScroll(childElement, cursorPosition, vector) {
 				return true
 			}
@@ -166,12 +158,12 @@ func (w *Window) handleVerticalScroll(layer *Layer, cursorPosition Position, vec
 	return false
 }
 
-func (w *Window) handleLeftClick(graphics Canvas, clickedPosition Position) bool {
-	if !graphics.isVisible() {
+func (w *Window) handleLeftClick(element Canvas, clickedPosition geometry.Position) bool {
+	if !element.IsVisible() {
 		return false
 	}
 
-	interactiveElement, isInteractiveElement := graphics.(InteractiveCanvas)
+	interactiveElement, isInteractiveElement := element.(InteractiveCanvas)
 	if isInteractiveElement {
 		if interactiveElement.IsUnderPosition(clickedPosition) {
 			interactiveElement.EmitClick()
@@ -181,9 +173,9 @@ func (w *Window) handleLeftClick(graphics Canvas, clickedPosition Position) bool
 	}
 
 	// Interaction priority is LIFO. EmitClick over canvasB which is drawn over canvasA shall start from canvas B handle
-	for i := len(graphics.Elements()) - 1; i >= 0; i-- {
-		element := graphics.Elements()[i]
-		if w.handleLeftClick(element, clickedPosition) {
+	for i := len(element.Elements()) - 1; i >= 0; i-- {
+		childElement := element.Elements()[i]
+		if w.handleLeftClick(childElement, clickedPosition) {
 			// stop further propagation
 			return true
 		}
@@ -192,12 +184,12 @@ func (w *Window) handleLeftClick(graphics Canvas, clickedPosition Position) bool
 	return false
 }
 
-func (w *Window) handleMouseOver(graphics Canvas, onPosition Position) bool {
-	if !graphics.isVisible() {
+func (w *Window) handleMouseOver(element Canvas, onPosition geometry.Position) bool {
+	if !element.IsVisible() {
 		return false
 	}
 
-	interactiveElement, isInteractiveElement := graphics.(InteractiveCanvas)
+	interactiveElement, isInteractiveElement := element.(InteractiveCanvas)
 	if isInteractiveElement {
 		if interactiveElement.IsUnderPosition(onPosition) {
 			interactiveElement.EmitMouseOver()
@@ -207,9 +199,9 @@ func (w *Window) handleMouseOver(graphics Canvas, onPosition Position) bool {
 	}
 
 	// Interaction priority is LIFO. EmitClick over canvasB which is drawn over canvasA shall start from canvas B handle
-	for i := len(graphics.Elements()) - 1; i >= 0; i-- {
-		element := graphics.Elements()[i]
-		if w.handleMouseOver(element, onPosition) {
+	for i := len(element.Elements()) - 1; i >= 0; i-- {
+		childElement := element.Elements()[i]
+		if w.handleMouseOver(childElement, onPosition) {
 			// stop further propagation
 			return true
 		}
@@ -218,12 +210,12 @@ func (w *Window) handleMouseOver(graphics Canvas, onPosition Position) bool {
 	return false
 }
 
-func (w *Window) handleMouseOut(graphics Canvas, lastCursorPosition Position) {
-	if !graphics.isVisible() {
+func (w *Window) handleMouseOut(element Canvas, lastCursorPosition geometry.Position) {
+	if !element.IsVisible() {
 		return
 	}
 
-	interactiveElement, isInteractiveElement := graphics.(InteractiveCanvas)
+	interactiveElement, isInteractiveElement := element.(InteractiveCanvas)
 	if isInteractiveElement {
 		if !interactiveElement.IsUnderPosition(lastCursorPosition) {
 			interactiveElement.EmitMouseOut()
@@ -231,10 +223,8 @@ func (w *Window) handleMouseOut(graphics Canvas, lastCursorPosition Position) {
 	}
 
 	// Interaction priority is LIFO. EmitClick over canvasB which is drawn over canvasA shall start from canvas B handle
-	for i := len(graphics.Elements()) - 1; i >= 0; i-- {
-		element := graphics.Elements()[i]
-		w.handleMouseOut(element, lastCursorPosition)
+	for i := len(element.Elements()) - 1; i >= 0; i-- {
+		childElement := element.Elements()[i]
+		w.handleMouseOut(childElement, lastCursorPosition)
 	}
 }
-
-var ZeroPosition = Position{x: 0, y: 0}

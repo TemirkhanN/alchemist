@@ -1,16 +1,14 @@
-package gui
+package graphics
 
 import (
 	"github.com/faiface/pixel"
+
+	"github.com/TemirkhanN/alchemist/pkg/gui/geometry"
 )
 
-type Sprite struct {
-	src *pixel.Sprite
-}
-
 type FrameSize struct {
-	LeftBottom Position
-	RightTop   Position
+	LeftBottom geometry.Position
+	RightTop   geometry.Position
 }
 
 func (f FrameSize) toRectangle() pixel.Rect {
@@ -25,6 +23,17 @@ func (f FrameSize) Width() float64 {
 
 func (f FrameSize) Height() float64 {
 	return f.RightTop.Y() - f.LeftBottom.Y()
+}
+
+type Sprite struct {
+	src *pixel.Sprite
+}
+
+func (s Sprite) Draw(in *Window, position geometry.Position) {
+	s.src.Draw(in.window, pixel.IM.Moved(pixel.Vec{
+		X: position.X(),
+		Y: position.Y(),
+	}))
 }
 
 func (s *Sprite) Width() float64 {

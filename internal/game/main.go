@@ -7,12 +7,14 @@ import (
 	"github.com/TemirkhanN/alchemist/assets"
 	"github.com/TemirkhanN/alchemist/pkg/alchemy/alchemist"
 	"github.com/TemirkhanN/alchemist/pkg/alchemy/ingredient"
-	"github.com/TemirkhanN/alchemist/pkg/gui"
+	"github.com/TemirkhanN/alchemist/pkg/gui/geometry"
+	"github.com/TemirkhanN/alchemist/pkg/gui/graphics"
+	"github.com/TemirkhanN/alchemist/pkg/gui/render"
 )
 
 var (
-	gameAssets = func() *gui.Assets {
-		loadedAssets := new(gui.Assets)
+	gameAssets = func() *graphics.Assets {
+		loadedAssets := new(graphics.Assets)
 		err := loadedAssets.RegisterAssets("sprites", assets.SpritesFs)
 		if err != nil {
 			log.Fatal(err)
@@ -21,18 +23,18 @@ var (
 		return loadedAssets
 	}()
 
-	potionEffectFrameSize = gui.FrameSize{
-		LeftBottom: gui.NewPosition(10, 15),
-		RightTop:   gui.NewPosition(35, 40),
+	potionEffectFrameSize = graphics.FrameSize{
+		LeftBottom: geometry.NewPosition(10, 15),
+		RightTop:   geometry.NewPosition(35, 40),
 	}
 
-	tesOblivion24Font = gui.LoadFont("TESOblivionFont", "assets/font/Kingthings Petrock.ttf", 24)
+	tesOblivion24Font = graphics.LoadFont("TESOblivionFont", "assets/font/Kingthings Petrock.ttf", 24)
 
-	renderer = gui.CommonRenderer{}
+	renderer = render.CommonRenderer{}
 )
 
 // GetIngredientSprite todo move to more appropriate place.
-func getIngredientSprite(ingr ingredient.Ingredient) *gui.Sprite {
+func getIngredientSprite(ingr ingredient.Ingredient) *graphics.Sprite {
 	spriteName := "ingr." + strings.ReplaceAll(strings.ToLower(ingr.Name()), "'", "")
 
 	return gameAssets.GetSprite(spriteName)
@@ -57,12 +59,12 @@ func NewGame(alchemistLevel int, alchemistLuck int, mortarLevel alchemist.Equipm
 }
 
 func (g *Game) Launch(windowWidth float64, windowHeight float64, scrollSpeed uint8, debugMode bool) {
-	window := gui.NewWindow(gui.WindowConfig{
+	window := graphics.NewWindow(graphics.WindowConfig{
 		Title:       "Alchemist",
 		Width:       windowWidth,
 		Height:      windowHeight,
 		DebugMode:   debugMode,
-		Position:    gui.ZeroPosition,
+		Position:    geometry.ZeroPosition,
 		ScrollSpeed: scrollSpeed,
 	})
 
@@ -72,8 +74,8 @@ func (g *Game) Launch(windowWidth float64, windowHeight float64, scrollSpeed uin
 	primaryScreen := newPrimaryLayout(window, player)
 	backpackScreen := newBackpackLayout(window, player)
 
-	window.AddLayer(primaryScreen.graphics, gui.ZeroPosition)
-	window.AddLayer(backpackScreen.graphics, gui.ZeroPosition)
+	window.AddLayer(primaryScreen.graphics, geometry.ZeroPosition)
+	window.AddLayer(backpackScreen.graphics, geometry.ZeroPosition)
 
 	renderer.Render(window)
 }
