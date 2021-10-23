@@ -5,7 +5,7 @@ import (
 	"github.com/faiface/pixel/imdraw"
 )
 
-func highlightElement(drawer Drawer, window *Window) {
+func highlightElement(drawer Canvas, window *Window) {
 	imd := imdraw.New(nil)
 	imd.Color = pixel.RGB(0, 0, 0)
 	// ↑

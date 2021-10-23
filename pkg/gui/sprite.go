@@ -35,15 +35,6 @@ func (s *Sprite) Height() float64 {
 	return s.src.Frame().H()
 }
 
-func (s *Sprite) draw(window *Window, position Position) {
-	fromLeftBottomCorner := pixel.Vec{
-		X: s.src.Frame().W()/2 + position.X(),
-		Y: s.src.Frame().H()/2 + position.Y(),
-	}
-
-	s.src.Draw(window.window, pixel.IM.Moved(fromLeftBottomCorner))
-}
-
 func (s Sprite) Frame(frame FrameSize) *Sprite {
 	return &Sprite{src: pixel.NewSprite(s.src.Picture(), frame.toRectangle())}
 }

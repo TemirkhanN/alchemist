@@ -27,6 +27,8 @@ var (
 	}
 
 	tesOblivion24Font = gui.LoadFont("TESOblivionFont", "assets/font/Kingthings Petrock.ttf", 24)
+
+	renderer = gui.CommonRenderer{}
 )
 
 // GetIngredientSprite todo move to more appropriate place.
@@ -73,7 +75,5 @@ func (g *Game) Launch(windowWidth float64, windowHeight float64, scrollSpeed uin
 	window.AddLayer(primaryScreen.graphics, gui.ZeroPosition)
 	window.AddLayer(backpackScreen.graphics, gui.ZeroPosition)
 
-	for !window.Closed() {
-		window.Refresh()
-	}
+	renderer.Render(window)
 }

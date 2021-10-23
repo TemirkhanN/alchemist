@@ -7,29 +7,32 @@ type Scroll struct {
 }
 
 type Layer struct {
-	elements      []Drawer
-	visible       bool
-	needsRedraw   bool
-	width         float64
-	height        float64
-	position      Position
-	scroll        Scroll
-	drawnOn       *Window
-	graphicsCache elementsCache
+	elements    []Canvas
+	visible     bool
+	needsRedraw bool
+	width       float64
+	height      float64
+	position    Position
+	scroll      Scroll
 }
 
-type elementsCache struct {
-	elements []int
-}
+func (layer *Layer) IsUnderPosition(position Position) bool {
+	buttonWidth := layer.Width()
+	buttonHeight := layer.Height()
 
-func (ec *elementsCache) equals(cache []int) bool {
-	for pos, state := range ec.elements {
-		if cache[pos] != state {
-			return false
-		}
+	bottomLeftX := layer.position.X()
+	bottomLeftY := layer.position.Y()
+	topRightX := layer.position.X() + buttonWidth
+	topRightY := layer.position.Y() + buttonHeight
+
+	posX := position.X()
+	posY := position.Y()
+
+	if (posX > bottomLeftX && posX < topRightX) && (posY > bottomLeftY && posY < topRightY) {
+		return true
 	}
 
-	return true
+	return false
 }
 
 func (layer *Layer) Show() {
@@ -46,37 +49,6 @@ func (layer *Layer) isVisible() bool {
 	return layer.visible
 }
 
-func (layer *Layer) Draw() {
-	if !layer.visible {
-		layer.needsRedraw = false
-
-		return
-	}
-
-	if layer.drawnOn.debugMode {
-		highlightElement(layer, layer.drawnOn)
-	}
-
-	drawnCache := make([]int, len(layer.elements))
-	for index, element := range layer.elements {
-		drawnCache[index] = 0
-
-		if !element.isVisible() {
-			continue
-		}
-
-		if layer.canFullyFit(element) {
-			element.Draw()
-
-			drawnCache[index] = 1
-		}
-	}
-
-	layer.graphicsCache.elements = drawnCache
-
-	layer.needsRedraw = false
-}
-
 func (layer *Layer) NeedsRedraw() bool {
 	if !layer.visible {
 		return false
@@ -86,31 +58,24 @@ func (layer *Layer) NeedsRedraw() bool {
 		return true
 	}
 
-	graphicsCache := make([]int, len(layer.elements))
-	for index, element := range layer.elements {
-		graphicsCache[index] = 0
-
-		if !element.isVisible() {
+	for _, element := range layer.elements {
+		if !element.isVisible() || !layer.canFullyFit(element) {
 			continue
 		}
 
-		if layer.canFullyFit(element) {
-			graphicsCache[index] = 1
-
-			if element.NeedsRedraw() {
-				return true
-			}
+		if element.NeedsRedraw() {
+			return true
 		}
 	}
 
-	return !layer.graphicsCache.equals(graphicsCache)
+	return false
 }
 
-func (layer *Layer) Elements() []Drawer {
+func (layer *Layer) Elements() []Canvas {
 	return layer.elements
 }
 
-func (layer *Layer) AddElement(drawer Drawer, relativePosition Position) {
+func (layer *Layer) AddElement(drawer Canvas, relativePosition Position) {
 	if layer.scroll.isAvailable && relativePosition.Y() < 0 {
 		offset := -1 * relativePosition.Y()
 		if offset > layer.scroll.maximumOffsetFromTop {
@@ -149,7 +114,7 @@ func (layer Layer) Position() Position {
 	return layer.position
 }
 
-func (layer Layer) canFullyFit(element Drawer) bool {
+func (layer Layer) canFullyFit(element Canvas) bool {
 	// element is placed left from the layer
 	if layer.Position().X() > element.Position().X() {
 		return false

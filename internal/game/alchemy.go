@@ -32,7 +32,7 @@ func newPrimaryLayout(window *gui.Window, player *alchemist.Alchemist) *primaryL
 	}
 
 	layout.initialized = true
-	layout.graphics = window.CreateLayer(window.Width(), window.Height(), true)
+	layout.graphics = gui.CreateLayer(window.Width(), window.Height(), true)
 
 	backgroundSprite := gameAssets.GetSprite("interface.alchemy")
 	addIngredientBtnSprite := gameAssets.GetSprite("btn.add-ingredient")
@@ -96,7 +96,7 @@ func newPrimaryLayout(window *gui.Window, player *alchemist.Alchemist) *primaryL
 	layout.exitButton = window.CreateButton(exitBtnSprite)
 	layout.exitButton.SetClickHandler(func() { os.Exit(0) })
 
-	layout.effectsPreview = window.CreateLayer(300, 270, true)
+	layout.effectsPreview = gui.CreateLayer(300, 270, true)
 	layout.statusText = window.CreateTextCanvas("", tesOblivion24Font, 200)
 
 	layout.registerEventHandlers(player, window)
@@ -152,7 +152,7 @@ func (layout *primaryLayout) registerEventHandlers(player *alchemist.Alchemist, 
 
 			maximumAvailableAmountOfEffects := 4
 			for order, effect := range potion.Effects() {
-				effectPreviewLayout := window.CreateLayer(260, 50, true)
+				effectPreviewLayout := gui.CreateLayer(260, 50, true)
 
 				effectCanvas := window.CreateSpriteCanvas(gameAssets.GetSprite(effect.Name()).Frame(potionEffectFrameSize))
 				effectPreviewLayout.AddElement(

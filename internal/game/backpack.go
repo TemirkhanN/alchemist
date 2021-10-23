@@ -41,7 +41,7 @@ func newBackpackLayout(window *gui.Window, player *alchemist.Alchemist) *backpac
 	closeButtonSprite := gameAssets.GetSprite("btn.exit")
 	ingredientsLayoutSprite := gameAssets.GetSprite("interface.ingredients")
 
-	layout.graphics = window.CreateLayer(window.Width(), window.Height(), false)
+	layout.graphics = gui.CreateLayer(window.Width(), window.Height(), false)
 	layout.background = window.CreateSpriteCanvas(ingredientsLayoutSprite)
 
 	layout.closeButton = window.CreateButton(closeButtonSprite)
@@ -60,8 +60,8 @@ func (layout *backpackLayout) render() {
 	layout.graphics.Clear()
 	layout.graphics.AddElement(layout.background, gui.ZeroPosition)
 
-	ingredientsLayer := layout.window.CreateLayer(480, 465, true, true)
-	ingredientEffectsLayer := layout.window.CreateLayer(238, 220, false)
+	ingredientsLayer := gui.CreateLayer(480, 465, true, true)
+	ingredientEffectsLayer := gui.CreateLayer(238, 220, false)
 	ingredientsEffectsLayerBackground := layout.window.CreateSpriteCanvas(gameAssets.GetSprite("interface.effects"))
 
 	layout.ingredientsBtns = nil

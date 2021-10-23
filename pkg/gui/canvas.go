@@ -4,23 +4,17 @@ import (
 	"strings"
 )
 
-type Drawer interface {
+type Canvas interface {
 	Show()
 	Hide()
-	Draw()
 	Width() float64
 	Height() float64
 	isVisible() bool
 	NeedsRedraw() bool
-	Elements() []Drawer
+	Elements() []Canvas
 	Position() Position
-	setPosition(position Position)
-}
-
-type Canvas interface {
 	IsUnderPosition(position Position) bool
-	Position() Position
-	Drawer
+	setPosition(position Position)
 }
 
 type InteractiveCanvas interface {
@@ -41,18 +35,18 @@ type CommonCanvas struct {
 }
 
 type TextCanvas struct {
+	CommonCanvas
 	text     string
 	font     Font
 	maxWidth float64
-	CommonCanvas
 }
 
 type SpriteCanvas struct {
-	sprite *Sprite
 	CommonCanvas
+	sprite *Sprite
 }
 
-func (canvas *CommonCanvas) NeedsRedraw() bool {
+func (canvas CommonCanvas) NeedsRedraw() bool {
 	return canvas.needsRedraw && canvas.visible
 }
 
@@ -64,9 +58,7 @@ func (canvas *CommonCanvas) Hide() {
 	canvas.visible = false
 }
 
-func (canvas *CommonCanvas) Draw() {}
-
-func (canvas *CommonCanvas) isVisible() bool {
+func (canvas CommonCanvas) isVisible() bool {
 	return canvas.visible
 }
 
@@ -78,7 +70,7 @@ func (canvas CommonCanvas) Height() float64 {
 	return 0
 }
 
-func (canvas *CommonCanvas) Position() Position {
+func (canvas CommonCanvas) Position() Position {
 	return canvas.position
 }
 
@@ -90,25 +82,11 @@ func (canvas CommonCanvas) IsUnderPosition(Position) bool {
 	return false
 }
 
-func (canvas CommonCanvas) Elements() []Drawer {
+func (canvas CommonCanvas) Elements() []Canvas {
 	return nil
 }
 
-func (canvas *SpriteCanvas) Draw() {
-	if !canvas.visible {
-		return
-	}
-
-	canvas.sprite.draw(canvas.drawnOn, canvas.position)
-
-	if canvas.drawnOn.debugMode {
-		highlightElement(canvas, canvas.drawnOn)
-	}
-
-	canvas.needsRedraw = false
-}
-
-func (canvas *SpriteCanvas) IsUnderPosition(position Position) bool {
+func (canvas SpriteCanvas) IsUnderPosition(position Position) bool {
 	buttonWidth := canvas.sprite.Width()
 	buttonHeight := canvas.sprite.Height()
 
@@ -138,21 +116,6 @@ func (canvas SpriteCanvas) Height() float64 {
 func (canvas *SpriteCanvas) ChangeSprite(withSprite *Sprite) {
 	canvas.sprite = withSprite
 	canvas.needsRedraw = true
-}
-
-func (canvas *TextCanvas) Draw() {
-	if !canvas.visible {
-		return
-	}
-
-	if canvas.drawnOn.debugMode {
-		// debug draws canvas frame. Not text frame itself.
-		highlightElement(canvas, canvas.drawnOn)
-	}
-
-	textPosition := canvas.position.absolute(NewPosition(0, canvas.Height()-canvas.font.atlas.LineHeight()))
-	canvas.drawnOn.drawText(canvas.text, textPosition, canvas.font)
-	canvas.needsRedraw = false
 }
 
 func (canvas TextCanvas) Width() float64 {

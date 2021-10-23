@@ -84,12 +84,10 @@ func NewWindow(preset WindowConfig) *Window {
 
 	window := &Window{
 		window:      w,
-		graphics:    nil,
+		graphics:    CreateLayer(preset.Width, preset.Height, true),
 		scrollSpeed: scrollSpeed,
 		debugMode:   preset.DebugMode,
 	}
-
-	window.graphics = window.CreateLayer(preset.Width, preset.Height, true)
 
 	return window
 }
@@ -103,26 +101,23 @@ func (w Window) Height() float64 {
 }
 
 func (w *Window) AddLayer(layer *Layer, position Position) {
-	layer.drawnOn = w
 	w.graphics.AddElement(layer, position)
 }
 
-func (w *Window) CreateLayer(width float64, height float64, visible bool, scrollable ...bool) *Layer {
+func CreateLayer(width float64, height float64, visible bool, scrollable ...bool) *Layer {
 	scroll := Scroll{currentOffsetFromTop: 0, maximumOffsetFromTop: 0, isAvailable: false}
 	if len(scrollable) == 1 && scrollable[0] {
 		scroll.isAvailable = true
 	}
 
 	return &Layer{
-		elements:      nil,
-		visible:       visible,
-		needsRedraw:   true,
-		width:         width,
-		height:        height,
-		position:      ZeroPosition,
-		scroll:        scroll,
-		drawnOn:       w,
-		graphicsCache: elementsCache{elements: []int{}},
+		elements:    nil,
+		visible:     visible,
+		needsRedraw: true,
+		width:       width,
+		height:      height,
+		position:    ZeroPosition,
+		scroll:      scroll,
 	}
 }
 
@@ -188,7 +183,7 @@ func (w Window) Closed() bool {
 	return w.window.Closed()
 }
 
-func (w *Window) Refresh() {
+func (w *Window) HandleEvents() {
 	if w.Closed() {
 		return
 	}
@@ -203,18 +198,6 @@ func (w *Window) Refresh() {
 			w.handleLeftClick(w.graphics, cursorPosition)
 		}
 	}
-
-	w.draw()
-	w.window.Update()
-}
-
-func (w *Window) draw() {
-	if !w.graphics.NeedsRedraw() {
-		return
-	}
-
-	w.window.Clear(colornames.White)
-	w.graphics.Draw()
 }
 
 func (w *Window) handleVerticalScroll(layer *Layer, cursorPosition Position, vector pixel.Vec) bool {
@@ -245,7 +228,7 @@ func (w *Window) handleVerticalScroll(layer *Layer, cursorPosition Position, vec
 	return false
 }
 
-func (w *Window) handleLeftClick(graphics Drawer, clickedPosition Position) bool {
+func (w *Window) handleLeftClick(graphics Canvas, clickedPosition Position) bool {
 	if !graphics.isVisible() {
 		return false
 	}
@@ -271,7 +254,7 @@ func (w *Window) handleLeftClick(graphics Drawer, clickedPosition Position) bool
 	return false
 }
 
-func (w *Window) handleMouseOver(graphics Drawer, onPosition Position) bool {
+func (w *Window) handleMouseOver(graphics Canvas, onPosition Position) bool {
 	if !graphics.isVisible() {
 		return false
 	}
@@ -297,7 +280,7 @@ func (w *Window) handleMouseOver(graphics Drawer, onPosition Position) bool {
 	return false
 }
 
-func (w *Window) handleMouseOut(graphics Drawer, lastCursorPosition Position) {
+func (w *Window) handleMouseOut(graphics Canvas, lastCursorPosition Position) {
 	if !graphics.isVisible() {
 		return
 	}
@@ -322,6 +305,15 @@ func (w *Window) drawText(textValue string, position Position, font Font) {
 	fmt.Fprintln(basicTxt, textValue)
 
 	basicTxt.DrawColorMask(w.window, pixel.IM, colornames.Sienna)
+}
+
+func (w *Window) draw(sprite *Sprite, position Position) {
+	fromLeftBottomCorner := pixel.Vec{
+		X: sprite.src.Frame().W()/2 + position.X(),
+		Y: sprite.src.Frame().H()/2 + position.Y(),
+	}
+
+	sprite.src.Draw(w.window, pixel.IM.Moved(fromLeftBottomCorner))
 }
 
 var ZeroPosition = Position{x: 0, y: 0}
