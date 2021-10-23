@@ -31,7 +31,6 @@ type CommonCanvas struct {
 	position    Position
 	visible     bool
 	needsRedraw bool
-	drawnOn     *Window
 }
 
 type TextCanvas struct {

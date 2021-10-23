@@ -2,7 +2,6 @@ package game
 
 import (
 	"log"
-	"os"
 
 	"github.com/gookit/event"
 
@@ -39,31 +38,31 @@ func newPrimaryLayout(window *gui.Window, player *alchemist.Alchemist) *primaryL
 	createPotionBtnSprite := gameAssets.GetSprite("btn.create-potion")
 	exitBtnSprite := gameAssets.GetSprite("btn.exit")
 
-	button1 := window.CreateButton(addIngredientBtnSprite)
+	button1 := gui.CreateButton(addIngredientBtnSprite)
 	button1.SetClickHandler(func() {
 		layout.activeSlot = alchemist.FirstSlot
 		newAddIngredientButtonClickedEvent(layout.activeSlot)
 	})
 
-	button2 := window.CreateButton(addIngredientBtnSprite)
+	button2 := gui.CreateButton(addIngredientBtnSprite)
 	button2.SetClickHandler(func() {
 		layout.activeSlot = alchemist.SecondSlot
 		newAddIngredientButtonClickedEvent(layout.activeSlot)
 	})
 
-	button3 := window.CreateButton(addIngredientBtnSprite)
+	button3 := gui.CreateButton(addIngredientBtnSprite)
 	button3.SetClickHandler(func() {
 		layout.activeSlot = alchemist.ThirdSlot
 		newAddIngredientButtonClickedEvent(layout.activeSlot)
 	})
 
-	button4 := window.CreateButton(addIngredientBtnSprite)
+	button4 := gui.CreateButton(addIngredientBtnSprite)
 	button4.SetClickHandler(func() {
 		layout.activeSlot = alchemist.FourthSlot
 		newAddIngredientButtonClickedEvent(layout.activeSlot)
 	})
 
-	layout.background = window.CreateSpriteCanvas(backgroundSprite)
+	layout.background = gui.CreateSpriteCanvas(backgroundSprite)
 
 	defaultSlots := func() map[alchemist.Slot]gui.Canvas {
 		return map[alchemist.Slot]gui.Canvas{
@@ -76,7 +75,7 @@ func newPrimaryLayout(window *gui.Window, player *alchemist.Alchemist) *primaryL
 	layout.ingredientSlots = defaultSlots()
 	layout.ingredients = make(map[alchemist.Slot]*ingredient.Ingredient, 4)
 
-	layout.createPotionButton = window.CreateButton(createPotionBtnSprite)
+	layout.createPotionButton = gui.CreateButton(createPotionBtnSprite)
 	layout.createPotionButton.SetClickHandler(func() {
 		if !player.CanStartBrewing() {
 			return
@@ -93,25 +92,25 @@ func newPrimaryLayout(window *gui.Window, player *alchemist.Alchemist) *primaryL
 		layout.render()
 	})
 
-	layout.exitButton = window.CreateButton(exitBtnSprite)
-	layout.exitButton.SetClickHandler(func() { os.Exit(0) })
+	layout.exitButton = gui.CreateButton(exitBtnSprite)
+	layout.exitButton.SetClickHandler(func() { window.Close() })
 
 	layout.effectsPreview = gui.CreateLayer(300, 270, true)
-	layout.statusText = window.CreateTextCanvas("", tesOblivion24Font, 200)
+	layout.statusText = gui.CreateTextCanvas("", tesOblivion24Font, 200)
 
-	layout.registerEventHandlers(player, window)
+	layout.registerEventHandlers(player)
 
 	layout.render()
 
 	return layout
 }
 
-func (layout *primaryLayout) registerEventHandlers(player *alchemist.Alchemist, window *gui.Window) {
+func (layout *primaryLayout) registerEventHandlers(player *alchemist.Alchemist) {
 	event.On(eventIngredientSelected, event.ListenerFunc(func(e event.Event) error {
 		actualEvent := e.(*ingredientSelected)
 		layout.ingredients[layout.activeSlot] = actualEvent.ingredient
 
-		selectedIngredientButton := window.CreateButton(getIngredientSprite(*actualEvent.ingredient))
+		selectedIngredientButton := gui.CreateButton(getIngredientSprite(*actualEvent.ingredient))
 		selectedSlot := layout.activeSlot
 		selectedIngredientButton.SetClickHandler(func() {
 			layout.activeSlot = selectedSlot
@@ -154,13 +153,13 @@ func (layout *primaryLayout) registerEventHandlers(player *alchemist.Alchemist, 
 			for order, effect := range potion.Effects() {
 				effectPreviewLayout := gui.CreateLayer(260, 50, true)
 
-				effectCanvas := window.CreateSpriteCanvas(gameAssets.GetSprite(effect.Name()).Frame(potionEffectFrameSize))
+				effectCanvas := gui.CreateSpriteCanvas(gameAssets.GetSprite(effect.Name()).Frame(potionEffectFrameSize))
 				effectPreviewLayout.AddElement(
 					effectCanvas,
 					gui.NewPosition(0, (effectPreviewLayout.Height()-effectCanvas.Height())/2),
 				)
 
-				descriptionCanvas := window.CreateTextCanvas(effect.Description(), tesOblivion24Font, 225)
+				descriptionCanvas := gui.CreateTextCanvas(effect.Description(), tesOblivion24Font, 225)
 				effectPreviewLayout.AddElement(
 					descriptionCanvas,
 					gui.NewPosition(

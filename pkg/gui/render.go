@@ -1,6 +1,10 @@
 package gui
 
 import (
+	"fmt"
+
+	"github.com/faiface/pixel"
+	"github.com/faiface/pixel/text"
 	"golang.org/x/image/colornames"
 )
 
@@ -12,7 +16,7 @@ type CommonRenderer struct{}
 
 func (cr CommonRenderer) Render(window *Window) {
 	for !window.Closed() {
-		window.HandleEvents()
+		window.handleEvents()
 
 		if window.graphics.NeedsRedraw() {
 			window.window.Clear(colornames.White)
@@ -50,9 +54,9 @@ func (cr CommonRenderer) draw(drawer Canvas, in *Window) {
 		return
 	}
 
-	text, isText := drawer.(*TextCanvas)
+	textCanvas, isText := drawer.(*TextCanvas)
 	if isText {
-		cr.renderTextCanvas(*text, in)
+		cr.renderTextCanvas(*textCanvas, in)
 
 		return
 	}
@@ -79,7 +83,12 @@ func (cr CommonRenderer) renderSpriteCanvas(canvas SpriteCanvas, in *Window) {
 		return
 	}
 
-	in.draw(canvas.sprite, canvas.position)
+	fromLeftBottomCorner := pixel.Vec{
+		X: canvas.sprite.src.Frame().W()/2 + canvas.position.X(),
+		Y: canvas.sprite.src.Frame().H()/2 + canvas.position.Y(),
+	}
+
+	canvas.sprite.src.Draw(in.window, pixel.IM.Moved(fromLeftBottomCorner))
 
 	canvas.needsRedraw = false
 }
@@ -90,6 +99,12 @@ func (cr CommonRenderer) renderTextCanvas(canvas TextCanvas, in *Window) {
 	}
 
 	textPosition := canvas.position.absolute(NewPosition(0, canvas.Height()-canvas.font.atlas.LineHeight()))
-	in.drawText(canvas.text, textPosition, canvas.font)
+
+	basicTxt := text.New(pixel.V(textPosition.X(), textPosition.Y()), canvas.font.atlas)
+
+	fmt.Fprintln(basicTxt, canvas.text)
+
+	basicTxt.DrawColorMask(in.window, pixel.IM, colornames.Sienna)
+
 	canvas.needsRedraw = false
 }

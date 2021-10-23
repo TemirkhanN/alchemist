@@ -13,7 +13,6 @@ import (
 type backpackLayout struct {
 	initialized     bool
 	graphics        *gui.Layer
-	window          *gui.Window
 	background      *gui.SpriteCanvas
 	ingredientsBtns []*gui.Button
 	closeButton     *gui.Button
@@ -22,7 +21,6 @@ type backpackLayout struct {
 	alchemist   *alchemist.Alchemist
 }
 
-// newBackpackLayout todo rename repo to backpack.
 func newBackpackLayout(window *gui.Window, player *alchemist.Alchemist) *backpackLayout {
 	layout := new(backpackLayout)
 	if layout.initialized {
@@ -30,7 +28,6 @@ func newBackpackLayout(window *gui.Window, player *alchemist.Alchemist) *backpac
 	}
 
 	layout.initialized = true
-	layout.window = window
 	layout.alchemist = player
 
 	for _, ingr := range ingredient.IngredientsDatabase.All() {
@@ -42,9 +39,9 @@ func newBackpackLayout(window *gui.Window, player *alchemist.Alchemist) *backpac
 	ingredientsLayoutSprite := gameAssets.GetSprite("interface.ingredients")
 
 	layout.graphics = gui.CreateLayer(window.Width(), window.Height(), false)
-	layout.background = window.CreateSpriteCanvas(ingredientsLayoutSprite)
+	layout.background = gui.CreateSpriteCanvas(ingredientsLayoutSprite)
 
-	layout.closeButton = window.CreateButton(closeButtonSprite)
+	layout.closeButton = gui.CreateButton(closeButtonSprite)
 	layout.closeButton.SetClickHandler(func() { layout.graphics.Hide() })
 
 	event.On(eventAddIngredientButtonClicked, event.ListenerFunc(func(e event.Event) error {
@@ -62,7 +59,7 @@ func (layout *backpackLayout) render() {
 
 	ingredientsLayer := gui.CreateLayer(480, 465, true, true)
 	ingredientEffectsLayer := gui.CreateLayer(238, 220, false)
-	ingredientsEffectsLayerBackground := layout.window.CreateSpriteCanvas(gameAssets.GetSprite("interface.effects"))
+	ingredientsEffectsLayerBackground := gui.CreateSpriteCanvas(gameAssets.GetSprite("interface.effects"))
 
 	layout.ingredientsBtns = nil
 	offset := ingredientsLayer.Height()
@@ -72,7 +69,7 @@ func (layout *backpackLayout) render() {
 			continue
 		}
 
-		ingredientBtn := layout.window.CreateButton(getIngredientSprite(*ingr))
+		ingredientBtn := gui.CreateButton(getIngredientSprite(*ingr))
 		ingredientBtn.SetClickHandler(func(selected *ingredient.Ingredient) func() {
 			return func() {
 				// todo potentially vulnerable for mistake on main(mortar) side
@@ -93,7 +90,7 @@ func (layout *backpackLayout) render() {
 				posY := ingredientEffectsLayer.Height()
 				for _, effect := range layout.alchemist.DetermineEffects(hovered) {
 					posY -= 55
-					effectPreview := layout.window.CreateSpriteCanvas(gameAssets.GetSprite(effect.Name()))
+					effectPreview := gui.CreateSpriteCanvas(gameAssets.GetSprite(effect.Name()))
 					ingredientEffectsLayer.AddElement(effectPreview, gui.NewPosition(0, posY))
 				}
 				ingredientEffectsLayer.Show()

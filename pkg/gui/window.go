@@ -1,12 +1,8 @@
 package gui
 
 import (
-	"fmt"
-
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
-	"github.com/faiface/pixel/text"
-	"golang.org/x/image/colornames"
 )
 
 type Position struct {
@@ -104,70 +100,6 @@ func (w *Window) AddLayer(layer *Layer, position Position) {
 	w.graphics.AddElement(layer, position)
 }
 
-func CreateLayer(width float64, height float64, visible bool, scrollable ...bool) *Layer {
-	scroll := Scroll{currentOffsetFromTop: 0, maximumOffsetFromTop: 0, isAvailable: false}
-	if len(scrollable) == 1 && scrollable[0] {
-		scroll.isAvailable = true
-	}
-
-	return &Layer{
-		elements:    nil,
-		visible:     visible,
-		needsRedraw: true,
-		width:       width,
-		height:      height,
-		position:    ZeroPosition,
-		scroll:      scroll,
-	}
-}
-
-func (w *Window) CreateSpriteCanvas(sprite *Sprite) *SpriteCanvas {
-	return &SpriteCanvas{
-		sprite: sprite,
-		CommonCanvas: CommonCanvas{
-			position:    ZeroPosition,
-			visible:     true,
-			drawnOn:     w,
-			needsRedraw: true,
-		},
-	}
-}
-
-func (w *Window) CreateTextCanvas(text string, font Font, maxWidth float64) *TextCanvas {
-	canvas := &TextCanvas{
-		text:     text,
-		font:     font,
-		maxWidth: maxWidth,
-		CommonCanvas: CommonCanvas{
-			position:    ZeroPosition,
-			visible:     true,
-			needsRedraw: true,
-			drawnOn:     w,
-		},
-	}
-	canvas.AddLineBreaks()
-
-	return canvas
-}
-
-func (w *Window) CreateButton(sprite *Sprite) *Button {
-	return &Button{
-		SpriteCanvas: SpriteCanvas{
-			sprite: sprite,
-			CommonCanvas: CommonCanvas{
-				position:    ZeroPosition,
-				drawnOn:     w,
-				visible:     true,
-				needsRedraw: true,
-			},
-		},
-		onclickFn:     nil,
-		onmouseoverFn: nil,
-		onmouseoutFn:  nil,
-		hovered:       false,
-	}
-}
-
 func (w *Window) LeftButtonClicked() bool {
 	return w.window.JustPressed(pixelgl.MouseButtonLeft) && w.window.MouseInsideWindow()
 }
@@ -183,7 +115,13 @@ func (w Window) Closed() bool {
 	return w.window.Closed()
 }
 
-func (w *Window) HandleEvents() {
+func (w *Window) Close() {
+	if !w.Closed() {
+		w.window.SetClosed(true)
+	}
+}
+
+func (w *Window) handleEvents() {
 	if w.Closed() {
 		return
 	}
@@ -297,23 +235,6 @@ func (w *Window) handleMouseOut(graphics Canvas, lastCursorPosition Position) {
 		element := graphics.Elements()[i]
 		w.handleMouseOut(element, lastCursorPosition)
 	}
-}
-
-func (w *Window) drawText(textValue string, position Position, font Font) {
-	basicTxt := text.New(pixel.V(position.X(), position.Y()), font.atlas)
-
-	fmt.Fprintln(basicTxt, textValue)
-
-	basicTxt.DrawColorMask(w.window, pixel.IM, colornames.Sienna)
-}
-
-func (w *Window) draw(sprite *Sprite, position Position) {
-	fromLeftBottomCorner := pixel.Vec{
-		X: sprite.src.Frame().W()/2 + position.X(),
-		Y: sprite.src.Frame().H()/2 + position.Y(),
-	}
-
-	sprite.src.Draw(w.window, pixel.IM.Moved(fromLeftBottomCorner))
 }
 
 var ZeroPosition = Position{x: 0, y: 0}
