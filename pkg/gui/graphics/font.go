@@ -14,7 +14,7 @@ type Font struct {
 	atlas *text.Atlas
 }
 
-func (f Font) calculateWidthInPixels(text string) float64 {
+func (f Font) CalculateWidthInPixels(text string) float64 {
 	width := 0.0
 	for _, char := range text {
 		width += f.atlas.Glyph(char).Frame.W()

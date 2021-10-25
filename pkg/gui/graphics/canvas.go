@@ -169,7 +169,7 @@ func (canvas *TextCanvas) AddLineBreaks() {
 	offset := canvas.position.Y()
 
 	for i, part := range parts {
-		wordLength := canvas.font.calculateWidthInPixels(part)
+		wordLength := canvas.font.CalculateWidthInPixels(part)
 		if lineLength+wordLength <= canvas.maxWidth || i == 0 {
 			lineLength += wordLength
 
@@ -192,9 +192,10 @@ func (canvas TextCanvas) Draw(on Layer) {
 		return
 	}
 
-	textPosition := canvas.Position().Add(geometry.NewPosition(0, canvas.Height()-canvas.Height()))
-
-	basicTxt := text.New(pixel.V(textPosition.X(), textPosition.Y()), canvas.font.atlas)
+	basicTxt := text.New(
+		pixel.V(canvas.Position().X(), canvas.Position().Y()+(canvas.Height()-canvas.font.atlas.LineHeight())),
+		canvas.font.atlas,
+	)
 
 	fmt.Fprintln(basicTxt, canvas.Text())
 
