@@ -128,7 +128,7 @@ func (layer Layer) CanFullyFit(element Canvas) bool {
 	return true
 }
 
-func (layer Layer) isScrollable() bool {
+func (layer Layer) IsScrollable() bool {
 	if !layer.visible || !layer.scroll.isAvailable {
 		return false
 	}
@@ -138,7 +138,7 @@ func (layer Layer) isScrollable() bool {
 
 // EmitVerticalScroll todo delegate to another system.
 func (layer *Layer) EmitVerticalScroll(vector float64) bool {
-	if !layer.isScrollable() {
+	if !layer.IsScrollable() {
 		return false
 	}
 

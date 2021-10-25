@@ -61,9 +61,15 @@ func (cr CommonRenderer) renderLayer(layer graphics.Layer, in *graphics.Window) 
 	}
 
 	for _, element := range layer.Elements() {
-		if element.IsVisible() && layer.CanFullyFit(element) {
-			cr.draw(element, in)
+		if !element.IsVisible() {
+			continue
 		}
+
+		if layer.IsScrollable() && !layer.CanFullyFit(element) {
+			continue
+		}
+
+		cr.draw(element, in)
 	}
 }
 
