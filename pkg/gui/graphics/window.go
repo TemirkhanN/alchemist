@@ -71,10 +71,6 @@ func (w Window) Graphics() Canvas {
 	return w.graphics
 }
 
-func (w Window) NeedsRedraw() bool {
-	return w.graphics.NeedsRedraw()
-}
-
 func (w Window) FillWithColor(color color.RGBA) {
 	w.window.Clear(color)
 }

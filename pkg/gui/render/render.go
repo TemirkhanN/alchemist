@@ -17,10 +17,8 @@ func (cr CommonRenderer) Render(window *graphics.Window) {
 	for !window.Closed() {
 		window.StartFrame()
 
-		if window.NeedsRedraw() {
-			window.FillWithColor(colornames.White)
-			cr.draw(window.Graphics(), window)
-		}
+		window.FillWithColor(colornames.White)
+		cr.draw(window.Graphics(), window)
 
 		window.EndFrame()
 	}
@@ -58,12 +56,9 @@ func (cr CommonRenderer) draw(drawer graphics.Canvas, in *graphics.Window) {
 }
 
 func (cr CommonRenderer) renderLayer(layer graphics.Layer, in *graphics.Window) {
-	// layer.needsRedraw = false
 	if !layer.IsVisible() {
 		return
 	}
-
-	// layer.needsRedraw = false
 
 	for _, element := range layer.Elements() {
 		if element.IsVisible() && layer.CanFullyFit(element) {
@@ -82,7 +77,6 @@ func (cr CommonRenderer) renderSpriteCanvas(canvas graphics.SpriteCanvas, in *gr
 		canvas.Height()/2+canvas.Position().Y(),
 	)
 
-	// canvas.needsRedraw = false
 	canvas.Sprite().Draw(in, fromLeftBottomCorner)
 }
 
@@ -93,6 +87,5 @@ func (cr CommonRenderer) renderTextCanvas(canvas graphics.TextCanvas, in *graphi
 
 	textPosition := canvas.Position().Add(geometry.NewPosition(0, canvas.Height()-canvas.Height()))
 
-	// canvas.needsRedraw = false.
 	canvas.Draw(in, textPosition)
 }

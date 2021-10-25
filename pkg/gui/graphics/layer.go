@@ -9,13 +9,12 @@ type Scroll struct {
 }
 
 type Layer struct {
-	elements    []Canvas
-	visible     bool
-	needsRedraw bool
-	width       float64
-	height      float64
-	position    geometry.Position
-	scroll      Scroll
+	elements []Canvas
+	visible  bool
+	width    float64
+	height   float64
+	position geometry.Position
+	scroll   Scroll
 }
 
 func NewLayer(width float64, height float64, visible bool, scrollable ...bool) *Layer {
@@ -25,13 +24,12 @@ func NewLayer(width float64, height float64, visible bool, scrollable ...bool) *
 	}
 
 	return &Layer{
-		elements:    nil,
-		visible:     visible,
-		needsRedraw: true,
-		width:       width,
-		height:      height,
-		position:    geometry.ZeroPosition,
-		scroll:      scroll,
+		elements: nil,
+		visible:  visible,
+		width:    width,
+		height:   height,
+		position: geometry.ZeroPosition,
+		scroll:   scroll,
 	}
 }
 
@@ -56,38 +54,14 @@ func (layer *Layer) IsUnderPosition(position geometry.Position) bool {
 
 func (layer *Layer) Show() {
 	layer.visible = true
-	layer.needsRedraw = true
 }
 
 func (layer *Layer) Hide() {
 	layer.visible = false
-	layer.needsRedraw = true
 }
 
 func (layer *Layer) IsVisible() bool {
 	return layer.visible
-}
-
-func (layer *Layer) NeedsRedraw() bool {
-	if !layer.visible {
-		return false
-	}
-
-	if layer.needsRedraw {
-		return true
-	}
-
-	for _, element := range layer.elements {
-		if !element.IsVisible() || !layer.CanFullyFit(element) {
-			continue
-		}
-
-		if element.NeedsRedraw() {
-			return true
-		}
-	}
-
-	return false
 }
 
 func (layer *Layer) Elements() []Canvas {
@@ -125,8 +99,6 @@ func (layer *Layer) setPosition(position geometry.Position) {
 	for _, element := range layer.elements {
 		element.setPosition(element.Position().Subtract(previousPosition).Add(layer.position))
 	}
-
-	layer.needsRedraw = true
 }
 
 func (layer Layer) Position() geometry.Position {
@@ -193,8 +165,6 @@ func (layer *Layer) EmitVerticalScroll(vector float64) bool {
 	for _, element := range layer.elements {
 		element.setPosition(element.Position().Subtract(offset))
 	}
-
-	layer.needsRedraw = true
 
 	return true
 }

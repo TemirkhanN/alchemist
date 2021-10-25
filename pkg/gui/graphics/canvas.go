@@ -17,7 +17,6 @@ type Canvas interface {
 	Width() float64
 	Height() float64
 	IsVisible() bool
-	NeedsRedraw() bool
 	Elements() []Canvas
 	Position() geometry.Position
 	IsUnderPosition(position geometry.Position) bool
@@ -25,13 +24,8 @@ type Canvas interface {
 }
 
 type CommonCanvas struct {
-	position    geometry.Position
-	visible     bool
-	needsRedraw bool
-}
-
-func (canvas CommonCanvas) NeedsRedraw() bool {
-	return canvas.needsRedraw && canvas.visible
+	position geometry.Position
+	visible  bool
 }
 
 func (canvas *CommonCanvas) Show() {
@@ -79,9 +73,8 @@ func NewSpriteCanvas(sprite *Sprite) *SpriteCanvas {
 	return &SpriteCanvas{
 		sprite: sprite,
 		CommonCanvas: CommonCanvas{
-			position:    geometry.ZeroPosition,
-			visible:     true,
-			needsRedraw: true,
+			position: geometry.ZeroPosition,
+			visible:  true,
 		},
 	}
 }
@@ -119,7 +112,6 @@ func (canvas SpriteCanvas) Height() float64 {
 
 func (canvas *SpriteCanvas) ChangeSprite(withSprite *Sprite) {
 	canvas.sprite = withSprite
-	canvas.needsRedraw = true
 }
 
 type TextCanvas struct {
@@ -135,9 +127,8 @@ func NewTextCanvas(text string, font Font, maxWidth float64) *TextCanvas {
 		font:     font,
 		maxWidth: maxWidth,
 		CommonCanvas: CommonCanvas{
-			position:    geometry.ZeroPosition,
-			visible:     true,
-			needsRedraw: true,
+			position: geometry.ZeroPosition,
+			visible:  true,
 		},
 	}
 	canvas.AddLineBreaks()
@@ -162,7 +153,6 @@ func (canvas TextCanvas) Height() float64 {
 func (canvas *TextCanvas) ChangeText(text string) {
 	canvas.text = text
 	canvas.AddLineBreaks()
-	canvas.needsRedraw = true
 }
 
 func (canvas *TextCanvas) AddLineBreaks() {

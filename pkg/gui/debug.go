@@ -17,4 +17,21 @@ func highlightElement(drawer graphics.Canvas, window *graphics.Window) {
 	imd.Rectangle(1)
 	imd.Draw(window.window)
 }
+
+
+var memstats runtime.MemStats
+
+func PrintMemStats() {
+	mbytes := uint64(1024 * 1024)
+	time.AfterFunc(time.Second * 1, func() {
+		runtime.ReadMemStats(&memstats)
+		fmt.Println("mem.Alloc: ", memstats.Alloc/mbytes, "MB")
+		fmt.Println("mem.TotalAlloc:", memstats.TotalAlloc/mbytes, "MB")
+		fmt.Println("mem.HeapAlloc:", memstats.HeapAlloc/mbytes, "MB")
+		fmt.Println("mem.Garbage collected:", memstats.NumGC, "times")
+		fmt.Println("-----")
+		PrintMemStats()
+	})
+}
+
 */

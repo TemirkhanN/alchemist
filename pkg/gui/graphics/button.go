@@ -27,9 +27,8 @@ func NewButton(sprite *Sprite) *Button {
 		SpriteCanvas: SpriteCanvas{
 			sprite: sprite,
 			CommonCanvas: CommonCanvas{
-				position:    geometry.ZeroPosition,
-				visible:     true,
-				needsRedraw: true,
+				position: geometry.ZeroPosition,
+				visible:  true,
 			},
 		},
 		onclickFn:     nil,
