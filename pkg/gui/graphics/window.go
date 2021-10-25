@@ -67,8 +67,12 @@ func NewWindow(preset WindowConfig) *Window {
 	return window
 }
 
-func (w Window) Graphics() Canvas {
-	return w.graphics
+func (w Window) target() pixel.Target {
+	return w.window
+}
+
+func (w Window) Draw() {
+	w.graphics.Draw(w)
 }
 
 func (w Window) FillWithColor(color color.RGBA) {
@@ -171,7 +175,7 @@ func (w *Window) handleLeftClick(element Canvas, clickedPosition geometry.Positi
 	// Interaction priority is LIFO. EmitClick over canvasB which is drawn over canvasA shall start from canvas B handle
 	for i := len(element.Elements()) - 1; i >= 0; i-- {
 		childElement := element.Elements()[i]
-		if w.handleLeftClick(childElement, clickedPosition) {
+		if w.handleLeftClick(childElement, clickedPosition.Subtract(element.Position())) {
 			// stop further propagation
 			return true
 		}
@@ -194,10 +198,10 @@ func (w *Window) handleMouseOver(element Canvas, onPosition geometry.Position) b
 		}
 	}
 
-	// Interaction priority is LIFO. EmitClick over canvasB which is drawn over canvasA shall start from canvas B handle
+	// Interaction priority is LIFO.
 	for i := len(element.Elements()) - 1; i >= 0; i-- {
 		childElement := element.Elements()[i]
-		if w.handleMouseOver(childElement, onPosition) {
+		if w.handleMouseOver(childElement, onPosition.Subtract(element.Position())) {
 			// stop further propagation
 			return true
 		}
@@ -221,6 +225,6 @@ func (w *Window) handleMouseOut(element Canvas, lastCursorPosition geometry.Posi
 	// Interaction priority is LIFO. EmitClick over canvasB which is drawn over canvasA shall start from canvas B handle
 	for i := len(element.Elements()) - 1; i >= 0; i-- {
 		childElement := element.Elements()[i]
-		w.handleMouseOut(childElement, lastCursorPosition)
+		w.handleMouseOut(childElement, lastCursorPosition.Subtract(element.Position()))
 	}
 }

@@ -1,8 +1,17 @@
 package graphics
 
 import (
+	"image/color"
+
+	"github.com/faiface/pixel"
+	"github.com/faiface/pixel/pixelgl"
+
 	"github.com/TemirkhanN/alchemist/pkg/gui/geometry"
 )
+
+type Layer interface {
+	target() pixel.Target
+}
 
 type Scroll struct {
 	currentOffsetFromTop float64
@@ -17,6 +26,7 @@ type Layout struct {
 	height   float64
 	position geometry.Position
 	scroll   Scroll
+	drawnOn  *pixelgl.Canvas
 }
 
 func NewLayer(width float64, height float64, visible bool, scrollable ...bool) *Layout {
@@ -32,7 +42,12 @@ func NewLayer(width float64, height float64, visible bool, scrollable ...bool) *
 		height:   height,
 		position: geometry.ZeroPosition,
 		scroll:   scroll,
+		drawnOn:  pixelgl.NewCanvas(pixel.R(0, 0, width, height)),
 	}
+}
+
+func (l Layout) target() pixel.Target {
+	return l.drawnOn
 }
 
 func (l *Layout) IsUnderPosition(position geometry.Position) bool {
@@ -78,12 +93,13 @@ func (l *Layout) AddElement(drawer Canvas, relativePosition geometry.Position) {
 		}
 	}
 
-	drawer.ChangePosition(l.position.Add(relativePosition))
+	drawer.ChangePosition(relativePosition)
 	l.elements = append(l.elements, drawer)
 }
 
 func (l *Layout) Clear() {
 	l.elements = nil
+	l.drawnOn.Clear(color.Transparent)
 }
 
 func (l Layout) Width() float64 {
@@ -95,35 +111,21 @@ func (l Layout) Height() float64 {
 }
 
 func (l *Layout) ChangePosition(position geometry.Position) {
-	previousPosition := l.position
 	l.position = position
-
-	for _, element := range l.elements {
-		element.ChangePosition(element.Position().Subtract(previousPosition).Add(position))
-	}
 }
 
 func (l Layout) Position() geometry.Position {
 	return l.position
 }
 
-func (l Layout) CanFullyFit(element Canvas) bool {
-	// element is placed left from the l
-	if l.Position().X() > element.Position().X() {
-		return false
-	}
-
-	// element is not fitting on l width
-	if l.Position().X()+l.Width() < element.Position().X()+element.Width() {
+func (l Layout) intersects(element Canvas) bool {
+	// element is placed from left or right side from layer
+	if element.Position().X()+element.Width() < 0 || element.Position().X() > l.Width() {
 		return false
 	}
 
 	// element is placed below the l
-	if l.Position().Y() > element.Position().Y() {
-		return false
-	}
-
-	if l.Position().Y()+l.Height() < element.Position().Y()+element.Height() {
+	if element.Position().Y()+element.Height() < 0 || element.Position().Y() > l.Height() {
 		return false
 	}
 
@@ -169,4 +171,30 @@ func (l *Layout) EmitVerticalScroll(vector float64) bool {
 	}
 
 	return true
+}
+
+func (l *Layout) Draw(on Layer) {
+	if !l.IsVisible() {
+		return
+	}
+
+	l.drawnOn.Clear(color.Transparent)
+
+	for _, element := range l.Elements() {
+		if !element.IsVisible() || !l.intersects(element) {
+			continue
+		}
+
+		element.Draw(l)
+	}
+
+	fromLeftBottomCorner := geometry.NewPosition(
+		l.Width()/2+l.Position().X(),
+		l.Height()/2+l.Position().Y(),
+	)
+
+	l.drawnOn.Draw(on.target(), pixel.IM.Moved(pixel.Vec{
+		X: fromLeftBottomCorner.X(),
+		Y: fromLeftBottomCorner.Y(),
+	}))
 }

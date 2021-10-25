@@ -1,7 +1,7 @@
-package gui
+package graphics
 
 /*
-func highlightElement(drawer graphics.Canvas, window *graphics.Window) {
+func highlightElement(drawer Canvas, layer Layer) {
 	imd := imdraw.New(nil)
 	imd.Color = pixel.RGB(0, 0, 0)
 	// ↑
@@ -15,9 +15,8 @@ func highlightElement(drawer graphics.Canvas, window *graphics.Window) {
 	imd.Push(pixel.V(drawer.Position().X(), drawer.Position().Y()))
 
 	imd.Rectangle(1)
-	imd.Draw(window.window)
+	imd.Draw(layer.target())
 }
-
 
 var memstats runtime.MemStats
 

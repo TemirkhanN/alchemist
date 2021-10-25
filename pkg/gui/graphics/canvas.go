@@ -21,6 +21,7 @@ type Canvas interface {
 	Position() geometry.Position
 	IsUnderPosition(position geometry.Position) bool
 	ChangePosition(position geometry.Position)
+	Draw(on Layer)
 }
 
 type CommonCanvas struct {
@@ -84,18 +85,18 @@ func (canvas SpriteCanvas) Sprite() *Sprite {
 }
 
 func (canvas SpriteCanvas) IsUnderPosition(position geometry.Position) bool {
-	buttonWidth := canvas.sprite.Width()
-	buttonHeight := canvas.sprite.Height()
+	width := canvas.sprite.Width()
+	height := canvas.sprite.Height()
 
 	bottomLeftX := canvas.position.X()
 	bottomLeftY := canvas.position.Y()
-	topRightX := canvas.position.X() + buttonWidth
-	topRightY := canvas.position.Y() + buttonHeight
+	topRightX := canvas.position.X() + width
+	topRightY := canvas.position.Y() + height
 
 	posX := position.X()
 	posY := position.Y()
 
-	if (posX > bottomLeftX && posX < topRightX) && (posY > bottomLeftY && posY < topRightY) {
+	if (posX >= bottomLeftX && posX <= topRightX) && (posY >= bottomLeftY && posY <= topRightY) {
 		return true
 	}
 
@@ -180,10 +181,32 @@ func (canvas *TextCanvas) AddLineBreaks() {
 	canvas.text = strings.Join(parts, " ")
 }
 
-func (canvas TextCanvas) Draw(in *Window, position geometry.Position) {
-	basicTxt := text.New(pixel.V(position.X(), position.Y()), canvas.font.atlas)
+func (canvas TextCanvas) Draw(on Layer) {
+	if !canvas.IsVisible() {
+		return
+	}
+
+	textPosition := canvas.Position().Add(geometry.NewPosition(0, canvas.Height()-canvas.Height()))
+
+	basicTxt := text.New(pixel.V(textPosition.X(), textPosition.Y()), canvas.font.atlas)
 
 	fmt.Fprintln(basicTxt, canvas.Text())
 
-	basicTxt.DrawColorMask(in.window, pixel.IM, colornames.Sienna)
+	basicTxt.DrawColorMask(on.target(), pixel.IM, colornames.Sienna)
+}
+
+func (canvas SpriteCanvas) Draw(on Layer) {
+	if !canvas.IsVisible() {
+		return
+	}
+
+	fromLeftBottomCorner := geometry.NewPosition(
+		canvas.Width()/2+canvas.Position().X(),
+		canvas.Height()/2+canvas.Position().Y(),
+	)
+
+	canvas.sprite.src.Draw(on.target(), pixel.IM.Moved(pixel.Vec{
+		X: fromLeftBottomCorner.X(),
+		Y: fromLeftBottomCorner.Y(),
+	}))
 }

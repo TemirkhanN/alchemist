@@ -37,13 +37,6 @@ func NewSprite(image image.Image) *Sprite {
 	return &Sprite{src: pixel.NewSprite(pic, pic.Bounds())}
 }
 
-func (s Sprite) Draw(in *Window, position geometry.Position) {
-	s.src.Draw(in.window, pixel.IM.Moved(pixel.Vec{
-		X: position.X(),
-		Y: position.Y(),
-	}))
-}
-
 func (s *Sprite) Width() float64 {
 	return s.src.Frame().W()
 }
