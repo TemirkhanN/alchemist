@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/gookit/event"
+	"golang.org/x/image/colornames"
 
 	"github.com/TemirkhanN/alchemist/pkg/alchemy/alchemist"
 	"github.com/TemirkhanN/alchemist/pkg/alchemy/ingredient"
@@ -97,7 +98,7 @@ func newPrimaryLayout(window *graphics.Window, player *alchemist.Alchemist) *pri
 	layout.exitButton.SetClickHandler(func() { window.Close() })
 
 	layout.effectsPreview = graphics.NewLayer(300, 270, true)
-	layout.statusText = graphics.NewTextCanvas("", tesOblivion24Font, 200)
+	layout.statusText = graphics.NewTextCanvas("", tesOblivion24Font, 200, colornames.Sienna)
 
 	layout.registerEventHandlers(player)
 
@@ -160,7 +161,12 @@ func (layout *primaryLayout) registerEventHandlers(player *alchemist.Alchemist) 
 					geometry.NewPosition(0, (effectPreviewLayout.Height()-effectCanvas.Height())/2),
 				)
 
-				descriptionCanvas := graphics.NewTextCanvas(effect.Description(), tesOblivion24Font, 225)
+				descriptionCanvas := graphics.NewTextCanvas(
+					effect.Description(),
+					tesOblivion24Font,
+					225,
+					colornames.Sienna,
+				)
 				effectPreviewLayout.AddElement(
 					descriptionCanvas,
 					geometry.NewPosition(

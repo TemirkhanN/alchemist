@@ -2,11 +2,11 @@ package graphics
 
 import (
 	"fmt"
+	"image/color"
 	"strings"
 
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/text"
-	"golang.org/x/image/colornames"
 
 	"github.com/TemirkhanN/alchemist/pkg/gui/geometry"
 )
@@ -119,11 +119,17 @@ type TextCanvas struct {
 	CommonCanvas
 	text     string
 	font     Font
+	color    color.Color
 	maxWidth float64
 }
 
-func NewTextCanvas(text string, font Font, maxWidth float64) *TextCanvas {
+func NewTextCanvas(text string, font Font, maxWidth float64, fontColor ...color.Color) *TextCanvas {
+	if len(fontColor) == 0 {
+		fontColor = append(fontColor, color.Black)
+	}
+
 	canvas := &TextCanvas{
+		color:    fontColor[0],
 		text:     text,
 		font:     font,
 		maxWidth: maxWidth,
@@ -192,7 +198,7 @@ func (canvas TextCanvas) Draw(on Layer) {
 
 	fmt.Fprintln(basicTxt, canvas.Text())
 
-	basicTxt.DrawColorMask(on.target(), pixel.IM, colornames.Sienna)
+	basicTxt.DrawColorMask(on.target(), pixel.IM, canvas.color)
 }
 
 func (canvas SpriteCanvas) Draw(on Layer) {
