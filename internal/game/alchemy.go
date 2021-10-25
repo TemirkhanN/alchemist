@@ -14,10 +14,10 @@ import (
 type primaryLayout struct {
 	initialized bool
 	activeSlot  alchemist.Slot
-	graphics    *graphics.Layer
+	graphics    *graphics.Layout
 
 	background         *graphics.SpriteCanvas
-	effectsPreview     *graphics.Layer
+	effectsPreview     *graphics.Layout
 	statusText         *graphics.TextCanvas
 	ingredientSlots    map[alchemist.Slot]graphics.Canvas
 	ingredients        map[alchemist.Slot]*ingredient.Ingredient

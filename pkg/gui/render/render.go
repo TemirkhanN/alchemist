@@ -40,7 +40,7 @@ func (cr CommonRenderer) draw(drawer graphics.Canvas, in *graphics.Window) {
 		return
 	}
 
-	layer, isLayer := drawer.(*graphics.Layer)
+	layer, isLayer := drawer.(*graphics.Layout)
 	if isLayer {
 		cr.renderLayer(*layer, in)
 
@@ -55,7 +55,7 @@ func (cr CommonRenderer) draw(drawer graphics.Canvas, in *graphics.Window) {
 	}
 }
 
-func (cr CommonRenderer) renderLayer(layer graphics.Layer, in *graphics.Window) {
+func (cr CommonRenderer) renderLayer(layer graphics.Layout, in *graphics.Window) {
 	if !layer.IsVisible() {
 		return
 	}

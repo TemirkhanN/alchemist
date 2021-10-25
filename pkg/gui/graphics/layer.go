@@ -1,6 +1,8 @@
 package graphics
 
-import "github.com/TemirkhanN/alchemist/pkg/gui/geometry"
+import (
+	"github.com/TemirkhanN/alchemist/pkg/gui/geometry"
+)
 
 type Scroll struct {
 	currentOffsetFromTop float64
@@ -8,7 +10,7 @@ type Scroll struct {
 	isAvailable          bool
 }
 
-type Layer struct {
+type Layout struct {
 	elements []Canvas
 	visible  bool
 	width    float64
@@ -17,13 +19,13 @@ type Layer struct {
 	scroll   Scroll
 }
 
-func NewLayer(width float64, height float64, visible bool, scrollable ...bool) *Layer {
+func NewLayer(width float64, height float64, visible bool, scrollable ...bool) *Layout {
 	scroll := Scroll{currentOffsetFromTop: 0, maximumOffsetFromTop: 0, isAvailable: false}
 	if len(scrollable) == 1 && scrollable[0] {
 		scroll.isAvailable = true
 	}
 
-	return &Layer{
+	return &Layout{
 		elements: nil,
 		visible:  visible,
 		width:    width,
@@ -33,14 +35,14 @@ func NewLayer(width float64, height float64, visible bool, scrollable ...bool) *
 	}
 }
 
-func (layer *Layer) IsUnderPosition(position geometry.Position) bool {
-	buttonWidth := layer.Width()
-	buttonHeight := layer.Height()
+func (l *Layout) IsUnderPosition(position geometry.Position) bool {
+	buttonWidth := l.Width()
+	buttonHeight := l.Height()
 
-	bottomLeftX := layer.position.X()
-	bottomLeftY := layer.position.Y()
-	topRightX := layer.position.X() + buttonWidth
-	topRightY := layer.position.Y() + buttonHeight
+	bottomLeftX := l.position.X()
+	bottomLeftY := l.position.Y()
+	topRightX := l.position.X() + buttonWidth
+	topRightY := l.position.Y() + buttonHeight
 
 	posX := position.X()
 	posY := position.Y()
@@ -52,84 +54,84 @@ func (layer *Layer) IsUnderPosition(position geometry.Position) bool {
 	return false
 }
 
-func (layer *Layer) Show() {
-	layer.visible = true
+func (l *Layout) Show() {
+	l.visible = true
 }
 
-func (layer *Layer) Hide() {
-	layer.visible = false
+func (l *Layout) Hide() {
+	l.visible = false
 }
 
-func (layer *Layer) IsVisible() bool {
-	return layer.visible
+func (l *Layout) IsVisible() bool {
+	return l.visible
 }
 
-func (layer *Layer) Elements() []Canvas {
-	return layer.elements
+func (l *Layout) Elements() []Canvas {
+	return l.elements
 }
 
-func (layer *Layer) AddElement(drawer Canvas, relativePosition geometry.Position) {
-	if layer.scroll.isAvailable && relativePosition.Y() < 0 {
+func (l *Layout) AddElement(drawer Canvas, relativePosition geometry.Position) {
+	if l.scroll.isAvailable && relativePosition.Y() < 0 {
 		offset := -1 * relativePosition.Y()
-		if offset > layer.scroll.maximumOffsetFromTop {
-			layer.scroll.maximumOffsetFromTop = offset
+		if offset > l.scroll.maximumOffsetFromTop {
+			l.scroll.maximumOffsetFromTop = offset
 		}
 	}
 
-	drawer.ChangePosition(layer.position.Add(relativePosition))
-	layer.elements = append(layer.elements, drawer)
+	drawer.ChangePosition(l.position.Add(relativePosition))
+	l.elements = append(l.elements, drawer)
 }
 
-func (layer *Layer) Clear() {
-	layer.elements = nil
+func (l *Layout) Clear() {
+	l.elements = nil
 }
 
-func (layer Layer) Width() float64 {
-	return layer.width
+func (l Layout) Width() float64 {
+	return l.width
 }
 
-func (layer Layer) Height() float64 {
-	return layer.height
+func (l Layout) Height() float64 {
+	return l.height
 }
 
-func (layer *Layer) ChangePosition(position geometry.Position) {
-	previousPosition := layer.position
-	layer.position = position
+func (l *Layout) ChangePosition(position geometry.Position) {
+	previousPosition := l.position
+	l.position = position
 
-	for _, element := range layer.elements {
+	for _, element := range l.elements {
 		element.ChangePosition(element.Position().Subtract(previousPosition).Add(position))
 	}
 }
 
-func (layer Layer) Position() geometry.Position {
-	return layer.position
+func (l Layout) Position() geometry.Position {
+	return l.position
 }
 
-func (layer Layer) CanFullyFit(element Canvas) bool {
-	// element is placed left from the layer
-	if layer.Position().X() > element.Position().X() {
+func (l Layout) CanFullyFit(element Canvas) bool {
+	// element is placed left from the l
+	if l.Position().X() > element.Position().X() {
 		return false
 	}
 
-	// element is not fitting on layer width
-	if layer.Position().X()+layer.Width() < element.Position().X()+element.Width() {
+	// element is not fitting on l width
+	if l.Position().X()+l.Width() < element.Position().X()+element.Width() {
 		return false
 	}
 
-	// element is placed below the layer
-	if layer.Position().Y() > element.Position().Y() {
+	// element is placed below the l
+	if l.Position().Y() > element.Position().Y() {
 		return false
 	}
 
-	if layer.Position().Y()+layer.Height() < element.Position().Y()+element.Height() {
+	if l.Position().Y()+l.Height() < element.Position().Y()+element.Height() {
 		return false
 	}
 
 	return true
 }
 
-func (layer Layer) IsScrollable() bool {
-	if !layer.visible || !layer.scroll.isAvailable {
+func (l Layout) IsScrollable() bool {
+	if !l.visible || !l.scroll.isAvailable {
 		return false
 	}
 
@@ -137,32 +139,32 @@ func (layer Layer) IsScrollable() bool {
 }
 
 // EmitVerticalScroll todo delegate to another system.
-func (layer *Layer) EmitVerticalScroll(vector float64) bool {
-	if !layer.IsScrollable() {
+func (l *Layout) EmitVerticalScroll(vector float64) bool {
+	if !l.IsScrollable() {
 		return false
 	}
 
 	// We can scroll but there is no space for that
-	if layer.scroll.maximumOffsetFromTop < layer.Height() ||
-		(layer.scroll.currentOffsetFromTop <= 0 && vector > 0) ||
-		(layer.scroll.currentOffsetFromTop >= layer.scroll.maximumOffsetFromTop && vector < 0) {
+	if l.scroll.maximumOffsetFromTop < l.Height() ||
+		(l.scroll.currentOffsetFromTop <= 0 && vector > 0) ||
+		(l.scroll.currentOffsetFromTop >= l.scroll.maximumOffsetFromTop && vector < 0) {
 		return true
 	}
 
-	layer.scroll.currentOffsetFromTop -= vector
+	l.scroll.currentOffsetFromTop -= vector
 
-	if layer.scroll.currentOffsetFromTop < 0 {
-		vector = layer.scroll.currentOffsetFromTop
-		layer.scroll.currentOffsetFromTop = 0
+	if l.scroll.currentOffsetFromTop < 0 {
+		vector = l.scroll.currentOffsetFromTop
+		l.scroll.currentOffsetFromTop = 0
 	}
 
-	if layer.scroll.maximumOffsetFromTop < layer.scroll.currentOffsetFromTop {
-		vector = layer.scroll.maximumOffsetFromTop - layer.scroll.currentOffsetFromTop
-		layer.scroll.currentOffsetFromTop = layer.scroll.maximumOffsetFromTop
+	if l.scroll.maximumOffsetFromTop < l.scroll.currentOffsetFromTop {
+		vector = l.scroll.maximumOffsetFromTop - l.scroll.currentOffsetFromTop
+		l.scroll.currentOffsetFromTop = l.scroll.maximumOffsetFromTop
 	}
 
 	offset := geometry.NewPosition(0, vector)
-	for _, element := range layer.elements {
+	for _, element := range l.elements {
 		element.ChangePosition(element.Position().Subtract(offset))
 	}
 

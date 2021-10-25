@@ -13,7 +13,7 @@ import (
 
 type backpackLayout struct {
 	initialized     bool
-	graphics        *graphics.Layer
+	graphics        *graphics.Layout
 	background      *graphics.SpriteCanvas
 	ingredientsBtns []*graphics.Button
 	closeButton     *graphics.Button

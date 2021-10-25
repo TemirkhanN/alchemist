@@ -19,7 +19,7 @@ type WindowConfig struct {
 }
 
 type Window struct {
-	graphics    *Layer
+	graphics    *Layout
 	window      *pixelgl.Window
 	scrollSpeed float64
 	debugMode   bool
@@ -83,7 +83,7 @@ func (w Window) Height() float64 {
 	return w.graphics.Height()
 }
 
-func (w *Window) AddLayer(layer *Layer, position geometry.Position) {
+func (w *Window) AddLayer(layer *Layout, position geometry.Position) {
 	w.graphics.AddElement(layer, position)
 }
 
@@ -126,7 +126,7 @@ func (w *Window) StartFrame() {
 	}
 }
 
-func (w *Window) handleVerticalScroll(layer *Layer, cursorPosition geometry.Position, vector pixel.Vec) bool {
+func (w *Window) handleVerticalScroll(layer *Layout, cursorPosition geometry.Position, vector pixel.Vec) bool {
 	if vector.Y == 0 {
 		return true
 	}
@@ -143,7 +143,7 @@ func (w *Window) handleVerticalScroll(layer *Layer, cursorPosition geometry.Posi
 			continue
 		}
 
-		childElement, isLayer := element.(*Layer)
+		childElement, isLayer := element.(*Layout)
 		if isLayer && childElement.IsUnderPosition(cursorPosition) {
 			if w.handleVerticalScroll(childElement, cursorPosition, vector) {
 				return true
