@@ -7,14 +7,15 @@ import (
 	"github.com/TemirkhanN/alchemist/assets"
 	"github.com/TemirkhanN/alchemist/pkg/alchemy/alchemist"
 	"github.com/TemirkhanN/alchemist/pkg/alchemy/ingredient"
+	"github.com/TemirkhanN/alchemist/pkg/gui"
 	"github.com/TemirkhanN/alchemist/pkg/gui/geometry"
 	"github.com/TemirkhanN/alchemist/pkg/gui/graphics"
 	"github.com/TemirkhanN/alchemist/pkg/gui/render"
 )
 
 var (
-	gameAssets = func() *graphics.Assets {
-		loadedAssets := new(graphics.Assets)
+	gameAssets = func() *gui.Assets {
+		loadedAssets := new(gui.Assets)
 		err := loadedAssets.RegisterAssets("sprites", assets.SpritesFs)
 		if err != nil {
 			log.Fatal(err)

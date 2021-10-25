@@ -1,6 +1,8 @@
 package graphics
 
 import (
+	"image"
+
 	"github.com/faiface/pixel"
 
 	"github.com/TemirkhanN/alchemist/pkg/gui/geometry"
@@ -27,6 +29,12 @@ func (f FrameSize) Height() float64 {
 
 type Sprite struct {
 	src *pixel.Sprite
+}
+
+func NewSprite(image image.Image) *Sprite {
+	pic := pixel.PictureDataFromImage(image)
+
+	return &Sprite{src: pixel.NewSprite(pic, pic.Bounds())}
 }
 
 func (s Sprite) Draw(in *Window, position geometry.Position) {
