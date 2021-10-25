@@ -76,7 +76,7 @@ func (layer *Layer) AddElement(drawer Canvas, relativePosition geometry.Position
 		}
 	}
 
-	drawer.setPosition(layer.position.Add(relativePosition))
+	drawer.ChangePosition(layer.position.Add(relativePosition))
 	layer.elements = append(layer.elements, drawer)
 }
 
@@ -92,12 +92,12 @@ func (layer Layer) Height() float64 {
 	return layer.height
 }
 
-func (layer *Layer) setPosition(position geometry.Position) {
+func (layer *Layer) ChangePosition(position geometry.Position) {
 	previousPosition := layer.position
 	layer.position = position
 
 	for _, element := range layer.elements {
-		element.setPosition(element.Position().Subtract(previousPosition).Add(layer.position))
+		element.ChangePosition(element.Position().Subtract(previousPosition).Add(position))
 	}
 }
 
@@ -163,7 +163,7 @@ func (layer *Layer) EmitVerticalScroll(vector float64) bool {
 
 	offset := geometry.NewPosition(0, vector)
 	for _, element := range layer.elements {
-		element.setPosition(element.Position().Subtract(offset))
+		element.ChangePosition(element.Position().Subtract(offset))
 	}
 
 	return true

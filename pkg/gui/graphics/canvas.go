@@ -20,7 +20,7 @@ type Canvas interface {
 	Elements() []Canvas
 	Position() geometry.Position
 	IsUnderPosition(position geometry.Position) bool
-	setPosition(position geometry.Position)
+	ChangePosition(position geometry.Position)
 }
 
 type CommonCanvas struct {
@@ -52,7 +52,7 @@ func (canvas CommonCanvas) Position() geometry.Position {
 	return canvas.position
 }
 
-func (canvas *CommonCanvas) setPosition(position geometry.Position) {
+func (canvas *CommonCanvas) ChangePosition(position geometry.Position) {
 	canvas.position = position
 }
 
