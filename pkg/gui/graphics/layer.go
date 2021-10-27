@@ -29,7 +29,7 @@ type Layout struct {
 	drawnOn  *pixelgl.Canvas
 }
 
-func NewLayer(width float64, height float64, visible bool, scrollable ...bool) *Layout {
+func NewLayout(width float64, height float64, visible bool, scrollable ...bool) *Layout {
 	scroll := Scroll{currentOffsetFromTop: 0, maximumOffsetFromTop: 0, isAvailable: false}
 	if len(scrollable) == 1 && scrollable[0] {
 		scroll.isAvailable = true
@@ -85,15 +85,20 @@ func (l *Layout) Elements() []Canvas {
 	return l.elements
 }
 
-func (l *Layout) AddElement(drawer Canvas, relativePosition geometry.Position) {
-	if l.scroll.isAvailable && relativePosition.Y() < 0 {
-		offset := -1 * relativePosition.Y()
-		if offset > l.scroll.maximumOffsetFromTop {
-			l.scroll.maximumOffsetFromTop = offset
+func (l *Layout) AddElement(drawer Canvas, relativePosition ...geometry.Position) {
+	position := geometry.ZeroPosition
+	if len(relativePosition) == 1 {
+		position = relativePosition[0]
+
+		if l.scroll.isAvailable && position.Y() < 0 {
+			offset := -1 * position.Y()
+			if offset > l.scroll.maximumOffsetFromTop {
+				l.scroll.maximumOffsetFromTop = offset
+			}
 		}
 	}
 
-	drawer.ChangePosition(relativePosition)
+	drawer.ChangePosition(position)
 	l.elements = append(l.elements, drawer)
 }
 

@@ -29,7 +29,7 @@ type primaryLayout struct {
 func newPrimaryLayout(window *graphics.Window, player *alchemist.Alchemist) *primaryLayout {
 	layout := new(primaryLayout)
 	layout.initialized = true
-	layout.graphics = graphics.NewLayer(window.Width(), window.Height(), true)
+	layout.graphics = graphics.NewLayout(window.Width(), window.Height(), true)
 
 	backgroundSprite := gameAssets.GetSprite("interface.alchemy")
 	addIngredientBtnSprite := gameAssets.GetSprite("btn.add-ingredient")
@@ -93,7 +93,7 @@ func newPrimaryLayout(window *graphics.Window, player *alchemist.Alchemist) *pri
 	layout.exitButton = graphics.NewButton(exitBtnSprite)
 	layout.exitButton.SetClickHandler(func() { window.Close() })
 
-	layout.effectsPreview = graphics.NewLayer(300, 270, true)
+	layout.effectsPreview = graphics.NewLayout(300, 270, true)
 	layout.statusText = graphics.NewTextCanvas("", tesOblivion24Font, 200, colornames.Sienna)
 
 	layout.registerEventHandlers(player)
@@ -149,7 +149,7 @@ func (layout *primaryLayout) registerEventHandlers(player *alchemist.Alchemist) 
 
 			maximumAvailableAmountOfEffects := 4
 			for order, effect := range potion.Effects() {
-				effectPreviewLayout := graphics.NewLayer(260, 50, true)
+				effectPreviewLayout := graphics.NewLayout(260, 50, true)
 
 				effectCanvas := graphics.NewSpriteCanvas(gameAssets.GetSprite(effect.Name()).Frame(potionEffectFrameSize))
 				effectPreviewLayout.AddElement(
@@ -196,7 +196,7 @@ func (layout *primaryLayout) render() {
 	}
 
 	layout.graphics.Clear()
-	layout.graphics.AddElement(layout.background, geometry.ZeroPosition)
+	layout.graphics.AddElement(layout.background)
 	layout.graphics.AddElement(layout.effectsPreview, geometry.NewPosition(550, 180))
 	layout.graphics.AddElement(layout.statusText, geometry.NewPosition(180, 600))
 

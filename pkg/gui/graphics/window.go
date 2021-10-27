@@ -59,7 +59,7 @@ func NewWindow(preset WindowConfig) *Window {
 
 	window := &Window{
 		window:      w,
-		graphics:    NewLayer(preset.Width, preset.Height, true),
+		graphics:    NewLayout(preset.Width, preset.Height, true),
 		scrollSpeed: scrollSpeed,
 		debugMode:   preset.DebugMode,
 	}

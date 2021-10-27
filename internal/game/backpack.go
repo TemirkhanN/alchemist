@@ -35,7 +35,7 @@ func newBackpackLayout(window *graphics.Window, player *alchemist.Alchemist) *ba
 	closeButtonSprite := gameAssets.GetSprite("btn.exit")
 	ingredientsLayoutSprite := gameAssets.GetSprite("interface.ingredients")
 
-	layout.graphics = graphics.NewLayer(window.Width(), window.Height(), false)
+	layout.graphics = graphics.NewLayout(window.Width(), window.Height(), false)
 	layout.background = graphics.NewSpriteCanvas(ingredientsLayoutSprite)
 
 	layout.closeButton = graphics.NewButton(closeButtonSprite)
@@ -52,10 +52,10 @@ func newBackpackLayout(window *graphics.Window, player *alchemist.Alchemist) *ba
 
 func (layout *backpackLayout) render() {
 	layout.graphics.Clear()
-	layout.graphics.AddElement(layout.background, geometry.ZeroPosition)
+	layout.graphics.AddElement(layout.background)
 
-	ingredientsLayer := graphics.NewLayer(480, 465, true, true)
-	ingredientEffectsLayer := graphics.NewLayer(238, 220, false)
+	ingredientsLayer := graphics.NewLayout(480, 465, true, true)
+	ingredientEffectsLayer := graphics.NewLayout(238, 220, false)
 	ingredientsEffectsLayerBackground := graphics.NewSpriteCanvas(gameAssets.GetSprite("interface.effects"))
 
 	layout.ingredientsBtns = nil
@@ -83,7 +83,7 @@ func (layout *backpackLayout) render() {
 			return func() {
 				lastHoveredIngredient = hovered.Name()
 				ingredientEffectsLayer.Clear()
-				ingredientEffectsLayer.AddElement(ingredientsEffectsLayerBackground, geometry.ZeroPosition)
+				ingredientEffectsLayer.AddElement(ingredientsEffectsLayerBackground)
 				posY := ingredientEffectsLayer.Height()
 				for _, effect := range layout.alchemist.DetermineEffects(hovered) {
 					posY -= 55
