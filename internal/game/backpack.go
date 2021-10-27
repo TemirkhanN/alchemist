@@ -39,7 +39,7 @@ func newBackpackLayout(window *graphics.Window, player *alchemist.Alchemist) *ba
 	layout.background = graphics.NewSpriteCanvas(ingredientsLayoutSprite)
 
 	layout.closeButton = graphics.NewButton(closeButtonSprite)
-	layout.closeButton.SetClickHandler(func() { layout.graphics.Hide() })
+	layout.closeButton.SetClickHandler(func(geometry.Position) { layout.graphics.Hide() })
 
 	event.On(eventAddIngredientButtonClicked, event.ListenerFunc(func(e event.Event) error {
 		layout.render()
@@ -67,8 +67,8 @@ func (layout *backpackLayout) render() {
 		}
 
 		ingredientBtn := graphics.NewButton(getIngredientSprite(*ingr))
-		ingredientBtn.SetClickHandler(func(selected *ingredient.Ingredient) func() {
-			return func() {
+		ingredientBtn.SetClickHandler(func(selected *ingredient.Ingredient) func(geometry.Position) {
+			return func(geometry.Position) {
 				// todo potentially vulnerable for mistake on main(mortar) side
 				layout.graphics.Hide()
 				err := event.TriggerEvent(&ingredientSelected{ingredient: selected, BasicEvent: event.BasicEvent{}})

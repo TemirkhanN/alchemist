@@ -37,25 +37,25 @@ func newPrimaryLayout(window *graphics.Window, player *alchemist.Alchemist) *pri
 	exitBtnSprite := gameAssets.GetSprite("btn.exit")
 
 	button1 := graphics.NewButton(addIngredientBtnSprite)
-	button1.SetClickHandler(func() {
+	button1.SetClickHandler(func(geometry.Position) {
 		layout.activeSlot = alchemist.FirstSlot
 		newAddIngredientButtonClickedEvent(layout.activeSlot)
 	})
 
 	button2 := graphics.NewButton(addIngredientBtnSprite)
-	button2.SetClickHandler(func() {
+	button2.SetClickHandler(func(geometry.Position) {
 		layout.activeSlot = alchemist.SecondSlot
 		newAddIngredientButtonClickedEvent(layout.activeSlot)
 	})
 
 	button3 := graphics.NewButton(addIngredientBtnSprite)
-	button3.SetClickHandler(func() {
+	button3.SetClickHandler(func(geometry.Position) {
 		layout.activeSlot = alchemist.ThirdSlot
 		newAddIngredientButtonClickedEvent(layout.activeSlot)
 	})
 
 	button4 := graphics.NewButton(addIngredientBtnSprite)
-	button4.SetClickHandler(func() {
+	button4.SetClickHandler(func(geometry.Position) {
 		layout.activeSlot = alchemist.FourthSlot
 		newAddIngredientButtonClickedEvent(layout.activeSlot)
 	})
@@ -74,7 +74,7 @@ func newPrimaryLayout(window *graphics.Window, player *alchemist.Alchemist) *pri
 	layout.ingredients = make(map[alchemist.Slot]*ingredient.Ingredient, 4)
 
 	layout.createPotionButton = graphics.NewButton(createPotionBtnSprite)
-	layout.createPotionButton.SetClickHandler(func() {
+	layout.createPotionButton.SetClickHandler(func(geometry.Position) {
 		if !player.CanStartBrewing() {
 			return
 		}
@@ -91,7 +91,7 @@ func newPrimaryLayout(window *graphics.Window, player *alchemist.Alchemist) *pri
 	})
 
 	layout.exitButton = graphics.NewButton(exitBtnSprite)
-	layout.exitButton.SetClickHandler(func() { window.Close() })
+	layout.exitButton.SetClickHandler(func(geometry.Position) { window.Close() })
 
 	layout.effectsPreview = graphics.NewLayout(300, 270, true)
 	layout.statusText = graphics.NewTextCanvas("", tesOblivion24Font, 200, colornames.Sienna)
@@ -110,7 +110,7 @@ func (layout *primaryLayout) registerEventHandlers(player *alchemist.Alchemist) 
 
 		selectedIngredientButton := graphics.NewButton(getIngredientSprite(*actualEvent.ingredient))
 		selectedSlot := layout.activeSlot
-		selectedIngredientButton.SetClickHandler(func() {
+		selectedIngredientButton.SetClickHandler(func(geometry.Position) {
 			layout.activeSlot = selectedSlot
 
 			player.DiscardIngredients()

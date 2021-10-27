@@ -167,7 +167,7 @@ func (w *Window) handleLeftClick(element Canvas, clickedPosition geometry.Positi
 	interactiveElement, isInteractiveElement := element.(InteractiveCanvas)
 	if isInteractiveElement {
 		if interactiveElement.IsUnderPosition(clickedPosition) {
-			interactiveElement.EmitClick()
+			interactiveElement.EmitClick(clickedPosition)
 
 			return true
 		}

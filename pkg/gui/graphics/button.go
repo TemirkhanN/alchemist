@@ -5,8 +5,8 @@ import (
 )
 
 type InteractiveCanvas interface {
-	EmitClick()
-	SetClickHandler(func())
+	EmitClick(position geometry.Position)
+	SetClickHandler(func(position geometry.Position))
 	EmitMouseOver()
 	SetMouseOverHandler(func())
 	EmitMouseOut()
@@ -16,7 +16,7 @@ type InteractiveCanvas interface {
 
 type Button struct {
 	SpriteCanvas
-	onclickFn     func()
+	onclickFn     func(position geometry.Position)
 	onmouseoverFn func()
 	onmouseoutFn  func()
 	hovered       bool
@@ -38,13 +38,13 @@ func NewButton(sprite *Sprite) *Button {
 	}
 }
 
-func (b *Button) SetClickHandler(handler func()) {
+func (b *Button) SetClickHandler(handler func(position geometry.Position)) {
 	b.onclickFn = handler
 }
 
-func (b *Button) EmitClick() {
+func (b *Button) EmitClick(position geometry.Position) {
 	if b.onclickFn != nil {
-		b.onclickFn()
+		b.onclickFn(position)
 	}
 }
 
