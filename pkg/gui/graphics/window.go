@@ -72,10 +72,11 @@ func (w Window) target() pixel.Target {
 }
 
 func (w Window) Draw() {
+	w.FillWithColor(color.Transparent)
 	w.graphics.Draw(w)
 }
 
-func (w Window) FillWithColor(color color.RGBA) {
+func (w Window) FillWithColor(color color.Color) {
 	w.window.Clear(color)
 }
 
