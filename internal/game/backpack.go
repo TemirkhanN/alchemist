@@ -24,10 +24,6 @@ type backpackLayout struct {
 
 func newBackpackLayout(window *graphics.Window, player *alchemist.Alchemist) *backpackLayout {
 	layout := new(backpackLayout)
-	if layout.initialized {
-		log.Fatal("can not initialize layout more than one time")
-	}
-
 	layout.initialized = true
 	layout.alchemist = player
 

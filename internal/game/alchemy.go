@@ -28,10 +28,6 @@ type primaryLayout struct {
 
 func newPrimaryLayout(window *graphics.Window, player *alchemist.Alchemist) *primaryLayout {
 	layout := new(primaryLayout)
-	if layout.initialized {
-		log.Fatal("can not initialize layout more than one time")
-	}
-
 	layout.initialized = true
 	layout.graphics = graphics.NewLayer(window.Width(), window.Height(), true)
 
